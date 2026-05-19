@@ -1,0 +1,64 @@
+<div class="login-container">
+
+  <!-- LEFT -->
+  <div class="login-left">
+
+    <div class="avatar">
+      <img src="assets/avatar.jpg" alt="avatar">
+      <span class="status online"></span>
+    </div>
+
+    <!-- 🔥 FORM CORRIGÉ -->
+    <form (ngSubmit)="onLogin()">
+
+      <!-- ✅ INPUTS AVEC ngModel -->
+      <input 
+        type="email" 
+        [(ngModel)]="email" 
+        name="email" 
+        placeholder="Email"
+        required
+      >
+
+      <input 
+        type="password" 
+        [(ngModel)]="password" 
+        name="password" 
+        placeholder="Password"
+        required
+      >
+
+      <!-- ✅ BOUTON LOGIN -->
+      <button type="submit">LOGIN</button>
+
+      <p class="register-text">
+        Vous n'avez pas de compte ?
+      </p>
+
+      <!-- ⚠️ IMPORTANT : type="button -->
+      <button type="button" (click)="goToRegister()">
+        Créer un compte
+      </button>
+
+      <div class="options">
+        <label>
+          <input type="checkbox"> Remember me
+        </label>
+        <a href="#">Mot de passe oublié ?</a>
+      </div>
+
+    </form>
+
+    <div class="dots">
+      <span></span><span></span><span></span>
+    </div>
+
+  </div>
+
+  <!-- RIGHT -->
+  <div class="login-right">
+    <div class="overlay"></div>
+    <img src="assets/logo2.png" alt="logo">
+  </div>
+
+</div>

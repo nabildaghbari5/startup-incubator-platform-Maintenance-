@@ -1,0 +1,1475 @@
+<div class="inc-layout" [class.sidebar-collapsed]="!sidebarOpen">
+
+  <!-- ══ SIDEBAR ══ -->
+  <aside class="sidebar" [class.collapsed]="!sidebarOpen">
+    <div class="sb-logo">
+      <div class="sb-logo-mark">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5">
+          <path d="M12 2L2 7l10 5 10-5-10-5z" />
+          <path d="M2 17l10 5 10-5" />
+          <path d="M2 12l10 5 10-5" />
+        </svg>
+      </div>
+      <span class="sb-logo-text">S2T</span>
+      <span class="sb-logo-badge">Incubateur</span>
+    </div>
+    <nav class="sb-nav">
+      <div class="sb-section">Espace</div>
+      <button class="nav-item" [class.active]="page==='Tableau de board'" (click)="go('Tableau de board')">
+        <span class="ni-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <rect x="3" y="3" width="7" height="7" rx="1" />
+            <rect x="14" y="3" width="7" height="7" rx="1" />
+            <rect x="14" y="14" width="7" height="7" rx="1" />
+            <rect x="3" y="14" width="7" height="7" rx="1" />
+          </svg></span>
+        <span class="ni-label">Tableau de board</span>
+      </button>
+      <button class="nav-item" [class.active]="page==='startups'" (click)="go('startups')">
+        <span class="ni-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+          </svg></span>
+        <span class="ni-label">Projets</span>
+      </button>
+
+      <button class="nav-item" [class.active]="page==='programme'" (click)="go('programme')">
+        <span class="ni-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <rect x="3" y="4" width="18" height="18" rx="2" />
+            <line x1="16" y1="2" x2="16" y2="6" />
+            <line x1="8" y1="2" x2="8" y2="6" />
+            <line x1="3" y1="10" x2="21" y2="10" />
+          </svg></span>
+        <span class="ni-label">Programme</span>
+      </button>
+      <button class="nav-item" [class.active]="page==='documents'" (click)="go('documents')">
+        <span class="ni-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <polyline points="14 2 14 8 20 8" />
+          </svg></span>
+        <span class="ni-label">Documents</span>
+      </button>
+      <button class="nav-item" [class.active]="page==='evaluations'" (click)="go('evaluations')">
+        <span class="ni-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+          </svg></span>
+        <span class="ni-label">Satisfactions</span>
+      </button>
+      <button class="nav-item" [class.active]="page==='analytics'" (click)="go('analytics')">
+        <span class="ni-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <rect x="2" y="2" width="20" height="20" rx="2" />
+            <line x1="8" y1="16" x2="8" y2="12" />
+            <line x1="12" y1="16" x2="12" y2="8" />
+            <line x1="16" y1="16" x2="16" y2="10" />
+          </svg></span>
+        <span class="ni-label">Analytics</span>
+      </button>
+      <button class="nav-item" [class.active]="page==='messages'" (click)="go('messages')">
+        <span class="ni-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+          </svg></span>
+        <span class="ni-label">Messagerie</span>
+        <span class="ni-badge" *ngIf="unreadCount>0">{{ unreadCount }}</span>
+      </button>
+      <button class="nav-item" [class.active]="page==='profil'" (click)="go('profil')">
+        <span class="ni-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+            <circle cx="12" cy="7" r="4" />
+          </svg></span>
+        <span class="ni-label">Profil</span>
+      </button>
+    </nav>
+    <div class="sb-footer">
+      <div class="sb-user-inner">
+        <div class="sb-av" [style.background]="profilPhoto?'none':''"
+          [style.background-image]="profilPhoto?'url('+profilPhoto+')':''"
+          style="background-size:cover;background-position:center">
+          <span *ngIf="!profilPhoto">{{ currentUser.initials }}</span>
+        </div>
+        <div style="flex:1;min-width:0">
+          <div class="sb-user-name">{{ currentUser.name }}</div>
+          <div class="sb-user-role">{{ currentUser.role }}</div>
+        </div>
+        <button class="sb-logout-btn" (click)="logout()" title="Déconnexion">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" y1="12" x2="9" y2="12" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ══ MAIN ══ -->
+  <div class="main-wrapper">
+    <header class="topbar">
+      <div class="tb-left">
+        <button class="tb-toggle" (click)="toggleSb()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <line x1="3" y1="12" x2="21" y2="12" />
+            <line x1="3" y1="18" x2="21" y2="18" />
+          </svg>
+        </button>
+        <div class="breadcrumb">
+          <a (click)="go('Tableau de board')">S2T</a>
+          <span class="bc-sep">›</span>
+          <span class="bc-cur">{{ pageLabel }}</span>
+        </div>
+      </div>
+      <div class="tb-right">
+        <!-- Notif messages -->
+        <button class="tb-icon-btn notif-btn" (click)="go('messages')" title="Messagerie">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+          </svg>
+          <span class="notif-count" *ngIf="unreadCount>0">{{ unreadCount }}</span>
+        </button>
+        <!-- Notif satisfaction -->
+        <button class="tb-icon-btn notif-btn" title="Satisfactions en attente" *ngIf="pendingSatisfactions>0">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M8 14s1.5 2 4 2 4-2 4-2" />
+            <line x1="9" y1="9" x2="9.01" y2="9" />
+            <line x1="15" y1="9" x2="15.01" y2="9" />
+          </svg>
+          <span class="notif-count">{{ pendingSatisfactions }}</span>
+        </button>
+        <div class="tb-user-wrap">
+          <div class="tb-avatar" (click)="showUserMenu=!showUserMenu"
+            [style.background-image]="profilPhoto?'url('+profilPhoto+')':''"
+            style="background-size:cover;background-position:center">
+            <span *ngIf="!profilPhoto">{{ currentUser.initials }}</span>
+          </div>
+          <div class="user-dropdown" *ngIf="showUserMenu" (click)="$event.stopPropagation()">
+            <div class="udrop-info">
+              <div class="udrop-name">{{ currentUser.name }}</div>
+              <div class="udrop-email">{{ currentUser.email }}</div>
+            </div>
+            <div class="udrop-divider"></div>
+            <button class="udrop-item" (click)="go('profil');showUserMenu=false">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
+              Mon profil
+            </button>
+            <button class="udrop-item danger" (click)="logout()">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <polyline points="16 17 21 12 16 7" />
+                <line x1="21" y1="12" x2="9" y2="12" />
+              </svg>
+              Déconnexion
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="page-content" (click)="closeDrops()">
+
+
+
+      <!-- ══════ STARTUPS ══════ -->
+      <div *ngIf="page==='startups'" class="page-wrap">
+        <section class="page-documents">
+          <!-- ══════ STARTUPS ══════ -->
+          <div class="page-wrap">
+            <div class="ph">
+              <div>
+                <div class="back-bar"><button class="back-btn" (click)="go('Tableau de board')"><svg width="14"
+                      height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <polyline points="15 18 9 12 15 6" />
+                    </svg>Retour</button></div>
+                <div class="ph-title">Projets</div>
+              </div>
+             
+            </div>
+            <div class="card">
+              <div class="tbl-wrap">
+                <table class="tbl">
+                  <thead>
+                    <tr>
+                      <th>Porteur</th>
+                      <th>Titre</th>
+                      <th>Secteur</th>
+                      <th>Description</th>
+                      <th>Statut</th>
+                      <th>Startup Validée</th>
+                      <th>Date de soumission</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let projet of projects">
+                       <td class="porteur-cell">
+                        {{ projet.porteur.nom }}
+                      </td>
+                      <td class="titre-cell">
+                        {{ projet.titre }}
+                      </td>
+                      <td class="secteur-cell">
+                        {{ projet.secteur }}
+                      </td>
+                      <td class="description-cell">
+                        {{ projet.description }}
+                      </td>
+
+                      <td>
+                        <span class="statut-pill" [style.background]="statutProjetColor(projet.statut)">
+                          {{ projet.statut }}
+                        </span>
+                      </td>
+
+                      <td>
+
+                        <span *ngIf="projet.startupValidee; else nonValide">
+                          ✅ Oui
+                        </span>
+
+                        <ng-template #nonValide>
+                          ❌ Non
+                        </ng-template>
+
+                      </td>
+
+                      <td>
+                        {{ projet.dateSoumission | date:'dd/MM/yyyy HH:mm' }}
+                      </td>
+                      <td>
+                         <button class="ia-btn" title="Modifier" (click)="openStatusModal(projet)"><svg width="12" height="12" viewBox="0 0 24 24"
+                          fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                        </svg></button>
+                      </td>
+                    </tr>
+                    <tr *ngIf="projects.length===0">
+                      <td colspan="6" class="card-empty">Aucune startup trouvée</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+            </div>
+          </div>
+        </section>
+      </div>
+
+
+      <!-- ══ MODAL Status  FORM ══ -->
+      <!-- ══ MODAL STATUS ══ -->
+
+      <div class="overlay" *ngIf="modalStatus" (click)="closeStatusModal()">
+
+        <div class="modal md" (click)="$event.stopPropagation()">
+
+          <div class="mod-head">
+
+            <div>
+
+              <div class="mod-title">
+                Modifier le statut
+              </div>
+
+            </div>
+
+            <button class="mod-close" (click)="closeStatusModal()">
+              ✕
+            </button>
+
+          </div>
+
+          <div class="mod-body">
+
+            <div class="form">
+
+              <div class="fg">
+
+                <label>Statut</label>
+
+                <select class="status-select" [(ngModel)]="selectedStatus">
+
+
+                  <option value="EN_COURS_ANALYSE">
+                    EN COURS ANALYSE
+                  </option>
+
+                  <option value="ACCEPTE">
+                    ACCEPTE
+                  </option>
+
+                  <option value="REFUSE">
+                    REFUSE
+                  </option>
+
+                </select>
+
+              </div>
+
+            </div>
+
+          </div>
+
+          <div class="mod-foot">
+
+            <button class="btn btn-secondary" (click)="closeStatusModal()">
+              Annuler
+            </button>
+
+            <button class="btn btn-primary" (click)="changerStatutProjet()">
+              Enregistrer
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      <!-- ══════ DASHBOARD ══════ -->
+      <div *ngIf="page==='Tableau de board'" class="page-wrap">
+        <div class="ph">
+          <div>
+            <div class="ph-title">Tableau de board</div>
+            <div class="ph-sub">Bienvenue, {{ currentUser.name }} · {{ upcomingEvents.length }} événement(s) à venir
+            </div>
+          </div>
+          <div class="ph-actions">
+            <button class="btn btn-secondary btn-sm" (click)="go('programme')">Voir programme →</button>
+            <button class="btn btn-primary btn-sm" (click)="go('startups');openAdd()">+ Startup</button>
+          </div>
+        </div>
+
+        <!-- KPI: nb projets + événements -->
+        <div class="stats-grid" style="grid-template-columns:repeat(2,1fr)">
+          <div class="stat-card purple" (click)="go('startups')">
+            <div class="stat-icon">📂</div>
+            <div class="stat-body">
+              <div class="stat-value">{{ stats.totalStartups }}</div>
+              <div class="stat-label">Projets</div>
+            </div>
+          </div>
+          <div class="stat-card blue" (click)="go('programme')">
+            <div class="stat-icon">📅</div>
+            <div class="stat-body">
+              <div class="stat-value">{{ upcomingEvents.length }}</div>
+              <div class="stat-label">Prochains événements</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Prochains événements -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">📅 Prochains événements</span>
+            <a class="card-link" (click)="go('programme')">Voir tout →</a>
+          </div>
+          <div class="card-body">
+            <div class="card-empty" *ngIf="upcomingEvents.length===0">Aucun événement à venir</div>
+            <div class="ev-list" *ngIf="upcomingEvents.length>0">
+              <div class="ev-item" *ngFor="let e of upcomingEvents">
+                <div class="ev-date"><span class="ev-day">{{ e.day }}</span><span class="ev-mo">{{ e.month }}</span>
+                </div>
+                <div class="ev-body">
+                  <div class="ev-ttl">{{ e.titre }}</div>
+                  <div class="ev-time">{{ e.heureDebut }} – {{ e.heureFin }}<span *ngIf="e.lieu"> · {{ e.lieu }}</span>
+                  </div>
+                </div>
+                <span class="ev-type" [ngClass]="e.type">{{ e.typeLabel }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ══════ PROGRAMME ══════ -->
+      <div *ngIf="page==='programme'" class="page-wrap">
+        <div class="ph">
+          <div>
+            <div class="back-bar"><button class="back-btn" (click)="go('Tableau de board')"><svg width="14" height="14"
+                  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="15 18 9 12 15 6" />
+                </svg>Retour</button></div>
+            <div class="ph-title">Programme d'incubation</div>
+            <div class="ph-sub">{{ phases.length }} phases · visible chez les porteurs</div>
+          </div>
+          <div class="ph-actions">
+            <button class="btn btn-secondary btn-sm" (click)="toggleProg()">{{ programmeStatut==='actif'?'⏸
+              Désactiver':'▶ Activer' }}</button>
+            <button class="btn btn-secondary btn-sm" (click)="openEvModal()">+ Événement</button>
+            <button class="btn btn-primary btn-sm" (click)="openAddPhase()">+ Phase</button>
+          </div>
+        </div>
+
+        <div class="rdv-banner" *ngIf="upcomingRdv">
+          <span class="rdv-ic">📅</span>
+          <div class="rdv-body">
+            <div class="rdv-ttl">{{ upcomingRdv.titre }}</div>
+            <div class="rdv-sub">{{ upcomingRdv.day }} {{ upcomingRdv.month }} · {{ upcomingRdv.heureDebut }}–{{
+              upcomingRdv.heureFin }}</div>
+          </div>
+          <div class="rdv-cnt">{{ rdvDaysLeft===0?'Aujourd\'hui':'dans '+rdvDaysLeft+'j' }}</div>
+        </div>
+
+        <!-- Phases -->
+        <div class="card">
+          <div class="card-header">
+            <div style="display:flex;align-items:center;gap:10px"><span class="card-title">Phases du
+                programme</span><span class="prog-pill" [ngClass]="programmeStatut">{{
+                programmeStatut==='actif'?'Actif':'Inactif' }}</span></div>
+            <button class="btn btn-primary btn-sm" (click)="openAddPhase()">+ Phase</button>
+          </div>
+          <div class="card-body">
+            <p style="font-size:12px;color:var(--pink);margin-bottom:14px">⚡ Les porteurs voient ce programme dans leur
+              espace.</p>
+            <div class="phases-track">
+              <div class="phase-card" *ngFor="let p of phases; let i=index; trackBy:trackByPhId"
+                [style.border-top-color]="p.couleur" [class.phase-active]="i===currentPhaseIndex">
+                <div class="phase-num" [style.background]="p.couleur">{{ p.numero }}</div>
+                <div class="phase-mo">{{ p.mois }}</div>
+                <span class="phase-ic">{{ p.icone }}</span>
+                <div class="phase-ttl">{{ p.titre }}</div>
+                <div class="phase-desc">{{ p.description }}</div>
+                <div class="phase-foot">
+                  <div class="phase-nav">
+                    <button class="phase-nav-btn" [disabled]="i===0" (click)="movePhase(i,-1)">‹</button>
+                    <button class="phase-nav-btn" [disabled]="i===phases.length-1" (click)="movePhase(i,1)">›</button>
+                  </div>
+                  <div class="phase-acts">
+                    <button class="ia-btn" (click)="setActivePhase(i)" title="Définir comme active"
+                      [class.active-phase-btn]="i===currentPhaseIndex">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    </button>
+                    <button class="ia-btn" (click)="openEditPhase(p)"><svg width="11" height="11" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                      </svg></button>
+                    <button class="ia-btn danger" (click)="openDelPhase(p)"><svg width="11" height="11"
+                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6" />
+                        <path d="M19 6l-1 14H6L5 6" />
+                      </svg></button>
+                  </div>
+                </div>
+              </div>
+              <button class="phase-add" (click)="openAddPhase()">
+                <div class="phase-add-ic">+</div>Nouvelle phase
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Événements -->
+        <div class="card">
+          <div class="card-header"><span class="card-title">Événements & Rendez-vous</span><button
+              class="btn btn-primary btn-sm" (click)="openEvModal()">+ Ajouter</button></div>
+          <div class="card-body">
+            <div class="card-empty" *ngIf="allEvents.length===0">Aucun événement planifié.</div>
+            <div class="ev-list" *ngIf="allEvents.length>0">
+              <div class="ev-item ev-item-extended" *ngFor="let e of allEvents">
+                <div class="ev-date"><span class="ev-day">{{ e.day }}</span><span class="ev-mo">{{ e.month }}</span>
+                </div>
+                <div class="ev-body">
+                  <div class="ev-ttl">{{ e.titre }}</div>
+                  <div class="ev-time">{{ e.heureDebut }} – {{ e.heureFin }}<span *ngIf="e.lieu"> · {{ e.lieu }}</span>
+                  </div>
+                </div>
+                <span class="ev-type" [ngClass]="e.type">{{ e.typeLabel }}</span>
+                <!-- Satisfaction porteurs -->
+                <div class="ev-sat-info">
+                  <span class="ev-sat-count" *ngIf="getSatisfactionCount(e.id)>0">
+                    😊 {{ getSatisfactionCount(e.id) }} réponse(s) · moy. {{ getSatisfactionAvg(e.id) }}/5
+                  </span>
+                  <button class="ia-btn" (click)="voirSatisfactionsEvent(e)" title="Voir satisfactions"
+                    *ngIf="getSatisfactionCount(e.id)>0">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                      <circle cx="12" cy="12" r="3" />
+                    </svg>
+                  </button>
+                </div>
+                <button class="ia-btn danger" (click)="delEv(e.id)"><svg width="11" height="11" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3 6 5 6 21 6" />
+                    <path d="M19 6l-1 14H6L5 6" />
+                  </svg></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════ DOCUMENTS ══════ -->
+      <div *ngIf="page==='documents'" class="page-wrap">
+        <div class="ph">
+          <div>
+            <div class="back-bar"><button class="back-btn" (click)="go('Tableau de board')"><svg width="14" height="14"
+                  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="15 18 9 12 15 6" />
+                </svg>Retour</button></div>
+            <div class="ph-title">Documents</div>
+            <div class="ph-sub">{{ documents.length }} document(s)</div>
+          </div>
+        </div>
+
+        <!-- Upload -->
+        <div class="doc-upload-card" [class.doc-dragging]="isDragging"
+          (dragover)="$event.preventDefault();isDragging=true" (dragleave)="isDragging=false" (drop)="onDrop($event)">
+          <div class="doc-upload-inner">
+            <div class="doc-upload-icon-wrap"><svg width="28" height="28" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="1.8">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="17 8 12 3 7 8" />
+                <line x1="12" y1="3" x2="12" y2="15" />
+              </svg></div>
+            <div class="doc-upload-texts"><span class="doc-upload-title">Glissez vos fichiers ici</span><span
+                class="doc-upload-sub">PDF, Word, Excel, Images — max 10 MB</span></div>
+            <label class="btn btn-primary btn-sm" style="cursor:pointer">
+              ⬆ Choisir un fichier
+              <input type="file" hidden accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.gif,.zip,.rar,.txt"
+                (change)="onFileSelected($event)" />
+            </label>
+          </div>
+          <div class="doc-progress-wrap" *ngIf="isUploading">
+            <div class="doc-progress-header"><span class="doc-progress-name">{{ uploadFileName }}</span><span
+                class="doc-progress-pct">{{ uploadProgress }}%</span></div>
+            <div class="doc-progress-track">
+              <div class="doc-progress-fill" [style.width]="uploadProgress+'%'"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filtres -->
+        <div class="card">
+          <div class="card-header">
+            <div class="filter-group">
+              <button class="ftab" [class.active]="docFilter==='tous'" (click)="setDocF('tous')">Tous <span
+                  class="ftab-count">{{ documents.length }}</span></button>
+              <button class="ftab" [class.active]="docFilter==='soumis'" (click)="setDocF('soumis')">Soumis <span
+                  class="ftab-count">{{ countDocByStatut('soumis') }}</span></button>
+              <button class="ftab" [class.active]="docFilter==='valide'" (click)="setDocF('valide')">Validés <span
+                  class="ftab-count">{{ countDocByStatut('valide') }}</span></button>
+              <button class="ftab" [class.active]="docFilter==='rejete'" (click)="setDocF('rejete')">Rejetés <span
+                  class="ftab-count">{{ countDocByStatut('rejete') }}</span></button>
+            </div>
+            <div class="search-wrap">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+              <input type="text" placeholder="Rechercher..." [(ngModel)]="docSearch" (input)="filterDocuments()" />
+              <button *ngIf="docSearch" (click)="docSearch='';filterDocuments()" class="search-clear">✕</button>
+            </div>
+          </div>
+
+          <div class="doc-empty-state" *ngIf="filteredDocuments.length===0 && !isLoading">
+            <div class="doc-es-icon">📂</div>
+            <div class="doc-es-title">Aucun document</div>
+          </div>
+          <div class="doc-empty-state" *ngIf="isLoading">
+            <div class="doc-loader"></div>
+            <div class="doc-es-sub" style="margin-top:12px">Chargement...</div>
+          </div>
+
+          <div class="doc-list" *ngIf="filteredDocuments.length>0 && !isLoading">
+            <div class="doc-row" *ngFor="let d of filteredDocuments">
+              <div class="doc-type-badge" [ngClass]="getDocTypeClass(d.type)"><span class="doc-type-emoji">{{
+                  docIcon(d.type) }}</span><span class="doc-type-ext">{{ d.type }}</span></div>
+              <div class="doc-row-body">
+                <div class="doc-row-name">{{ d.nom }}</div>
+                <div class="doc-row-meta">
+                  <span *ngIf="d.startupNom && d.startupNom!=='-'" class="doc-meta-chip chip-purple">🚀 {{ d.startupNom
+                    }}</span>
+                  <span class="doc-meta-chip chip-gray">📅 {{ d.uploadedAt }}</span>
+                  <span class="doc-meta-chip chip-gray">💾 {{ d.taille }}</span>
+                </div>
+              </div>
+              <!-- Visibilité porteur -->
+              <div class="doc-visibility" title="Visible chez le porteur">
+                <label class="toggle-switch">
+                  <input type="checkbox" [checked]="d.visiblePorteur" (change)="toggleDocVisibilite(d)" />
+                  <span class="toggle-slider"></span>
+                </label>
+                <span class="toggle-label">{{ d.visiblePorteur ? '👁 Visible' : '🚫 Caché' }}</span>
+              </div>
+              <select class="doc-stat-select" [ngClass]="'dss-'+d.statut" [value]="d.statut"
+                (change)="updateDocStat(d.id, $any($event.target).value)">
+                <option value="soumis">📤 Soumis</option>
+                <option value="en_attente">⏳ En attente</option>
+                <option value="valide">✅ Validé</option>
+                <option value="rejete">❌ Rejeté</option>
+              </select>
+              <div class="doc-row-actions">
+                <button class="ia-btn" (click)="downloadDoc(d)"><svg width="13" height="13" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="7 10 12 15 17 10" />
+                    <line x1="12" y1="15" x2="12" y2="3" />
+                  </svg></button>
+                <button class="ia-btn danger" (click)="confirmDelDoc(d)"><svg width="13" height="13" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3 6 5 6 21 6" />
+                    <path d="M19 6l-1 14H6L5 6" />
+                  </svg></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════ ÉVALUATIONS / SATISFACTION ══════ -->
+      <div *ngIf="page==='evaluations'" class="page-wrap">
+        <div class="ph">
+          <div>
+            <div class="back-bar"><button class="back-btn" (click)="go('Tableau de board')"><svg width="14" height="14"
+                  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="15 18 9 12 15 6" />
+                </svg>Retour</button></div>
+            <div class="ph-title">Évaluations de satisfaction</div>
+            <div class="ph-sub">Réponses des porteurs après chaque événement</div>
+          </div>
+        </div>
+
+        <!-- Par événement -->
+        <div class="card" *ngFor="let e of allEvents">
+          <div class="card-header">
+            <div style="display:flex;align-items:center;gap:12px">
+              <div class="ev-date" style="min-width:44px"><span class="ev-day">{{ e.day }}</span><span class="ev-mo">{{
+                  e.month }}</span></div>
+              <div>
+                <div class="card-title">{{ e.titre }}</div>
+                <div style="font-size:12px;color:var(--text2)">{{ e.heureDebut }} – {{ e.heureFin }}<span
+                    *ngIf="e.lieu"> · {{ e.lieu }}</span></div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px">
+              <span *ngIf="getSatisfactionCount(e.id)>0" class="ev-sat-count">
+                {{ getSatisfactionCount(e.id) }} réponse(s) · ⭐ {{ getSatisfactionAvg(e.id) }}/5
+              </span>
+              <span *ngIf="getSatisfactionCount(e.id)===0" style="font-size:12px;color:var(--text3)">Aucune
+                réponse</span>
+              <span class="ev-type" [ngClass]="e.type">{{ e.typeLabel }}</span>
+            </div>
+          </div>
+
+          <!-- Réponses satisfaction -->
+          <div class="card-body" *ngIf="getSatisfactionCount(e.id)>0">
+            <!-- Moyenne globale -->
+            <div class="sat-avg-bar">
+              <div class="sat-avg-stars-row">
+                <span *ngFor="let i of [1,2,3,4,5]" class="star lg"
+                  [class.filled]="i<=+getSatisfactionAvg(e.id)">★</span>
+                <strong style="font-size:22px;font-weight:800;color:var(--pink);margin-left:8px">{{
+                  getSatisfactionAvg(e.id) }}</strong>
+                <span style="font-size:13px;color:var(--text2)">/5 · {{ getSatisfactionCount(e.id) }} porteur(s)</span>
+              </div>
+            </div>
+            <!-- Liste réponses -->
+            <div class="sat-responses" style="margin-top:14px">
+              <div class="sat-response-item" *ngFor="let s of getSatisfactionsForEvent(e.id)">
+                <div class="sat-resp-header">
+                  <div style="display:flex;align-items:center;gap:8px">
+                    <div class="c-av"
+                      style="width:30px;height:30px;font-size:11px;background:linear-gradient(135deg,var(--pink),var(--purple))">
+                      {{ s.porteurEmail.substring(0,2).toUpperCase() }}</div>
+                    <span class="sat-porteur">{{ s.porteurEmail }}</span>
+                  </div>
+                  <div class="sat-stars">
+                    <span *ngFor="let i of [1,2,3,4,5]" class="star" [class.filled]="i<=s.note">★</span>
+                    <strong style="color:var(--pink);margin-left:4px">{{ s.note }}/5</strong>
+                  </div>
+                </div>
+                <p class="sat-comment" *ngIf="s.commentaire">💬 {{ s.commentaire }}</p>
+                <div style="font-size:11px;color:var(--text3)">{{ s.createdAt }}</div>
+              </div>
+            </div>
+          </div>
+          <div class="card-empty" *ngIf="getSatisfactionCount(e.id)===0" style="padding:24px">
+            Aucune évaluation soumise pour cet événement.
+          </div>
+        </div>
+
+        <div class="card-empty" *ngIf="allEvents.length===0">Aucun événement créé. Créez des événements dans
+          "Programme".</div>
+      </div>
+
+      <!-- ══════ MESSAGES ══════ -->
+      <div *ngIf="page==='messages'" class="page-wrap messages-page">
+        <div class="ph" style="margin-bottom:0">
+          <div>
+            <div class="back-bar"><button class="back-btn" (click)="go('Tableau de board')"><svg width="14" height="14"
+                  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="15 18 9 12 15 6" />
+                </svg>Retour</button></div>
+            <div class="ph-title">Messagerie</div>
+          </div>
+          <button class="btn btn-primary btn-sm" (click)="openNewGroupModal()">+ Nouveau groupe</button>
+        </div>
+        <div class="msg-layout">
+          <!-- Contacts -->
+          <div class="contacts-col">
+            <div class="contacts-head"><span>Conversations</span><span>{{ contacts.length }}</span></div>
+            <div class="contacts-search">
+              <div class="search-wrap" style="width:100%">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="11" cy="11" r="8" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+                <input type="text" placeholder="Chercher..." [(ngModel)]="contactSearch" (input)="filterContacts()"
+                  style="width:100%;background:none;border:none;outline:none;font-size:13px;font-family:var(--font)" />
+              </div>
+            </div>
+            <div class="contacts-filter">
+              <button class="cf-btn" [class.on]="contactFilter==='tous'" (click)="setCF('tous')">Tous</button>
+              <button class="cf-btn" [class.on]="contactFilter==='PORTEUR'" (click)="setCF('PORTEUR')">Porteurs</button>
+              <button class="cf-btn" [class.on]="contactFilter==='EXPERT'" (click)="setCF('EXPERT')">Experts</button>
+              <button class="cf-btn" [class.on]="contactFilter==='groupe'" (click)="setCF('groupe')">Groupes</button>
+            </div>
+            <div class="contacts-list">
+              <div class="card-empty" style="padding:20px;font-size:12px" *ngIf="filteredContacts.length===0">Aucune
+                conversation</div>
+              <!-- Groupes -->
+              <div class="c-item c-item-group" *ngFor="let g of filteredGroups" [class.active]="activeGroupId===g.id"
+                (click)="selectGroup(g)">
+                <div class="c-av c-av-group">{{ g.nom.substring(0,2).toUpperCase() }}</div>
+                <div style="flex:1;min-width:0">
+                  <div class="c-name">{{ g.nom }}</div>
+                  <div class="c-email">{{ g.membres.length }} membres</div>
+                  <span class="c-role" style="color:var(--cyan)">GROUPE</span>
+                </div>
+                <div class="c-unread" *ngIf="g.unread>0">{{ g.unread }}</div>
+              </div>
+              <!-- Contacts individuels -->
+              <div class="c-item" *ngFor="let c of filteredContacts"
+                [class.active]="c.email===activeContact && !activeGroupId" (click)="selectContact(c)">
+                <!-- Avatar avec photo de profil -->
+                <div class="c-av" [style.background]="c.profilPhoto?'none':roleColor(c.role)"
+                  [style.background-image]="c.profilPhoto?'url('+c.profilPhoto+')':''"
+                  style="background-size:cover;background-position:center">
+                  <span *ngIf="!c.profilPhoto">{{ contactInitials(c) }}</span>
+                </div>
+                <div style="flex:1;min-width:0">
+                  <div class="c-name">{{ c.nom || c.email }} {{ c.prenom }}</div>
+                  <div class="c-email">{{ c.email }}</div>
+                  <span class="c-role" [style.color]="roleColor(c.role)">{{ roleLabel(c.role) }}</span>
+                </div>
+                <div class="c-unread" *ngIf="c.unread>0">{{ c.unread }}</div>
+              </div>
+            </div>
+          </div>
+          <!-- Chat -->
+          <div class="chat-col">
+            <div class="chat-empty" *ngIf="!activeContact && !activeGroupId">
+              <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+              </svg>
+              <span>Sélectionnez une conversation</span>
+            </div>
+            <ng-container *ngIf="activeContact || activeGroupId">
+              <div class="chat-head">
+                <!-- Avatar avec photo -->
+                <div class="c-av" *ngIf="activeContact"
+                  [style.background]="activeContactPhoto?'none':roleColor(activeContactRole)"
+                  [style.background-image]="activeContactPhoto?'url('+activeContactPhoto+')':''"
+                  style="background-size:cover;background-position:center">
+                  <span *ngIf="!activeContactPhoto">{{ activeContactNom.substring(0,2).toUpperCase() }}</span>
+                </div>
+                <div class="c-av c-av-group" *ngIf="activeGroupId">{{ activeGroupNom.substring(0,2).toUpperCase() }}
+                </div>
+                <div style="flex:1">
+                  <div class="chat-head-name">{{ activeGroupId ? activeGroupNom : activeContactNom }}</div>
+                  <div class="chat-head-role" [style.color]="activeGroupId?'var(--cyan)':roleColor(activeContactRole)">
+                    {{ activeGroupId ? activeGroupMembers : roleLabel(activeContactRole) }}
+                  </div>
+                </div>
+                <!-- Actions groupe -->
+                <button class="ia-btn" *ngIf="activeGroupId" (click)="openEditGroupModal()" title="Gérer le groupe">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="3" />
+                    <path
+                      d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                  </svg>
+                </button>
+                <button class="ia-btn danger" *ngIf="activeContact" (click)="deleteConversation()" title="Supprimer">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3 6 5 6 21 6" />
+                    <path d="M19 6l-1 14H6L5 6" />
+                  </svg>
+                </button>
+              </div>
+              <div class="chat-msgs">
+                <div class="chat-empty-conv" *ngIf="messages.length===0">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                  </svg>
+                  <span>Commencez la conversation</span>
+                </div>
+                <div *ngFor="let m of messages" class="msg" [class.mine]="isMine(m)" [class.theirs]="!isMine(m)">
+                  <!-- Photo de profil dans les messages -->
+                  <div class="msg-avatar" *ngIf="!isMine(m)">
+                    <div class="msg-av"
+                      [style.background-image]="getSenderPhoto(m.sender)?'url('+getSenderPhoto(m.sender)+')':''"
+                      [style.background]="getSenderPhoto(m.sender)?'none':'var(--pink)'"
+                      style="background-size:cover;background-position:center">
+                      <span *ngIf="!getSenderPhoto(m.sender)">{{ m.sender.substring(0,2).toUpperCase() }}</span>
+                    </div>
+                  </div>
+                  <div class="msg-content">
+                    <div class="msg-sender-name" *ngIf="activeGroupId && !isMine(m)">{{ m.sender }}</div>
+                    <div class="msg-txt">{{ m.content }}</div>
+                    <div class="msg-time">{{ m.sentAt }}</div>
+                  </div>
+                </div>
+              </div>
+              <div class="chat-input">
+                <input type="text" [(ngModel)]="newMessage" (keyup.enter)="sendMsg()"
+                  placeholder="Écrire un message..." />
+                <button class="chat-send" (click)="sendMsg()" [disabled]="!newMessage.trim()">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="22" y1="2" x2="11" y2="13" />
+                    <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                  </svg>
+                </button>
+              </div>
+            </ng-container>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════ ANALYTICS ══════ -->
+      <div *ngIf="page==='analytics'" class="page-wrap">
+        <div class="ph">
+          <div>
+            <div class="back-bar"><button class="back-btn" (click)="go('Tableau de board')"><svg width="14" height="14"
+                  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="15 18 9 12 15 6" />
+                </svg>Retour</button></div>
+            <div class="ph-title">Analytics — Dashboard décisionnel</div>
+            <div class="ph-sub">Intégration Power BI · Visualisez vos données en temps réel</div>
+          </div>
+          <div class="ph-actions">
+            <button class="btn btn-secondary btn-sm" (click)="openPowerBiConfig()">⚙️ Configurer Power BI</button>
+            <a *ngIf="powerBiUrl" [href]="powerBiUrl" target="_blank" class="btn btn-primary btn-sm">↗ Plein écran</a>
+          </div>
+        </div>
+
+        <!-- Power BI configuré -->
+        <div class="card pbi-full-card" *ngIf="powerBiUrl">
+          <div class="card-header">
+            <span class="card-title">📊 Rapport Power BI</span>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span class="prog-pill actif">Connecté</span>
+              <button class="btn btn-secondary btn-sm" (click)="openPowerBiConfig()">⚙️ Modifier</button>
+              <a [href]="powerBiUrl" target="_blank" class="btn btn-primary btn-sm">↗ Plein écran</a>
+            </div>
+          </div>
+          <div class="pbi-container">
+            <iframe [src]="powerBiUrl | safe" allowFullScreen="true" class="pbi-iframe"
+              [style.height]="powerBiHeight+'px'"></iframe>
+          </div>
+        </div>
+
+        <!-- Power BI non configuré -->
+        <div class="card" *ngIf="!powerBiUrl">
+          <div class="pbi-empty" style="padding:80px 20px">
+            <div style="font-size:64px;margin-bottom:8px">📊</div>
+            <div style="font-size:20px;font-weight:800;color:var(--text);margin-bottom:8px">Dashboard Power BI</div>
+            <div
+              style="font-size:13px;color:var(--text2);max-width:400px;text-align:center;line-height:1.6;margin-bottom:24px">
+              Connectez votre rapport Power BI pour visualiser vos KPIs, l'évolution des startups et les statistiques
+              d'incubation en temps réel.
+            </div>
+            <div class="pbi-steps">
+              <div class="pbi-step">
+                <div class="pbi-step-num">1</div>
+                <div class="pbi-step-txt">Ouvrez Power BI → Votre rapport</div>
+              </div>
+              <div class="pbi-step">
+                <div class="pbi-step-num">2</div>
+                <div class="pbi-step-txt">Fichier → Publier sur le web</div>
+              </div>
+              <div class="pbi-step">
+                <div class="pbi-step-num">3</div>
+                <div class="pbi-step-txt">Copiez l'URL d'intégration (iframe)</div>
+              </div>
+              <div class="pbi-step">
+                <div class="pbi-step-num">4</div>
+                <div class="pbi-step-txt">Collez-la ici via "Configurer"</div>
+              </div>
+            </div>
+            <button class="btn btn-primary" style="margin-top:28px;padding:12px 28px;font-size:14px"
+              (click)="openPowerBiConfig()">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                style="margin-right:6px">
+                <circle cx="12" cy="12" r="3" />
+                <path
+                  d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+              </svg>
+              Configurer Power BI
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════ PROFIL ══════ -->
+      <div *ngIf="page==='profil'" class="page-wrap">
+        <div class="ph">
+          <div>
+            <div class="back-bar"><button class="back-btn" (click)="go('Tableau de board')"><svg width="14" height="14"
+                  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="15 18 9 12 15 6" />
+                </svg>Retour</button></div>
+            <div class="ph-title">Mon profil</div>
+          </div>
+        </div>
+        <div class="two-col" style="grid-template-columns:380px 1fr">
+          <!-- Carte profil -->
+          <div class="card profil-main-card">
+            <div class="card-body" style="text-align:center;padding:32px">
+              <!-- Photo de profil cliquable -->
+              <div class="profil-photo-wrap" (click)="triggerPhotoUpload()">
+                <div class="profil-photo" [style.background-image]="profilPhoto?'url('+profilPhoto+')':''"
+                  [style.background]="profilPhoto?'none':'linear-gradient(135deg,var(--pink),var(--purple))'">
+                  <span *ngIf="!profilPhoto" style="font-size:32px;font-weight:800;color:#fff">{{ currentUser.initials
+                    }}</span>
+                  <div class="profil-photo-overlay">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                      <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                      <circle cx="12" cy="13" r="4" />
+                    </svg>
+                    <span>Changer</span>
+                  </div>
+                </div>
+                <input type="file" #photoInput hidden accept="image/*" (change)="onPhotoSelected($event)" />
+              </div>
+              <div class="profil-name" style="margin-top:16px">{{ currentUser.name }}</div>
+              <div class="profil-email">{{ currentUser.email }}</div>
+              <span class="profil-role-badge">{{ currentUser.role }}</span>
+              <div class="profil-stats" style="margin-top:20px">
+                <div class="p-stat"><span class="p-stat-val">{{ stats.totalStartups }}</span><span
+                    class="p-stat-label">Startups</span></div>
+                <div class="p-stat"><span class="p-stat-val">{{ phases.length }}</span><span
+                    class="p-stat-label">Phases</span></div>
+                <div class="p-stat"><span class="p-stat-val">{{ evaluations.length }}</span><span
+                    class="p-stat-label">Évaluations</span></div>
+              </div>
+            </div>
+          </div>
+          <!-- Compte -->
+          <div class="card">
+            <div class="card-header"><span class="card-title">Compte</span></div>
+            <div class="card-body">
+              <div class="form">
+                <div class="fg"><label>Email</label><input type="email" [value]="currentUser.email" disabled
+                    style="opacity:.6" /></div>
+                <div class="fg"><label>Rôle</label><input type="text" [value]="currentUser.role" disabled
+                    style="opacity:.6" /></div>
+                <div class="fg"><label>Nouveau mot de passe</label><input type="password"
+                    [(ngModel)]="profilForm.newPassword" placeholder="••••••••" /></div>
+                <div class="fg"><label>Confirmer le mot de passe</label><input type="password"
+                    [(ngModel)]="profilForm.confirmPassword" placeholder="••••••••" /></div>
+                <button class="btn btn-primary" style="width:100%" (click)="saveProfil()">Changer le mot de
+                  passe</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ══ MODAL STARTUP FORM ══ -->
+  <div class="overlay" *ngIf="showFormModal" (click)="closeAll()">
+    <div class="modal md" (click)="$event.stopPropagation()">
+      <div class="mod-head">
+        <div>
+          <div class="mod-title">{{ editMode?'Modifier la startup':'Nouvelle startup' }}</div>
+        </div><button class="mod-close" (click)="showFormModal=false">✕</button>
+      </div>
+      <div class="mod-body">
+        <div class="form">
+          <div class="frow">
+            <div class="fg"><label>Nom <span class="req">*</span></label><input [(ngModel)]="formData.nom"
+                [class.err]="formErrors.nom" placeholder="AgriTech Pro" /></div>
+            <div class="fg"><label>Fondateur <span class="req">*</span></label><input [(ngModel)]="formData.fondateur"
+                [class.err]="formErrors.fondateur" placeholder="Ahmed Ben Ali" /></div>
+          </div>
+          <div class="frow">
+            <div class="fg"><label>Secteur</label><select [(ngModel)]="formData.secteur">
+                <option *ngFor="let s of sectorOptions" [value]="s">{{ s }}</option>
+              </select></div>
+            <div class="fg"><label>Phase</label><select [(ngModel)]="formData.phase">
+                <option *ngFor="let p of phaseOptions" [value]="p">{{ p }}</option>
+              </select></div>
+          </div>
+          <div class="frow">
+            <div class="fg"><label>Score IA (0–100)</label><input type="number" [(ngModel)]="formData.aiScore" min="0"
+                max="100" /></div>
+            <div class="fg"><label>Statut</label><select [(ngModel)]="formData.statut">
+                <option value="actif">Actif</option>
+                <option value="en_attente">En attente</option>
+                <option value="termine">Terminé</option>
+              </select></div>
+          </div>
+          <div class="fg"><label>Progression : <strong style="color:var(--pink)">{{ formData.progress
+                }}%</strong></label><input type="range" [(ngModel)]="formData.progress" min="0" max="100"
+              class="range-in" /></div>
+          <div class="fg"><label>Description</label><textarea [(ngModel)]="formData.description" rows="3"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="mod-foot"><button class="btn btn-secondary" (click)="showFormModal=false">Annuler</button><button
+          class="btn btn-primary" (click)="save()">{{ editMode?'Mettre à jour':'Ajouter' }}</button></div>
+    </div>
+  </div>
+
+  <!-- ══ MODAL VIEW STARTUP ══ -->
+  <div class="overlay" *ngIf="showViewModal" (click)="closeAll()">
+    <div class="modal md" (click)="$event.stopPropagation()" *ngIf="selectedStartup">
+      <div class="mod-head">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="sc-av" style="width:42px;height:42px;border-radius:10px;font-size:14px"
+            [style.background]="selectedStartup.couleur">{{ selectedStartup.initiales }}</div>
+          <div>
+            <div class="mod-title">{{ selectedStartup.nom }}</div>
+            <div class="mod-subtitle">{{ selectedStartup.fondateur }}</div>
+          </div>
+        </div><button class="mod-close" (click)="showViewModal=false">✕</button>
+      </div>
+      <div class="mod-body">
+        <div class="vw-tags"><span class="pill" [ngClass]="selectedStartup.statut">{{ selectedStartup.statusLabel
+            }}</span><span class="tag tag-purple">{{ selectedStartup.secteur }}</span><span class="tag tag-gray">{{
+            selectedStartup.phase }}</span></div>
+        <div class="vw-grid">
+          <div class="vw-item"><label>Score IA</label>
+            <div class="vw-val" [ngClass]="'score-num '+sc(selectedStartup.aiScore)">{{ selectedStartup.aiScore }}/100
+            </div>
+          </div>
+          <div class="vw-item"><label>Progression</label>
+            <div class="vw-val">{{ selectedStartup.progress }}%</div>
+          </div>
+        </div>
+        <div class="prog-bar" style="height:6px;margin-bottom:14px">
+          <div class="prog-fill" [ngClass]="sc(selectedStartup.progress)" [style.width]="selectedStartup.progress+'%'">
+          </div>
+        </div>
+        <p *ngIf="selectedStartup.description">{{ selectedStartup.description }}</p>
+      </div>
+      <div class="mod-foot"><button class="btn btn-secondary" (click)="showViewModal=false">Fermer</button><button
+          class="btn btn-primary" (click)="openEdit(selectedStartup!);showViewModal=false">Modifier</button></div>
+    </div>
+  </div>
+
+  <!-- ══ MODAL DELETE STARTUP ══ -->
+  <div class="overlay" *ngIf="showDeleteModal" (click)="closeAll()">
+    <div class="modal sm" (click)="$event.stopPropagation()">
+      <div class="mod-head">
+        <div class="mod-title">Supprimer la startup</div><button class="mod-close"
+          (click)="showDeleteModal=false">✕</button>
+      </div>
+      <div class="mod-body">
+        <div class="del-warn">
+          <div class="del-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--rose)"
+              stroke-width="2">
+              <polyline points="3 6 5 6 21 6" />
+              <path d="M19 6l-1 14H6L5 6" />
+            </svg></div>
+          <p class="del-msg">Supprimer <strong>« {{ startupToDelete?.nom }} »</strong> ?<br>Cette action est <span
+              class="del-irr">irréversible</span>.</p>
+        </div>
+      </div>
+      <div class="mod-foot"><button class="btn btn-secondary" (click)="showDeleteModal=false">Annuler</button><button
+          class="btn btn-danger" (click)="del()">Supprimer</button></div>
+    </div>
+  </div>
+
+  <!-- ══ MODAL PHASE ══ -->
+  <div class="overlay" *ngIf="showPhaseModal" (click)="closeAll()">
+    <div class="modal md" (click)="$event.stopPropagation()">
+      <div class="mod-head">
+        <div class="mod-title">{{ editPhaseMode?'Modifier la phase':'Nouvelle phase' }}</div><button class="mod-close"
+          (click)="showPhaseModal=false">✕</button>
+      </div>
+      <div class="mod-body">
+        <div class="form">
+          <div class="frow">
+            <div class="fg"><label>Titre <span class="req">*</span></label><input [(ngModel)]="phaseForm.titre"
+                placeholder="ex: Business Model" /></div>
+            <div class="fg"><label>Label</label><input [(ngModel)]="phaseForm.mois" placeholder="ex: MOIS 3" /></div>
+          </div>
+          <div class="fg"><label>Description</label><textarea [(ngModel)]="phaseForm.description" rows="3"></textarea>
+          </div>
+          <div class="frow">
+            <div class="fg"><label>Icône</label>
+              <div class="icon-grid"><button *ngFor="let ic of iconOptions" class="icon-opt"
+                  [class.on]="phaseForm.icone===ic" (click)="phaseForm.icone=ic">{{ ic }}</button></div>
+            </div>
+            <div class="fg"><label>Couleur</label>
+              <div class="color-grid"><button *ngFor="let c of colorOptions" class="color-opt" [style.background]="c"
+                  [class.on]="phaseForm.couleur===c" (click)="phaseForm.couleur=c"></button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mod-foot"><button class="btn btn-secondary" (click)="showPhaseModal=false">Annuler</button><button
+          class="btn btn-primary" (click)="savePhase()">{{ editPhaseMode?'Mettre à jour':'Ajouter' }}</button></div>
+    </div>
+  </div>
+
+  <!-- ══ MODAL DELETE PHASE ══ -->
+  <div class="overlay" *ngIf="showPhaseDeleteModal" (click)="closeAll()">
+    <div class="modal sm" (click)="$event.stopPropagation()">
+      <div class="mod-head">
+        <div class="mod-title">Supprimer la phase</div><button class="mod-close"
+          (click)="showPhaseDeleteModal=false">✕</button>
+      </div>
+      <div class="mod-body">
+        <div class="del-warn">
+          <div class="del-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--rose)"
+              stroke-width="2">
+              <polyline points="3 6 5 6 21 6" />
+              <path d="M19 6l-1 14H6L5 6" />
+            </svg></div>
+          <p class="del-msg">Supprimer <strong>« {{ phaseToDelete?.titre }} »</strong> ?</p>
+        </div>
+      </div>
+      <div class="mod-foot"><button class="btn btn-secondary"
+          (click)="showPhaseDeleteModal=false">Annuler</button><button class="btn btn-danger"
+          (click)="delPhase()">Supprimer</button></div>
+    </div>
+  </div>
+
+  <!-- ══ MODAL ÉVÉNEMENT ══ -->
+  <div class="overlay" *ngIf="showEventModal" (click)="closeAll()">
+    <div class="modal md" (click)="$event.stopPropagation()">
+      <div class="mod-head">
+        <div class="mod-title">Nouvel événement</div><button class="mod-close" (click)="showEventModal=false">✕</button>
+      </div>
+      <div class="mod-body">
+        <div class="form">
+          <div class="frow">
+            <div class="fg"><label>Titre <span class="req">*</span></label><input [(ngModel)]="eventForm.titre"
+                placeholder="Workshop Business Model" /></div>
+            <div class="fg"><label>Type</label><select [(ngModel)]="eventForm.type">
+                <option value="workshop">Workshop</option>
+                <option value="pitch">Pitch</option>
+                <option value="reunion">Réunion</option>
+                <option value="formation">Formation</option>
+              </select></div>
+          </div>
+          <div class="frow">
+            <div class="fg"><label>Date <span class="req">*</span></label><input type="date"
+                [(ngModel)]="eventForm.date" /></div>
+            <div class="fg"><label>Lieu</label><input [(ngModel)]="eventForm.lieu" placeholder="Salle A / En ligne" />
+            </div>
+          </div>
+          <div class="frow">
+            <div class="fg"><label>Heure début</label><input type="time" [(ngModel)]="eventForm.heureDebut" /></div>
+            <div class="fg"><label>Heure fin</label><input type="time" [(ngModel)]="eventForm.heureFin" /></div>
+          </div>
+          <!-- Satisfaction porteur -->
+          <div class="fg"
+            style="background:#fff5f8;border-radius:10px;padding:12px;border:1px solid rgba(236,72,153,.2)">
+            <label style="color:var(--pink);font-weight:700">😊 Mesure de satisfaction</label>
+            <div style="display:flex;align-items:center;gap:10px;margin-top:8px">
+              <label class="toggle-switch"><input type="checkbox" [(ngModel)]="eventForm.satisfactionActive" /><span
+                  class="toggle-slider"></span></label>
+              <span style="font-size:13px;color:var(--text2)">Demander la satisfaction aux porteurs après cet
+                événement</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mod-foot"><button class="btn btn-secondary" (click)="showEventModal=false">Annuler</button><button
+          class="btn btn-primary" (click)="saveEv()">Créer</button></div>
+    </div>
+  </div>
+
+  <!-- ══ MODAL ÉVALUATION ══ -->
+  <div class="overlay" *ngIf="showEvalModal" (click)="closeAll()">
+    <div class="modal md" (click)="$event.stopPropagation()">
+      <div class="mod-head">
+        <div class="mod-title">Nouvelle évaluation</div><button class="mod-close"
+          (click)="showEvalModal=false">✕</button>
+      </div>
+      <div class="mod-body">
+        <div class="form">
+          <div class="fg"><label>Startup <span class="req">*</span></label><select [(ngModel)]="evalForm.startupId">
+              <option *ngFor="let s of startups" [value]="s.id">{{ s.nom }}</option>
+            </select></div>
+          <div class="frow">
+            <div class="fg"><label>Score IA : <strong style="color:var(--pink)">{{ evalForm.scoreIA
+                  }}</strong></label><input type="range" [(ngModel)]="evalForm.scoreIA" min="0" max="100"
+                class="range-in" /></div>
+            <div class="fg"><label>Marché : <strong style="color:var(--pink)">{{ evalForm.scoreMarket
+                  }}</strong></label><input type="range" [(ngModel)]="evalForm.scoreMarket" min="0" max="100"
+                class="range-in" /></div>
+          </div>
+          <div class="frow">
+            <div class="fg"><label>Équipe : <strong style="color:var(--pink)">{{ evalForm.scoreTeam
+                  }}</strong></label><input type="range" [(ngModel)]="evalForm.scoreTeam" min="0" max="100"
+                class="range-in" /></div>
+            <div class="fg"><label>Tech : <strong style="color:var(--pink)">{{ evalForm.scoreTech
+                  }}</strong></label><input type="range" [(ngModel)]="evalForm.scoreTech" min="0" max="100"
+                class="range-in" /></div>
+          </div>
+          <div class="fg"><label>Finance : <strong style="color:var(--pink)">{{ evalForm.scoreFinance
+                }}</strong></label><input type="range" [(ngModel)]="evalForm.scoreFinance" min="0" max="100"
+              class="range-in" /></div>
+          <div class="fg"><label>Commentaire</label><textarea [(ngModel)]="evalForm.commentaire" rows="3"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="mod-foot"><button class="btn btn-secondary" (click)="showEvalModal=false">Annuler</button><button
+          class="btn btn-primary" (click)="saveEval()" [disabled]="isSavingEval"><span *ngIf="isSavingEval"
+            class="spin"></span>{{ isSavingEval?'...':'Enregistrer' }}</button></div>
+    </div>
+  </div>
+
+  <!-- ══ MODAL DELETE DOC ══ -->
+  <div class="overlay" *ngIf="showDocDeleteModal" (click)="showDocDeleteModal=false">
+    <div class="modal sm" (click)="$event.stopPropagation()">
+      <div class="mod-head">
+        <div class="mod-title">Supprimer le document</div><button class="mod-close"
+          (click)="showDocDeleteModal=false">✕</button>
+      </div>
+      <div class="mod-body">
+        <div class="del-warn">
+          <div class="del-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--rose)"
+              stroke-width="2">
+              <polyline points="3 6 5 6 21 6" />
+              <path d="M19 6l-1 14H6L5 6" />
+            </svg></div>
+          <p class="del-msg">Supprimer <strong>« {{ docToDelete?.nom }} »</strong> ?</p>
+        </div>
+      </div>
+      <div class="mod-foot"><button class="btn btn-secondary" (click)="showDocDeleteModal=false">Annuler</button><button
+          class="btn btn-danger" (click)="delDocConfirmed()">Supprimer</button></div>
+    </div>
+  </div>
+
+  <!-- ══ MODAL POWER BI CONFIG ══ -->
+  <div class="overlay" *ngIf="showPowerBiModal" (click)="showPowerBiModal=false">
+    <div class="modal md" (click)="$event.stopPropagation()">
+      <div class="mod-head">
+        <div class="mod-title">⚙️ Configurer Power BI</div><button class="mod-close"
+          (click)="showPowerBiModal=false">✕</button>
+      </div>
+      <div class="mod-body">
+        <div class="form">
+          <div class="fg">
+            <label>URL du rapport Power BI (iframe embed)</label>
+            <input [(ngModel)]="powerBiUrlInput" placeholder="https://app.powerbi.com/reportEmbed?reportId=..." />
+            <span style="font-size:11px;color:var(--text2);margin-top:4px">Dans Power BI : Fichier → Publier sur le web
+              → Copier l'URL d'intégration</span>
+          </div>
+          <div class="fg">
+            <label>Hauteur de l'iframe (px)</label>
+            <input type="number" [(ngModel)]="powerBiHeight" placeholder="500" />
+          </div>
+        </div>
+      </div>
+      <div class="mod-foot"><button class="btn btn-secondary" (click)="showPowerBiModal=false">Annuler</button><button
+          class="btn btn-primary" (click)="savePowerBiConfig()">Enregistrer</button></div>
+    </div>
+  </div>
+
+  <!-- ══ MODAL SATISFACTION EVENT ══ -->
+  <div class="overlay" *ngIf="showSatisfactionModal" (click)="showSatisfactionModal=false">
+    <div class="modal md" (click)="$event.stopPropagation()">
+      <div class="mod-head">
+        <div class="mod-title">😊 Satisfactions — {{ selectedEventForSat?.titre }}</div><button class="mod-close"
+          (click)="showSatisfactionModal=false">✕</button>
+      </div>
+      <div class="mod-body">
+        <div class="sat-modal-stats" *ngIf="selectedEventSatisfactions.length>0">
+          <div class="sat-avg-display">
+            <div class="sat-avg-number">{{ getModalSatAvg() }}</div>
+            <div class="sat-avg-stars">
+              <span *ngFor="let i of [1,2,3,4,5]" class="star lg" [class.filled]="i<=getModalSatAvg()">★</span>
+            </div>
+            <div style="font-size:12px;color:var(--text2)">{{ selectedEventSatisfactions.length }} réponse(s)</div>
+          </div>
+        </div>
+        <div class="sat-responses">
+          <div class="sat-response-item" *ngFor="let s of selectedEventSatisfactions">
+            <div class="sat-resp-header">
+              <span class="sat-porteur">{{ s.porteurEmail }}</span>
+              <div class="sat-stars">
+                <span *ngFor="let i of [1,2,3,4,5]" class="star" [class.filled]="i<=s.note">★</span>
+                <span style="font-weight:700;color:var(--pink);margin-left:4px">{{ s.note }}/5</span>
+              </div>
+            </div>
+            <p class="sat-comment" *ngIf="s.commentaire">💬 {{ s.commentaire }}</p>
+            <div style="font-size:11px;color:var(--text2)">{{ s.createdAt }}</div>
+          </div>
+          <div class="card-empty" *ngIf="selectedEventSatisfactions.length===0">Aucune réponse pour le moment.</div>
+        </div>
+      </div>
+      <div class="mod-foot"><button class="btn btn-secondary" (click)="showSatisfactionModal=false">Fermer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ MODAL NOUVEAU GROUPE ══ -->
+  <div class="overlay" *ngIf="showNewGroupModal" (click)="showNewGroupModal=false">
+    <div class="modal md" (click)="$event.stopPropagation()">
+      <div class="mod-head">
+        <div class="mod-title">Créer un groupe</div><button class="mod-close"
+          (click)="showNewGroupModal=false">✕</button>
+      </div>
+      <div class="mod-body">
+        <div class="form">
+          <div class="fg"><label>Nom du groupe <span class="req">*</span></label><input [(ngModel)]="newGroupForm.nom"
+              placeholder="Ex: Équipe Phase 2" /></div>
+          <div class="fg">
+            <label>Membres</label>
+            <div class="members-select">
+              <div class="member-option" *ngFor="let c of contacts" (click)="toggleGroupMember(c.email)">
+                <div class="c-av" [style.background]="roleColor(c.role)" style="width:30px;height:30px;font-size:11px">
+                  {{ contactInitials(c) }}</div>
+                <div style="flex:1">
+                  <div style="font-size:13px;font-weight:500">{{ c.nom || c.email }}</div>
+                  <div style="font-size:11px;color:var(--text2)">{{ c.email }}</div>
+                </div>
+                <div class="member-check" [class.checked]="newGroupForm.membres.includes(c.email)">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mod-foot"><button class="btn btn-secondary" (click)="showNewGroupModal=false">Annuler</button><button
+          class="btn btn-primary" (click)="createGroup()">Créer le groupe</button></div>
+    </div>
+  </div>
+
+  <!-- TOASTS -->
+  <div class="toasts">
+    <div class="toast" *ngFor="let t of toasts" [ngClass]="t.type">
+      <span class="toast-msg">{{ t.msg }}</span>
+      <button class="toast-x" (click)="rmToast(t.id)">✕</button>
+    </div>
+  </div>
+
+  <!-- FAB -->
+  <button class="fab" (click)="openAdd()" *ngIf="page==='startups'||page==='Tableau de board'"
+    title="Ajouter une startup">+</button>
+
+</div>

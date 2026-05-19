@@ -1,0 +1,75 @@
+.profile-page{
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:#f4f7ff;
+}
+
+.profile-card{
+  width:450px;
+  background:white;
+  border-radius:25px;
+  padding:40px;
+  text-align:center;
+  box-shadow:0 10px 30px rgba(0,0,0,0.1);
+}
+
+.avatar{
+  width:100px;
+  height:100px;
+  background:linear-gradient(135deg,#7c3aed,#06b6d4);
+  color:white;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:40px;
+  margin:auto;
+  margin-bottom:20px;
+}
+
+.profile-card h2{
+  margin:0;
+  color:#111827;
+}
+
+.profile-card p{
+  color:#6b7280;
+  margin-bottom:30px;
+}
+
+.profile-info{
+  display:flex;
+  flex-direction:column;
+  gap:15px;
+}
+
+.info-box{
+  background:#f9fafb;
+  border-radius:15px;
+  padding:15px;
+  text-align:left;
+}
+
+.info-box span{
+  color:#9ca3af;
+  font-size:13px;
+}
+
+.info-box h4{
+  margin-top:5px;
+  color:#111827;
+}
+
+.edit-btn{
+  margin-top:25px;
+  width:100%;
+  background:linear-gradient(135deg,#7c3aed,#a855f7);
+  border:none;
+  padding:14px;
+  color:white;
+  border-radius:14px;
+  cursor:pointer;
+  font-size:16px;
+}

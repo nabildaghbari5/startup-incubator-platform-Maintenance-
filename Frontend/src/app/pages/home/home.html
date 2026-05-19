@@ -1,0 +1,76 @@
+<div class="home-page">
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="logo">S2T</div>
+    <div class="nav-links">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">Accueil</a>
+      <!-- Utilise (click) au lieu de routerLink seul pour garantir la navigation -->
+      <a (click)="goToLogin()" class="login-btn">Login</a>
+    </div>
+  </nav>
+
+  <!-- CIRCLES -->
+  <div class="circle pink"></div>
+  <div class="circle purple"></div>
+  <div class="circle small"></div>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-container">
+
+      <!-- VIDEO -->
+      <div class="video-box">
+        <video autoplay muted loop playsinline>
+          <source src="assets/Video1.mp4" type="video/mp4">
+        </video>
+      </div>
+
+      <!-- TEXT -->
+      <div class="hero-text">
+        <h1>🚀 Plateforme d'Incubation</h1>
+
+        <div class="marquee">
+          <span>
+            Innovation • AI • Startup • KPI • Growth • Innovation • AI • Startup • KPI • Growth &nbsp;
+            Innovation • AI • Startup • KPI • Growth • Innovation • AI • Startup • KPI • Growth
+          </span>
+        </div>
+
+        <p>
+          Une plateforme intelligente pour accompagner les startups
+          et accélérer leur croissance.
+        </p>
+
+        <button class="cta-btn" (click)="goToLogin()">
+          Commencer maintenant →
+        </button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- CARDS -->
+  <section class="cards-section">
+    <div class="card fade-in">
+      <img src="assets/img1.png" alt="Innovation Center">
+    </div>
+    <div class="card fade-in">
+      <img src="assets/img2.png" alt="Hackathon">
+    </div>
+    <div class="card fade-in">
+      <img src="assets/img3.png" alt="Remise des prix">
+    </div>
+  </section>
+
+  <!-- INFO -->
+  <section class="info fade-in">
+    <h2>💡 Notre plateforme</h2>
+    <p>
+      Une solution moderne pour connecter incubateurs et startups
+      avec intelligence artificielle.
+    </p>
+    <button class="cta-btn" (click)="goToLogin()">Accéder à la plateforme</button>
+  </section>
+
+</div>

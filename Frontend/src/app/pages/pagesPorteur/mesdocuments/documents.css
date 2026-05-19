@@ -1,0 +1,54 @@
+.doc-wrap {
+  padding: 30px;
+  font-family: Arial;
+}
+
+h1 {
+  margin-bottom: 20px;
+}
+
+.upload-box {
+  margin-bottom: 20px;
+}
+
+.doc-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.doc-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  border-radius: 10px;
+  background: #f5f5f5;
+}
+
+.doc-info h3 {
+  margin: 0;
+}
+
+.doc-info p {
+  margin: 5px 0;
+  font-size: 12px;
+  color: gray;
+}
+
+.doc-actions button {
+  margin-left: 5px;
+  padding: 6px 10px;
+  border: none;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.doc-actions button:hover {
+  background: #ddd;
+}
+
+.empty {
+  text-align: center;
+  color: gray;
+}

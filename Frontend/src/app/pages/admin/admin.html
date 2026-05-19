@@ -1,0 +1,488 @@
+<!-- ╔══════════════════════════════════════════════════════════╗ -->
+<!-- ║  ADMIN DASHBOARD — Angular Template                      ║ -->
+<!-- ╚══════════════════════════════════════════════════════════╝ -->
+<div class="shell" [class.sidebar-closed]="!sidebarOpen">
+
+  <!-- ══ SIDEBAR ══════════════════════════════════════════════ -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <span class="logo-shield">🛡️</span>
+      <span class="logo-text">AdminPanel</span>
+    </div>
+
+    <nav class="sidebar-nav">
+    
+      <div class="nav-section">GESTION</div>
+      <a class="nav-item" [class.active]="page==='utilisateurs'" (click)="goTo('/admin/utilisateurs')">
+        <span class="ni">👥</span><span class="nl">Utilisateurs</span>
+      </a>
+      <!--
+      <a class="nav-item" [class.active]="page==='roles'"        (click)="goTo('/admin/roles')">
+        <span class="ni">🎭</span><span class="nl">Attribuer rôles</span>
+      </a>
+      <div class="nav-section">INCUBATION</div>
+      <a class="nav-item" [class.active]="page==='programme'"    (click)="goTo('/admin/programme')">
+        <span class="ni">🗺️</span><span class="nl">Programme</span>
+      </a>
+      <a class="nav-item" [class.active]="page==='statistiques'" (click)="goTo('/admin/statistiques')">
+        <span class="ni">📊</span><span class="nl">Statistiques</span>
+      </a>
+      <div class="nav-section">IA</div>
+      <a class="nav-item" [class.active]="page==='decisions'"    (click)="goTo('/admin/decisions')">
+        <span class="ni">🤖</span><span class="nl">Décisions IA</span>
+      </a>
+      <div class="nav-section">COMPTE</div>
+      <a class="nav-item" [class.active]="page==='profil'"       (click)="goTo('/admin/profil')">
+        <span class="ni">👤</span><span class="nl">Profil</span>
+      </a>
+      -->
+  
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-chip" (click)="showUserMenu = !showUserMenu">
+        <div class="user-avatar">{{ currentUser.initials }}</div>
+        <div class="user-info">
+          <span class="user-name">{{ currentUser.name }}</span>
+          <span class="user-role">Administrateur</span>
+        </div>
+        <span class="user-caret">⌄</span>
+      </div>
+      <div class="user-dropdown" *ngIf="showUserMenu">
+        <button class="drop-item" (click)="go('profil'); showUserMenu=false">👤 Profil</button>
+        <button class="drop-item danger" (click)="logout()">🚪 Déconnexion</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ══ TOPBAR ════════════════════════════════════════════════ -->
+  <header class="topbar">
+    <button class="burger" (click)="toggleSb()">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="topbar-title">
+      <ng-container [ngSwitch]="page">
+        <span *ngSwitchCase="'dashboard'">Tableau de bord</span>
+        <span *ngSwitchCase="'utilisateurs'">Gestion des utilisateurs</span>
+        <span *ngSwitchCase="'roles'">Attribution des rôles</span>
+        <span *ngSwitchCase="'statistiques'">Statistiques</span>
+        <span *ngSwitchCase="'programme'">Programme d'incubation</span>
+        <span *ngSwitchCase="'decisions'">Décisions IA</span>
+        <span *ngSwitchCase="'profil'">Mon profil</span>
+      </ng-container>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-avatar">{{ currentUser.initials }}</div>
+    </div>
+  </header>
+
+  <!-- ══ MAIN ══════════════════════════════════════════════════ -->
+  <main class="main-content">
+
+    <!-- ─── DASHBOARD ─────────────────────────────────────── -->
+    <section *ngIf="page==='dashboard'" class="page-anim">
+
+      <div class="page-hero">
+        <h1>Bonjour, <span class="hero-name">{{ currentUser.name }}</span> 👋</h1>
+        <p>Vue d'ensemble de la plateforme d'incubation</p>
+      </div>
+
+      <!-- KPI row 1 -->
+      <div class="kpi-grid">
+        <div class="kpi-card kpi-rose">
+          <div class="kpi-bg"></div>
+          <span class="kpi-icon">👥</span>
+          <div class="kpi-body">
+            <span class="kpi-val">{{ stats.totalUtilisateurs }}</span>
+            <span class="kpi-lbl">Utilisateurs</span>
+          </div>
+        </div>
+        <div class="kpi-card kpi-amber">
+          <div class="kpi-bg"></div>
+          <span class="kpi-icon">📋</span>
+          <div class="kpi-body">
+            <span class="kpi-val">{{ stats.totalProjets }}</span>
+            <span class="kpi-lbl">Projets total</span>
+          </div>
+        </div>
+        <div class="kpi-card kpi-teal">
+          <div class="kpi-bg"></div>
+          <span class="kpi-icon">✅</span>
+          <div class="kpi-body">
+            <span class="kpi-val">{{ stats.projetsValides }}</span>
+            <span class="kpi-lbl">Projets validés</span>
+          </div>
+        </div>
+        <div class="kpi-card kpi-violet">
+          <div class="kpi-bg"></div>
+          <span class="kpi-icon">⭐</span>
+          <div class="kpi-body">
+            <span class="kpi-val">{{ stats.evaluationsMoyenne }}<small>/100</small></span>
+            <span class="kpi-lbl">Score moyen IA</span>
+          </div>
+        </div>
+        <div class="kpi-card kpi-blue">
+          <div class="kpi-bg"></div>
+          <span class="kpi-icon">🔬</span>
+          <div class="kpi-body">
+            <span class="kpi-val">{{ stats.totalExperts }}</span>
+            <span class="kpi-lbl">Experts</span>
+          </div>
+        </div>
+        <div class="kpi-card kpi-green">
+          <div class="kpi-bg"></div>
+          <span class="kpi-icon">🚀</span>
+          <div class="kpi-body">
+            <span class="kpi-val">{{ stats.totalPorteurs }}</span>
+            <span class="kpi-lbl">Porteurs</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick actions -->
+      <div class="quick-actions">
+        <div class="qa-title">⚡ Actions rapides</div>
+        <div class="qa-grid">
+          <button class="qa-btn qa-rose"    (click)="go('utilisateurs')">👥 Gérer utilisateurs</button>
+          <button class="qa-btn qa-violet"  (click)="go('roles')">🎭 Attribuer rôles</button>
+          <button class="qa-btn qa-teal"    (click)="go('programme')">🗺️ Gérer programme</button>
+          <button class="qa-btn qa-amber"   (click)="go('statistiques')">📊 Statistiques</button>
+          <button class="qa-btn qa-blue"    (click)="go('decisions')">🤖 Décisions IA</button>
+        </div>
+      </div>
+
+      <!-- Derniers utilisateurs -->
+      <div class="card mt-20">
+        <div class="card-head">
+          <span class="card-title">👥 Derniers utilisateurs</span>
+          <button class="btn-sm" (click)="go('utilisateurs')">Voir tout</button>
+        </div>
+        <div class="mini-user-list">
+          <div class="mu-item" *ngFor="let u of utilisateurs.slice(0,5)">
+            <div class="mu-avatar">{{ u.prenom.charAt(0) || u.email.charAt(0) | uppercase }}</div>
+            <div class="mu-info">
+              <span class="mu-name">{{ u.prenom }} {{ u.nom }}</span>
+              <span class="mu-email">{{ u.email }}</span>
+            </div>
+            <span class="role-badge" [style.background]="roleColor(u.role)">{{ u.role }}</span>
+            <span class="statut-dot" [style.background]="statutColor(u.statut)" [title]="u.statut"></span>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ─── UTILISATEURS ──────────────────────────────────── -->
+    <section *ngIf="page==='utilisateurs'" class="page-anim">
+      <div class="page-title-row">
+        <h2 class="page-title">Gestion des utilisateurs</h2>
+        <div class="search-bar">
+          <span>🔍</span>
+          <input placeholder="Rechercher…" [(ngModel)]="userSearch" (ngModelChange)="filterUsers()">
+          <span class="count-pill">{{ filteredUsers.length }}</span>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Nom & Prénom</th><th>Email</th><th>Rôle</th><th>Statut</th><th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let u of filteredUsers">
+              <td class="td-user">
+                <div > {{u.nom}} {{u.prenom}} </div>
+              </td>
+              <td class="td-email">{{ u.email }}</td>
+              <td><span class="role-badge" [style.background]="roleColor(u.role)">{{ u.role }}</span></td>
+              <td>
+                <span class="statut-badge" [style.background]="statutColor(u.statut)">
+                  {{ u.statut }}
+                </span>
+              </td>
+              <td class="td-actions">
+                <!--
+                <button class="act-btn act-edit" (click)="openRoleModal(u)" title="Changer rôle">🎭</button>
+                -->
+                <button
+                class="act-btn act-toggle"
+                [title]="u.statut === 'ACTIF' ? 'Désactiver' : 'Activer'"
+                (click)="toggleStatut(
+                    u.id,
+                    u.statut === 'ACTIF' ? 'DESACTIVE' : 'ACTIF'
+                )"
+              >
+                {{ u.statut === 'ACTIF' ? '🟢' : '🔴' }}
+              </button>
+                <button class="act-btn act-delete" (click)="deleteUser(u.id)" title="Supprimer">🗑️</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="empty-state" *ngIf="!filteredUsers.length">
+          <span class="empty-icon">👥</span><p>Aucun utilisateur trouvé</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── RÔLES ──────────────────────────────────────────── -->
+    <section *ngIf="page==='roles'" class="page-anim">
+      <div class="page-title-row">
+        <h2 class="page-title">Attribution des rôles</h2>
+        <div class="search-bar">
+          <span>🔍</span>
+          <input placeholder="Filtrer utilisateurs…" [(ngModel)]="userSearch" (ngModelChange)="filterUsers()">
+        </div>
+      </div>
+
+      <div class="roles-grid">
+        <div class="role-user-card" *ngFor="let u of filteredUsers">
+          <div class="ruc-top">
+            <div class="ruc-avatar">{{u.prenom.charAt(0) || u.email.charAt(0) | uppercase }}</div>
+            <div class="ruc-info">
+              <span class="ruc-name">{{ u.prenom }} {{ u.nom }}</span>
+              <span class="ruc-email">{{ u.email }}</span>
+            </div>
+          </div>
+          <div class="ruc-current">
+            <span>Rôle actuel :</span>
+            <span class="role-badge" [style.background]="roleColor(u.role)">{{ u.role }}</span>
+          </div>
+          <select class="role-select" [ngModel]="u.role"
+                  (ngModelChange)="u.role=$event; selectedUserId=u.id; selectedRole=$event; saveRole()">
+            <option value="ADMIN">ADMIN</option>
+            <option value="EXPERT">EXPERT</option>
+            <option value="PORTEUR">PORTEUR</option>
+            <option value="INCUBATEUR">INCUBATEUR</option>
+          </select>
+        </div>
+      </div>
+      <div class="empty-state" *ngIf="!filteredUsers.length">
+        <span class="empty-icon">🎭</span><p>Aucun utilisateur</p>
+      </div>
+    </section>
+
+    <!-- ─── STATISTIQUES ──────────────────────────────────── -->
+    <section *ngIf="page==='statistiques'" class="page-anim">
+      <h2 class="page-title" style="margin-bottom:24px">Statistiques de la plateforme</h2>
+
+      <div class="stats-big-grid">
+        <!-- Utilisateurs breakdown -->
+        <div class="stat-bloc">
+          <div class="sb-title">👥 Utilisateurs</div>
+          <div class="sb-total">{{ stats.totalUtilisateurs }}</div>
+          <div class="sb-bars">
+            <div class="sbr">
+              <span>Porteurs</span>
+              <div class="sb-track"><div class="sb-fill rose" [style.width.%]="stats.totalUtilisateurs ? (stats.totalPorteurs/stats.totalUtilisateurs*100) : 0"></div></div>
+              <span>{{ stats.totalPorteurs }}</span>
+            </div>
+            <div class="sbr">
+              <span>Experts</span>
+              <div class="sb-track"><div class="sb-fill teal" [style.width.%]="stats.totalUtilisateurs ? (stats.totalExperts/stats.totalUtilisateurs*100) : 0"></div></div>
+              <span>{{ stats.totalExperts }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Projets breakdown -->
+        <div class="stat-bloc">
+          <div class="sb-title">📋 Projets</div>
+          <div class="sb-total">{{ stats.totalProjets }}</div>
+          <div class="sb-bars">
+            <div class="sbr">
+              <span>En cours</span>
+              <div class="sb-track"><div class="sb-fill amber" [style.width.%]="stats.totalProjets ? (stats.projetsEnCours/stats.totalProjets*100) : 0"></div></div>
+              <span>{{ stats.projetsEnCours }}</span>
+            </div>
+            <div class="sbr">
+              <span>Validés</span>
+              <div class="sb-track"><div class="sb-fill violet" [style.width.%]="stats.totalProjets ? (stats.projetsValides/stats.totalProjets*100) : 0"></div></div>
+              <span>{{ stats.projetsValides }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Score IA -->
+        <div class="stat-bloc stat-score">
+          <div class="sb-title">🤖 Score moyen IA</div>
+          <div class="score-donut">
+            <svg viewBox="0 0 100 100" width="140" height="140">
+              <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="10"/>
+              <circle cx="50" cy="50" r="42" fill="none"
+                      stroke="url(#grad1)" stroke-width="10"
+                      [attr.stroke-dasharray]="((stats.evaluationsMoyenne / 100) * 263.9) + ' 263.9'"
+                      stroke-dashoffset="65.97" stroke-linecap="round"/>
+              <defs>
+                <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#f72585"/>
+                  <stop offset="100%" stop-color="#00d4aa"/>
+                </linearGradient>
+              </defs>
+            </svg>
+            <div class="donut-label">{{ stats.evaluationsMoyenne }}<small>/100</small></div>
+          </div>
+          <p class="sb-sub">Basé sur {{ stats.totalProjets }} projets évalués</p>
+        </div>
+
+        <!-- Documents -->
+        <div class="stat-bloc">
+          <div class="sb-title">📁 Documents</div>
+          <div class="sb-total">{{ stats.documentsTotal }}</div>
+          <p class="sb-sub">Documents soumis par les porteurs</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── PROGRAMME ─────────────────────────────────────── -->
+    <section *ngIf="page==='programme'" class="page-anim">
+      <div class="page-title-row">
+        <h2 class="page-title">Programme d'incubation</h2>
+        <button class="btn-primary" (click)="openPhaseModal()">+ Nouvelle phase</button>
+      </div>
+
+      <div class="phases-list">
+        <div class="phase-row" *ngFor="let ph of phases">
+          <div class="pr-num" [style.background]="ph.couleur">{{ ph.numero }}</div>
+          <div class="pr-icon" [style.background]="ph.couleur + '22'">{{ ph.icone }}</div>
+          <div class="pr-info">
+            <span class="pr-titre">{{ ph.titre }}</span>
+            <span class="pr-mois">{{ ph.mois }}</span>
+          </div>
+          <p class="pr-desc">{{ ph.description }}</p>
+          <div class="pr-actions">
+            <button class="act-btn act-edit" (click)="openPhaseModal(ph)">✏️</button>
+            <button class="act-btn act-delete" (click)="deletePhase(ph.id!)">🗑️</button>
+          </div>
+        </div>
+        <div class="empty-state" *ngIf="!phases.length">
+          <span class="empty-icon">🗺️</span><p>Aucune phase définie</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── DÉCISIONS IA ──────────────────────────────────── -->
+    <section *ngIf="page==='decisions'" class="page-anim">
+      <h2 class="page-title" style="margin-bottom:22px">🤖 Décisions IA & Dashboard décisionnel</h2>
+
+      <div class="decisions-grid">
+        <div class="decision-card" *ngFor="let d of decisions">
+          <div class="dc-header">
+            <span class="dc-projet">{{ d.projetNom }}</span>
+            <span class="dc-recomm" [style.background]="recommandColor(d.recommandation)">{{ d.recommandation }}</span>
+          </div>
+          <div class="dc-score-row">
+            <span class="dc-score-lbl">Score IA</span>
+            <div class="dc-bar-track">
+              <div class="dc-bar-fill" [style.width.%]="d.scoreIA"
+                   [style.background]="d.scoreIA >= 75 ? 'var(--teal)' : d.scoreIA >= 50 ? 'var(--amber)' : 'var(--rose)'">
+              </div>
+            </div>
+            <span class="dc-score-val">{{ d.scoreIA }}/100</span>
+          </div>
+          <p class="dc-details">{{ d.details }}</p>
+          <span class="dc-date">{{ d.createdAt | date:'dd/MM/yyyy' }}</span>
+        </div>
+        <div class="empty-state" *ngIf="!decisions.length">
+          <span class="empty-icon">🤖</span>
+          <p>Aucune décision IA disponible</p>
+          <p style="font-size:12px;color:var(--text-3)">Les décisions sont générées après évaluation des projets</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── PROFIL ─────────────────────────────────────────── -->
+    <section *ngIf="page==='profil'" class="page-anim page-profil">
+      <div class="profil-card">
+        <div class="profil-avatar-lg">{{ currentUser.initials }}</div>
+        <h2 class="profil-name">{{ currentUser.name }}</h2>
+        <p class="profil-email">{{ currentUser.email }}</p>
+        <span class="profil-role-badge">Administrateur</span>
+        <div class="profil-stats">
+          <div class="ps"><span class="ps-val">{{ stats.totalUtilisateurs }}</span><span class="ps-lbl">Utilisateurs</span></div>
+          <div class="ps"><span class="ps-val">{{ stats.totalProjets }}</span><span class="ps-lbl">Projets</span></div>
+          <div class="ps"><span class="ps-val">{{ phases.length }}</span><span class="ps-lbl">Phases</span></div>
+        </div>
+        <button class="btn-danger" (click)="logout()">🚪 Déconnexion</button>
+      </div>
+    </section>
+
+  </main>
+  
+</div>
+
+<!-- ══ MODAL RÔLE ═══════════════════════════════════════════════ -->
+<div class="modal-overlay" *ngIf="showRoleModal" (click)="showRoleModal=false">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>🎭 Modifier le rôle</h3>
+      <button class="modal-close" (click)="showRoleModal=false">✕</button>
+    </div>
+    <div class="modal-body" *ngIf="editingUser">
+      <p class="modal-user">{{ editingUser.prenom }} {{ editingUser.nom }} — {{ editingUser.email }}</p>
+      <label class="form-label">Nouveau rôle</label>
+      <select class="form-select" [(ngModel)]="selectedRole">
+        <option value="ADMIN">ADMIN</option>
+        <option value="EXPERT">EXPERT</option>
+        <option value="PORTEUR">PORTEUR</option>
+        <option value="INCUBATEUR">INCUBATEUR</option>
+      </select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="showRoleModal=false">Annuler</button>
+      <button class="btn-primary" (click)="saveRole()">✅ Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL PHASE ═══════════════════════════════════════════════ -->
+<div class="modal-overlay" *ngIf="showPhaseModal" (click)="showPhaseModal=false">
+  <div class="modal modal-lg" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>{{ editingPhase ? '✏️ Modifier la phase' : '➕ Nouvelle phase' }}</h3>
+      <button class="modal-close" (click)="showPhaseModal=false">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-field">
+          <label class="form-label">Numéro</label>
+          <input class="form-input" type="number" [(ngModel)]="phaseForm.numero">
+        </div>
+        <div class="form-field">
+          <label class="form-label">Mois</label>
+          <input class="form-input" placeholder="ex: Mois 1-2" [(ngModel)]="phaseForm.mois">
+        </div>
+        <div class="form-field span-2">
+          <label class="form-label">Titre</label>
+          <input class="form-input" placeholder="Titre de la phase" [(ngModel)]="phaseForm.titre">
+        </div>
+        <div class="form-field">
+          <label class="form-label">Icône (emoji)</label>
+          <input class="form-input" [(ngModel)]="phaseForm.icone">
+        </div>
+        <div class="form-field">
+          <label class="form-label">Couleur</label>
+          <div style="display:flex;gap:10px;align-items:center">
+            <input class="form-input" [(ngModel)]="phaseForm.couleur">
+            <input type="color" [(ngModel)]="phaseForm.couleur" style="width:40px;height:40px;border:none;background:none;cursor:pointer">
+          </div>
+        </div>
+        <div class="form-field span-2">
+          <label class="form-label">Description</label>
+          <textarea class="form-input" rows="3" [(ngModel)]="phaseForm.description"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="showPhaseModal=false">Annuler</button>
+      <button class="btn-primary" (click)="savePhase()">✅ Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ TOASTS ════════════════════════════════════════════════════ -->
+<div class="toast-container">
+  <div class="toast" *ngFor="let t of toasts" [class]="'toast--' + t.type">{{ t.msg }}</div>
+</div>

@@ -1,0 +1,432 @@
+<!-- ═══════════════════════════════════════════════════════════
+     PAGE DOCUMENTS
+═══════════════════════════════════════════════════════════ -->
+<div class="doc-page">
+
+  <!-- HEADER -->
+  <div class="doc-header">
+    <div class="doc-header-left">
+      <h2 class="doc-title">Mes Documents</h2>
+      <p class="doc-subtitle">
+        Gérez tous les documents des startups en incubation
+      </p>
+    </div>
+
+    <button class="btn-upload" (click)="openUpload()">
+      Ajouter un document
+    </button>
+  </div>
+
+  <!-- STATS -->
+  <div class="doc-stats">
+
+    <div class="stat-card">
+      <div>
+        <div class="stat-value">{{ totalDocs }}</div>
+        <div class="stat-label">Total documents</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div>
+        <div class="stat-value">{{ valides }}</div>
+        <div class="stat-label">Validés</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div>
+        <div class="stat-value">{{ enAttente }}</div>
+        <div class="stat-label">En attente</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div>
+        <div class="stat-value">{{ rejetes }}</div>
+        <div class="stat-label">Rejetés</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TOOLBAR -->
+  <div class="doc-toolbar">
+
+    <!-- Categories -->
+    <div class="cat-tabs">
+      <button
+        *ngFor="let cat of categories"
+        class="cat-tab"
+        [class.active]="activeCategory === cat"
+        (click)="setCategory(cat)"
+      >
+        {{ cat }}
+      </button>
+    </div>
+
+    <!-- Search -->
+    <div class="toolbar-right">
+
+      <div class="search-box">
+        <input
+          type="text"
+          placeholder="Rechercher un document..."
+          [(ngModel)]="searchQuery"
+          (ngModelChange)="onSearch()"
+        />
+      </div>
+
+      <!-- VIEW -->
+      <div class="view-toggle">
+
+        <button
+          [class.active]="viewMode === 'list'"
+          (click)="setView('list')"
+        >
+          Liste
+        </button>
+
+        <button
+          [class.active]="viewMode === 'grid'"
+          (click)="setView('grid')"
+        >
+          Grille
+        </button>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- COUNT -->
+  <div class="doc-count">
+    {{ filteredDocuments.length }} document(s) trouvé(s)
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       LIST VIEW
+  ═══════════════════════════════════════ -->
+  <div class="doc-table-wrap" *ngIf="viewMode === 'list'">
+
+    <table class="doc-table">
+
+      <thead>
+        <tr>
+          <th>Document</th>
+          <th>Startup</th>
+          <th>Catégorie</th>
+          <th>Date</th>
+          <th>Taille</th>
+          <th>Statut</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        <tr *ngFor="let doc of filteredDocuments">
+
+          <!-- NOM -->
+          <td>
+            <div class="file-cell">
+
+              <div class="file-ext">
+                {{ doc.extension.toUpperCase() }}
+              </div>
+
+              <div>
+                <div class="file-name">
+                  {{ doc.nom }}
+                </div>
+
+                <div class="file-by">
+                  par {{ doc.uploadePar }}
+                </div>
+              </div>
+
+            </div>
+          </td>
+
+          <!-- STARTUP -->
+          <td>
+            {{ doc.startup }}
+          </td>
+
+          <!-- CATEGORIE -->
+          <td>
+            <span class="cat-badge">
+              {{ doc.categorie }}
+            </span>
+          </td>
+
+          <!-- DATE -->
+          <td>
+            {{ formatDate(doc.date) }}
+          </td>
+
+          <!-- TAILLE -->
+          <td>
+            {{ doc.taille }}
+          </td>
+
+          <!-- STATUS -->
+          <td>
+            <span class="status-badge">
+              {{ doc.statut }}
+            </span>
+          </td>
+
+          <!-- ACTIONS -->
+          <td>
+
+            <button
+              *ngIf="doc.statut === 'En attente'"
+              (click)="validerDoc(doc)"
+            >
+              Valider
+            </button>
+
+            <button
+              *ngIf="doc.statut === 'En attente'"
+              (click)="rejeterDoc(doc)"
+            >
+              Rejeter
+            </button>
+
+            <button>
+              Télécharger
+            </button>
+
+            <button
+              (click)="supprimerDoc(doc)"
+            >
+              Supprimer
+            </button>
+
+          </td>
+
+        </tr>
+
+        <!-- EMPTY -->
+        <tr *ngIf="filteredDocuments.length === 0">
+          <td colspan="7" class="empty-state">
+            Aucun document trouvé
+          </td>
+        </tr>
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       GRID VIEW
+  ═══════════════════════════════════════ -->
+  <div class="doc-grid" *ngIf="viewMode === 'grid'">
+
+    <div
+      class="doc-card"
+      *ngFor="let doc of filteredDocuments"
+    >
+
+      <!-- TOP -->
+      <div class="card-top">
+
+        <div class="card-ext">
+          {{ doc.extension.toUpperCase() }}
+        </div>
+
+        <span class="status-badge">
+          {{ doc.statut }}
+        </span>
+
+      </div>
+
+      <!-- NAME -->
+      <div class="card-name">
+        {{ doc.nom }}
+      </div>
+
+      <!-- STARTUP -->
+      <div class="card-startup">
+        {{ doc.startup }}
+      </div>
+
+      <!-- META -->
+      <div class="card-meta">
+
+        <span class="cat-badge">
+          {{ doc.categorie }}
+        </span>
+
+        <span class="card-size">
+          {{ doc.taille }}
+        </span>
+
+      </div>
+
+      <!-- DATE -->
+      <div class="card-date">
+        {{ formatDate(doc.date) }}
+      </div>
+
+      <!-- ACTIONS -->
+      <div class="card-actions">
+
+        <button
+          *ngIf="doc.statut === 'En attente'"
+          (click)="validerDoc(doc)"
+        >
+          Valider
+        </button>
+
+        <button
+          *ngIf="doc.statut === 'En attente'"
+          (click)="rejeterDoc(doc)"
+        >
+          Rejeter
+        </button>
+
+        <button>
+          Télécharger
+        </button>
+
+        <button
+          (click)="supprimerDoc(doc)"
+        >
+          Supprimer
+        </button>
+
+      </div>
+
+    </div>
+
+    <!-- EMPTY GRID -->
+    <div
+      class="empty-state-grid"
+      *ngIf="filteredDocuments.length === 0"
+    >
+      Aucun document trouvé
+    </div>
+
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════
+     MODAL UPLOAD
+═══════════════════════════════════════ -->
+<div
+  class="modal-overlay"
+  *ngIf="showUploadModal"
+>
+
+  <div class="modal">
+
+    <!-- HEADER -->
+    <div class="modal-header">
+
+      <h3>
+        Ajouter un document
+      </h3>
+
+      <button (click)="closeUpload()">
+        X
+      </button>
+
+    </div>
+
+    <!-- BODY -->
+    <div class="modal-body">
+
+      <!-- FILE -->
+      <div class="drop-zone">
+
+        <input
+          #fileInput
+          type="file"
+          hidden
+          (change)="onFileSelect($event)"
+        />
+
+        <button (click)="fileInput.click()">
+          Choisir un fichier
+        </button>
+
+        <p *ngIf="uploadFile">
+          {{ uploadFile.name }}
+        </p>
+
+      </div>
+
+      <!-- FORM -->
+      <div class="form-grid">
+
+        <div class="form-group">
+          <label>Nom du document</label>
+
+          <input
+            type="text"
+            [(ngModel)]="uploadNom"
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Startup</label>
+
+          <input
+            type="text"
+            [(ngModel)]="uploadStartup"
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Catégorie</label>
+
+          <select [(ngModel)]="uploadCategorie">
+
+            <option value="Contrats">
+              Contrats
+            </option>
+
+            <option value="Rapports">
+              Rapports
+            </option>
+
+            <option value="Présentations">
+              Présentations
+            </option>
+
+            <option value="Financier">
+              Financier
+            </option>
+
+          </select>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- FOOTER -->
+    <div class="modal-footer">
+
+      <button
+        (click)="closeUpload()"
+      >
+        Annuler
+      </button>
+
+      <button
+        (click)="submitUpload()"
+      >
+        Envoyer
+      </button>
+
+    </div>
+
+  </div>
+
+</div>

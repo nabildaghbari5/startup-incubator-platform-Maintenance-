@@ -1,0 +1,814 @@
+<!-- ╔══════════════════════════════════════════════════════════╗ -->
+<!-- ║  PORTEUR DASHBOARD — Angular Template                    ║ -->
+<!-- ╚══════════════════════════════════════════════════════════╝ -->
+<div class="shell" >
+
+  <!-- ══ SIDEBAR ══════════════════════════════════════════════ -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <span class="logo-icon">⚡</span>
+      <span class="logo-text">StartupHub</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a class="nav-item" [class.active]="page==='dashboard'" (click)="goTo('/porteur')">
+        <span class="nav-icon">🏠</span><span class="nav-label">Tableau de bord</span>
+      </a>
+      <a class="nav-item" [class.active]="page==='projet'" (click)="goTo('/porteur/projet')">
+        <span class="nav-icon">📊</span><span class="nav-label">Mes projets</span>
+      </a>
+      <a class="nav-item" [class.active]="page==='programme'" (click)="goTo('/porteur/programme')">
+        <span class="nav-icon">🗺️</span><span class="nav-label">Programme</span>
+      </a>
+      <a class="nav-item" [class.active]="page==='documents'" (click)="goTo('/porteur/documents')">
+        <span class="nav-icon">📁</span><span class="nav-label">Documents</span>
+      </a>
+      <a class="nav-item" [class.active]="page==='evaluations'" (click)="goTo('/porteur/evaluations')">
+        <span class="nav-icon">📊</span><span class="nav-label">Évaluations</span>
+      </a>
+      <a class="nav-item" [class.active]="page==='messages'" (click)="goTo('/porteur/messages')">
+        <span class="nav-icon">💬</span><span class="nav-label">Messages</span>
+      </a>
+      <a class="nav-item" [class.active]="page==='profil'" (click)="goTo('/porteur/profil')">
+        <span class="nav-icon">👤</span><span class="nav-label">Profil</span>
+      </a>
+      <a class="nav-item" [class.active]="page==='parametres'" (click)="goTo('/porteur/parametres')">
+        <span class="nav-icon">⚙️</span><span class="nav-label">Paramètres</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-chip" (click)="showUserMenu = !showUserMenu">
+        <div class="user-avatar">{{ currentUser.initials }}</div>
+        <div class="user-info">
+          <span class="user-name">{{ currentUser.name }}</span>
+          <span class="user-role">Porteur de projet</span>
+        </div>
+        <span class="user-caret">⌄</span>
+      </div>
+      <div class="user-dropdown" *ngIf="showUserMenu">
+        <button class="drop-item" (click)="goTo('/porteur/profil'); showUserMenu=false">👤 Mon profil</button>
+        <button class="drop-item danger" (click)="logout()">🚪 Déconnexion</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ══ TOPBAR ════════════════════════════════════════════════ -->
+  <header class="topbar">
+    <button class="burger" (click)="toggleSb()">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="topbar-title">
+      <ng-container [ngSwitch]="page">
+        <span *ngSwitchCase="'dashboard'">Tableau de bord</span>
+        <span *ngSwitchCase="'projet'">Mes projets</span>
+        <span *ngSwitchCase="'programme'">Programme d'incubation</span>
+        <span *ngSwitchCase="'documents'">Mes documents</span>
+        <span *ngSwitchCase="'evaluations'">Mes évaluations</span>
+        <span *ngSwitchCase="'messages'">Messages</span>
+        <span *ngSwitchCase="'profil'">Mon profil</span>
+        <span *ngSwitchCase="'parametres'">Paramètres</span>
+      </ng-container>
+    </div>
+    <div class="topbar-actions">
+      <div class="topbar-avatar" (click)="showUserMenu = !showUserMenu">{{ currentUser.initials }}</div>
+    </div>
+  </header>
+
+  <!-- ══ MAIN ══════════════════════════════════════════════════ -->
+  <main class="main-content">
+
+
+
+    <section *ngIf="page==='projet'" class="page-documents">
+      <!-- ══════ STARTUPS ══════ -->
+      <div *ngIf="page==='projet'" class="page-wrap">
+        <div class="ph">
+          <div>
+            <div class="back-bar"><button class="back-btn" (click)="go('Tableau de board')"><svg width="14" height="14"
+                  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="15 18 9 12 15 6" />
+                </svg>Retour</button></div>
+            <div class="ph-title">Projets</div>
+          </div>
+          <div class="ph-actions">
+            <button class="btn btn-primary btn-sm" (click)="openAdd()">+ Ajouter</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="tbl-wrap">
+            <table class="tbl">
+              <thead>
+                <tr>
+                  <th>Titre</th>
+                  <th>Secteur</th>
+                  <th>Description</th>
+                  <th>Statut</th>
+                  <th>Startup Validée</th>
+                  <th>Date de soumission</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let projet of projects">
+                  <td class="titre-cell">
+                    {{ projet.titre }}
+                  </td>
+                   <td class="secteur-cell">
+                    {{ projet.secteur }}
+                  </td>
+                  <td class="description-cell">
+                    {{ projet.description }}
+                  </td>
+                 
+                  <td>
+                    <span class="statut-pill" [style.background]="statutProjetColor(projet.statut)">
+                      {{ projet.statut }}
+                    </span>
+                  </td>
+
+                  <td>
+
+                    <span *ngIf="projet.startupValidee; else nonValide">
+                      ✅ Oui
+                    </span>
+
+                    <ng-template #nonValide>
+                      ❌ Non
+                    </ng-template>
+
+                  </td>
+
+                  <td>
+                    {{ projet.dateSoumission | date:'dd/MM/yyyy HH:mm' }}
+                  </td>
+                  <td>
+                    <div class="row-acts">
+
+                      <button class="ia-btn" title="Modifier" (click)="onClickUpdateProjet(projet.id)"><svg width="12" height="12" viewBox="0 0 24 24"
+                          fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                        </svg></button>
+                      <button class="ia-btn danger" title="Supprimer" (click)="supprimerProjet(projet.id)"><svg width="12" height="12" viewBox="0 0 24 24"
+                          fill="none" stroke="currentColor" stroke-width="2">
+                          <polyline points="3 6 5 6 21 6" />
+                          <path d="M19 6l-1 14H6L5 6" />
+                        </svg></button>
+                    </div>
+                  </td>
+                </tr>
+                <tr *ngIf="projects.length===0">
+                  <td colspan="6" class="card-empty">Aucune startup trouvée</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ MODAL PROJET FORM ══ -->
+    <div class="overlay" *ngIf="showAddModal" >
+      <div class="modal md" (click)="$event.stopPropagation()">
+        <!-- HEADER -->
+        <div class="mod-head">
+          <div>
+            <div class="mod-title">
+            </div>
+          </div>
+          <button class="mod-close" (click)="showAddModal = false">
+            ✕
+          </button>
+        </div>
+        <!-- BODY -->
+        <div class="mod-body">
+
+          <form class="form" [formGroup]="projetForm">
+
+            <!-- ROW 1 -->
+            <div class="frow">
+
+              <div class="fg">
+
+                <label>
+                  Titre
+                  <span class="req">*</span>
+                </label>
+
+                <input type="text" formControlName="titre" placeholder="Ex : Smart Agri Platform" [class.err]="
+                projetForm.get('titre')?.invalid &&
+                projetForm.get('titre')?.touched
+              " />
+
+              </div>
+
+              <div class="fg">
+
+                <label>
+                  Secteur
+                  <span class="req">*</span>
+                </label>
+
+                <input type="text" formControlName="secteur" placeholder="Ex :Informatique" [class.err]="
+                projetForm.get('secteur')?.invalid &&
+                projetForm.get('secteur')?.touched
+              " />
+
+              </div>
+
+            </div>
+
+            <!-- DESCRIPTION -->
+            <div class="fg">
+
+              <label>
+                Description
+                <span class="req">*</span>
+              </label>
+
+              <textarea rows="4" formControlName="description" placeholder="Décrivez votre projet..." [class.err]="
+              projetForm.get('description')?.invalid &&
+              projetForm.get('description')?.touched
+            ">
+          </textarea>
+
+            </div>
+
+          </form>
+
+        </div>
+
+        <!-- FOOTER -->
+        <div class="mod-foot">
+
+          <button class="btn btn-secondary" (click)="showAddModal = false">
+            Annuler
+          </button>
+
+          <button
+            class="btn btn-primary"
+            (click)="submitProjet()"
+            [disabled]="projetForm.invalid"
+          >
+            {{ editMode ? 'Mettre à jour' : 'Soumettre' }}
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+      <!-- ══ MODAL Update PROJET FORM ══ -->
+    <div class="overlay" *ngIf="showEditModal" >
+      <div class="modal md" (click)="$event.stopPropagation()">
+        <!-- HEADER -->
+        <div class="mod-head">
+          <div>
+            <div class="mod-title">
+            </div>
+          </div>
+          <button class="mod-close" (click)="showEditModal = false">
+            ✕
+          </button>
+        </div>
+        <!-- BODY -->
+        <div class="mod-body">
+
+          <form class="form" [formGroup]="projetForm">
+
+            <!-- ROW 1 -->
+            <div class="frow">
+
+              <div class="fg">
+
+                <label>
+                  Titre
+                  <span class="req">*</span>
+                </label>
+
+                <input type="text" formControlName="titre" placeholder="Ex : Smart Agri Platform" [class.err]="
+                projetForm.get('titre')?.invalid &&
+                projetForm.get('titre')?.touched
+              " />
+
+              </div>
+
+              <div class="fg">
+
+                <label>
+                  Secteur
+                  <span class="req">*</span>
+                </label>
+
+                <input type="text" formControlName="secteur" placeholder="Ex :Informatique" [class.err]="
+                projetForm.get('secteur')?.invalid &&
+                projetForm.get('secteur')?.touched
+              " />
+
+              </div>
+
+            </div>
+
+            <!-- DESCRIPTION -->
+            <div class="fg">
+
+              <label>
+                Description
+                <span class="req">*</span>
+              </label>
+
+              <textarea rows="4" formControlName="description" placeholder="Décrivez votre projet..." [class.err]="
+              projetForm.get('description')?.invalid &&
+              projetForm.get('description')?.touched
+            ">
+          </textarea>
+
+            </div>
+
+          </form>
+
+        </div>
+
+        <!-- FOOTER -->
+        <div class="mod-foot">
+
+          <button class="btn btn-secondary" (click)="showEditModal = false">
+            Annuler
+          </button>
+
+          <button
+            class="btn btn-primary"
+            (click)="submitProjet()"
+            [disabled]="projetForm.invalid"
+          >
+            {{ editMode ? 'Mettre à jour' : 'Soumettre' }}
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <!-- ─── DASHBOARD ─────────────────────────────────────── -->
+    <section *ngIf="page==='dashboard'" class="page-dashboard">
+
+      <!-- KPI Cards -->
+      <div class="kpi-grid">
+        <div class="kpi-card accent-indigo">
+          <div class="kpi-icon">🚀</div>
+          <div class="kpi-body">
+            <span class="kpi-value">{{ currentPhaseName }}</span>
+            <span class="kpi-label">Phase actuelle</span>
+          </div>
+        </div>
+        <div class="kpi-card accent-emerald">
+          <div class="kpi-icon">📈</div>
+          <div class="kpi-body">
+            <span class="kpi-value">{{ progressPct }}%</span>
+            <span class="kpi-label">Progression</span>
+          </div>
+          <div class="kpi-bar">
+            <div class="kpi-bar-fill" [style.width.%]="progressPct"></div>
+          </div>
+        </div>
+        <div class="kpi-card accent-amber">
+          <div class="kpi-icon">🎯</div>
+          <div class="kpi-body">
+            <span class="kpi-value">{{ nextJalon }}</span>
+            <span class="kpi-label">Prochain jalon</span>
+          </div>
+        </div>
+        <div class="kpi-card accent-violet">
+          <div class="kpi-icon">📅</div>
+          <div class="kpi-body">
+            <span class="kpi-value" *ngIf="nextEvent">{{ nextEvent.titre }}</span>
+            <span class="kpi-value" *ngIf="!nextEvent">Aucun événement</span>
+            <span class="kpi-label">Prochain événement</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Content row -->
+      <div class="dash-row">
+
+        <!-- Événements à venir -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">📅 Événements à venir</h2>
+            <button class="btn-sm" (click)="go('programme')">Voir tout</button>
+          </div>
+          <div class="event-list">
+            <div class="event-item" *ngFor="let ev of upcomingEvents">
+              <div class="event-date-badge" [style.background]="typeColor(ev.type)">
+                <span class="ev-day">{{ ev.day }}</span>
+                <span class="ev-month">{{ ev.month }}</span>
+              </div>
+              <div class="event-info">
+                <p class="event-title">{{ ev.titre }}</p>
+                <p class="event-meta">{{ ev.heureDebut }} – {{ ev.heureFin }}
+                  <span *ngIf="ev.lieu"> · {{ ev.lieu }}</span>
+                </p>
+              </div>
+              <span class="event-type-pill" [style.background]="typeColor(ev.type)">{{ ev.typeLabel }}</span>
+            </div>
+            <div class="empty-state" *ngIf="!upcomingEvents.length">
+              <span class="empty-icon">🗓️</span>
+              <p>Aucun événement à venir</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Derniers documents -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">📁 Derniers documents</h2>
+            <button class="btn-sm" (click)="go('documents')">Voir tout</button>
+          </div>
+          <div class="doc-list">
+            <div class="doc-item" *ngFor="let d of documents.slice(0,5)">
+              <span class="doc-emoji">{{ docIcon(d.type) }}</span>
+              <div class="doc-info">
+                <p class="doc-name">{{ d.nom }}</p>
+                <p class="doc-meta">{{ d.taille }} · {{ d.uploadedAt | date:'dd/MM/yyyy' }}</p>
+              </div>
+              <span class="statut-pill" [style.background]="statutDocColor(d.statut)">{{ d.statut }}</span>
+            </div>
+            <div class="empty-state" *ngIf="!documents.length">
+              <span class="empty-icon">📂</span>
+              <p>Aucun document</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ─── PROGRAMME ──────────────────────────────────────── -->
+    <section *ngIf="page==='programme'" class="page-programme">
+      <div class="programme-header">
+        <h1>Programme d'incubation</h1>
+        <div class="progress-global">
+          <span>Progression globale</span>
+          <div class="progress-track">
+            <div class="progress-fill" [style.width.%]="progressPct"></div>
+          </div>
+          <strong>{{ progressPct }}%</strong>
+        </div>
+      </div>
+
+      <div class="phases-timeline">
+        <div class="phase-card" *ngFor="let phase of phases; let i = index" [class]="'phase-card--' + phaseStatut(i)"
+          [style.--phase-color]="phase.couleur">
+          <div class="phase-connector" *ngIf="i < phases.length - 1"></div>
+
+          <div class="phase-number">{{ phase.numero }}</div>
+
+          <div class="phase-body">
+            <div class="phase-head">
+              <div class="phase-icon-wrap" [style.background]="phase.couleur + '22'">
+                <span class="phase-icone">{{ phase.icone }}</span>
+              </div>
+              <div class="phase-meta">
+                <h3 class="phase-titre">{{ phase.titre }}</h3>
+                <span class="phase-mois">{{ phase.mois }}</span>
+              </div>
+              <span class="phase-badge">{{ phaseStatutLabel(i) }}</span>
+            </div>
+            <p class="phase-desc">{{ phase.description }}</p>
+          </div>
+        </div>
+
+        <div class="empty-state" *ngIf="!phases.length">
+          <span class="empty-icon">🗺️</span>
+          <p>Aucune phase définie</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── DOCUMENTS ─────────────────────────────────────── -->
+    <section *ngIf="page==='documents'" class="page-documents">
+
+      <!-- Upload zone -->
+      <div class="upload-zone" [class.dragging]="isDragging" (dragover)="$event.preventDefault(); isDragging=true"
+        (dragleave)="isDragging=false" (drop)="onDrop($event)">
+        <div class="upload-content">
+          <span class="upload-icon">☁️</span>
+          <p class="upload-text">Glissez-déposez un fichier ici</p>
+          <p class="upload-sub">ou</p>
+          <label class="btn-upload">
+            Choisir un fichier
+            <input type="file" hidden (change)="onFileSelected($event)">
+          </label>
+          <p class="upload-hint">PDF, DOCX, XLSX, PNG, JPG — max 10 MB</p>
+        </div>
+        <!-- Progress -->
+        <div class="upload-progress" *ngIf="isUploading">
+          <p class="upload-fname">{{ uploadFileName }}</p>
+          <div class="progress-track">
+            <div class="progress-fill" [style.width.%]="uploadProgress"></div>
+          </div>
+          <span>{{ uploadProgress }}%</span>
+        </div>
+      </div>
+
+      <!-- Search -->
+      <div class="doc-toolbar">
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input class="search-input" placeholder="Rechercher un document…" [(ngModel)]="docSearch"
+            (ngModelChange)="filterDocuments()">
+        </div>
+        <span class="doc-count">{{ filteredDocuments.length }} document(s)</span>
+      </div>
+
+      <!-- Table -->
+      <div class="card no-pad">
+        <table class="doc-table">
+          <thead>
+            <tr>
+              <th>Fichier</th>
+              <th>Type</th>
+              <th>Taille</th>
+              <th>Statut</th>
+              <th>Date</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let d of filteredDocuments">
+              <td class="doc-name-cell">
+                <span class="doc-emoji">{{ docIcon(d.type) }}</span>
+                {{ d.nom }}
+              </td>
+              <td><span class="type-tag">{{ d.type }}</span></td>
+              <td>{{ d.taille }}</td>
+              <td>
+                <span class="statut-pill" [style.background]="statutDocColor(d.statut)">{{ d.statut }}</span>
+              </td>
+              <td>{{ d.uploadedAt | date:'dd/MM/yyyy' }}</td>
+              <td>
+                <button class="btn-dl" (click)="downloadDoc(d)" title="Télécharger">⬇</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="empty-state" *ngIf="!filteredDocuments.length">
+          <span class="empty-icon">📂</span>
+          <p>Aucun document trouvé</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── ÉVALUATIONS ────────────────────────────────────── -->
+    <section *ngIf="page==='evaluations'" class="page-evaluations">
+      <div class="eval-grid">
+        <div class="eval-card" *ngFor="let ev of evaluations">
+          <div class="eval-header">
+            <div class="eval-score-circle" [class]="'score-' + scoreClass(avg(ev))">
+              <span>{{ avg(ev) }}</span>
+              <small>/100</small>
+            </div>
+            <div class="eval-meta">
+              <span class="eval-date">{{ ev.createdAt | date:'dd/MM/yyyy' }}</span>
+              <span class="eval-statut" [class]="'statut-' + ev.statut">{{ ev.statut }}</span>
+            </div>
+          </div>
+
+          <div class="score-bars">
+            <div class="score-row">
+              <span>IA</span>
+              <div class="bar-track">
+                <div class="bar-fill" [style.width.%]="ev.scoreIA" style="--bar-color:#6366f1"></div>
+              </div>
+              <span>{{ ev.scoreIA }}</span>
+            </div>
+            <div class="score-row">
+              <span>Marché</span>
+              <div class="bar-track">
+                <div class="bar-fill" [style.width.%]="ev.scoreMarket" style="--bar-color:#3b82f6"></div>
+              </div>
+              <span>{{ ev.scoreMarket }}</span>
+            </div>
+            <div class="score-row">
+              <span>Équipe</span>
+              <div class="bar-track">
+                <div class="bar-fill" [style.width.%]="ev.scoreTeam" style="--bar-color:#10b981"></div>
+              </div>
+              <span>{{ ev.scoreTeam }}</span>
+            </div>
+            <div class="score-row">
+              <span>Tech</span>
+              <div class="bar-track">
+                <div class="bar-fill" [style.width.%]="ev.scoreTech" style="--bar-color:#f59e0b"></div>
+              </div>
+              <span>{{ ev.scoreTech }}</span>
+            </div>
+            <div class="score-row">
+              <span>Finance</span>
+              <div class="bar-track">
+                <div class="bar-fill" [style.width.%]="ev.scoreFinance" style="--bar-color:#ef4444"></div>
+              </div>
+              <span>{{ ev.scoreFinance }}</span>
+            </div>
+          </div>
+
+          <p class="eval-comment" *ngIf="ev.commentaire">💬 {{ ev.commentaire }}</p>
+        </div>
+      </div>
+      <div class="empty-state" *ngIf="!evaluations.length">
+        <span class="empty-icon">📊</span>
+        <p>Aucune évaluation disponible</p>
+      </div>
+    </section>
+
+    <!-- ─── MESSAGES ──────────────────────────────────────── -->
+    <section *ngIf="page==='messages'" class="page-messages">
+      <!-- Contacts -->
+      <div class="contacts-panel">
+        <div class="contacts-search">
+          <span>💬</span> Conversations
+        </div>
+        <div class="contact-list">
+          <div class="contact-item" *ngFor="let c of contacts" [class.active]="c === activeContact"
+            (click)="selectContact(c)">
+            <div class="contact-avatar">{{ c.substring(0,2).toUpperCase() }}</div>
+            <span class="contact-email">{{ c }}</span>
+          </div>
+          <div class="empty-state sm" *ngIf="!contacts.length">
+            <p>Aucun contact</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chat -->
+      <div class="chat-panel">
+        <div class="chat-header" *ngIf="activeContact">
+          <div class="contact-avatar">{{ activeContact.substring(0,2).toUpperCase() }}</div>
+          <span>{{ activeContact }}</span>
+        </div>
+        <div class="chat-placeholder" *ngIf="!activeContact">
+          <span class="empty-icon">💬</span>
+          <p>Sélectionnez une conversation</p>
+        </div>
+        <div class="messages-list" *ngIf="activeContact">
+          <div class="msg-bubble" *ngFor="let m of messages" [class.mine]="isMine(m)" [class.theirs]="!isMine(m)">
+            <p class="msg-text">{{ m.content }}</p>
+            <span class="msg-time">{{ m.sentAt | date:'HH:mm' }}</span>
+          </div>
+        </div>
+        <div class="chat-input" *ngIf="activeContact">
+          <input class="msg-input" placeholder="Votre message…" [(ngModel)]="newMessage" (keyup.enter)="sendMsg()">
+          <button class="btn-send" (click)="sendMsg()">➤</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── PROFIL ─────────────────────────────────────────── -->
+    <section *ngIf="page==='profil'" class="page-profil">
+      <div class="profil-card">
+        <div class="profil-avatar-lg">{{ currentUser.initials }}</div>
+        <h2 class="profil-name">{{ currentUser.name }}</h2>
+        <p class="profil-email">{{ currentUser.email }}</p>
+        <span class="profil-role-badge">Porteur de projet</span>
+        <div class="profil-stats">
+          <div class="p-stat"><span class="p-stat-val">{{ phases.length }}</span><span
+              class="p-stat-label">Phases</span></div>
+          <div class="p-stat"><span class="p-stat-val">{{ documents.length }}</span><span
+              class="p-stat-label">Documents</span></div>
+          <div class="p-stat"><span class="p-stat-val">{{ evaluations.length }}</span><span
+              class="p-stat-label">Évaluations</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── PARAMÈTRES ─────────────────────────────────────── -->
+    <section *ngIf="page==='parametres'" class="page-parametres">
+      <div class="card param-card">
+        <h2>⚙️ Paramètres du compte</h2>
+        <p class="param-info">Cette section sera bientôt disponible.</p>
+        <button class="btn-danger" (click)="logout()">🚪 Se déconnecter</button>
+      </div>
+    </section>
+
+  </main><!-- /main-content -->
+
+</div><!-- /shell -->
+
+<!-- ══ TOASTS ════════════════════════════════════════════════════ -->
+<div class="toast-container">
+  <div class="toast" *ngFor="let t of toasts" [class]="'toast--' + t.type">
+    {{ t.msg }}
+  </div>
+</div>

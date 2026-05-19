@@ -1,0 +1,203 @@
+<div class="msg-app">
+
+  <!-- ── SIDEBAR CONVERSATIONS ── -->
+  <aside class="msg-sidebar">
+
+    <div class="sidebar-top">
+      <h2>Messages</h2>
+      <button class="btn-new-conv" (click)="newConversation()" title="Nouvelle conversation">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+          <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="search-bar">
+      <svg viewBox="0 0 24 24" fill="currentColor" width="15" height="15">
+        <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+      </svg>
+      <input type="text" placeholder="Rechercher..." [(ngModel)]="searchQuery" (input)="filterConvs()" />
+    </div>
+
+    <!-- Groupes -->
+    <div class="conv-section-label">Groupes</div>
+    <div class="conv-list">
+      <div class="conv-item"
+           *ngFor="let conv of filteredConvs | filter:'group'"
+           [class.active]="activeConv?.id === conv.id"
+           (click)="selectConv(conv)">
+        <div class="conv-avatar group-avatar">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+            <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+          </svg>
+        </div>
+        <div class="conv-info">
+          <div class="conv-name">{{ conv.name }}</div>
+          <div class="conv-last">{{ conv.lastMessage }}</div>
+        </div>
+        <div class="conv-meta">
+          <span class="conv-time">{{ conv.time }}</span>
+          <span class="conv-badge" *ngIf="conv.unread">{{ conv.unread }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Privés -->
+    <div class="conv-section-label">Conversations privées</div>
+    <div class="conv-list">
+      <div class="conv-item"
+           *ngFor="let conv of filteredConvs | filter:'private'"
+           [class.active]="activeConv?.id === conv.id"
+           (click)="selectConv(conv)">
+        <div class="conv-avatar" [style.background]="conv.color">
+          {{ conv.initials }}
+        </div>
+        <div class="conv-info">
+          <div class="conv-name">{{ conv.name }}</div>
+          <div class="conv-last">{{ conv.lastMessage }}</div>
+        </div>
+        <div class="conv-meta">
+          <span class="conv-time">{{ conv.time }}</span>
+          <span class="conv-badge" *ngIf="conv.unread">{{ conv.unread }}</span>
+        </div>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ── CHAT AREA ── -->
+  <section class="msg-chat" *ngIf="activeConv">
+
+    <!-- Chat Header -->
+    <div class="chat-header">
+      <div class="chat-header-left">
+        <div class="conv-avatar" [class.group-avatar]="activeConv.type==='group'"
+             [style.background]="activeConv.type==='private' ? activeConv.color : ''">
+          <span *ngIf="activeConv.type==='private'">{{ activeConv.initials }}</span>
+          <svg *ngIf="activeConv.type==='group'" viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+            <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+          </svg>
+        </div>
+        <div>
+          <div class="chat-name">{{ activeConv.name }}</div>
+          <div class="chat-status">
+            <span class="status-dot" [class.online]="activeConv.online"></span>
+            {{ activeConv.type === 'group' ? activeConv.members + ' membres' : (activeConv.online ? 'En ligne' : 'Hors ligne') }}
+          </div>
+        </div>
+      </div>
+      <div class="chat-header-right">
+        <button class="header-btn" title="Appel vidéo">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+            <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>
+          </svg>
+        </button>
+        <button class="header-btn" title="Informations">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Messages -->
+    <div class="chat-messages" #messagesContainer>
+
+      <div class="date-separator">
+        <span>Aujourd'hui</span>
+      </div>
+
+      <div class="msg-bubble-wrap"
+           *ngFor="let msg of activeConv.messages"
+           [class.mine]="msg.mine">
+
+        <div class="msg-sender-avatar" *ngIf="!msg.mine">
+          <div class="bubble-avatar" [style.background]="msg.senderColor">
+            {{ msg.senderInitials }}
+          </div>
+        </div>
+
+        <div class="msg-content">
+          <div class="msg-sender-name" *ngIf="!msg.mine && activeConv.type==='group'">
+            {{ msg.sender }}
+          </div>
+
+          <!-- Fichier joint -->
+          <div class="msg-file" *ngIf="msg.file">
+            <div class="file-bubble" [class.mine]="msg.mine">
+              <div class="file-icon">📄</div>
+              <div class="file-info">
+                <div class="file-name">{{ msg.file.name }}</div>
+                <div class="file-size">{{ msg.file.size }}</div>
+              </div>
+              <button class="file-dl">⬇</button>
+            </div>
+          </div>
+
+          <!-- Texte -->
+          <div class="msg-bubble" *ngIf="msg.text" [class.mine]="msg.mine">
+            {{ msg.text }}
+          </div>
+
+          <div class="msg-time">{{ msg.time }}</div>
+        </div>
+      </div>
+
+      <!-- Typing indicator -->
+      <div class="typing-indicator" *ngIf="isTyping">
+        <div class="typing-avatar" [style.background]="activeConv.color">{{ activeConv.initials }}</div>
+        <div class="typing-dots">
+          <span></span><span></span><span></span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Input -->
+    <div class="chat-input-area">
+      <button class="input-btn" (click)="attachFile()" title="Joindre un fichier">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+          <path d="M16.5 6v11.5c0 2.21-1.79 4-4 4s-4-1.79-4-4V5a2.5 2.5 0 0 1 5 0v10.5c0 .83-.67 1.5-1.5 1.5s-1.5-.67-1.5-1.5V6H9v9.5a3.5 3.5 0 0 0 7 0V5c0-2.76-2.24-5-5-5S6 2.24 6 5v12.5c0 3.31 2.69 6 6 6s6-2.69 6-6V6h-1.5z"/>
+        </svg>
+      </button>
+
+      <input type="file" #fileInput style="display:none" (change)="onFileSelected($event)" />
+
+      <div class="chat-input-wrap">
+        <input class="chat-input" type="text"
+          [(ngModel)]="newMessage"
+          (keyup.enter)="sendMessage()"
+          (input)="onTyping()"
+          placeholder="Écrire un message..." />
+        <button class="emoji-btn">😊</button>
+      </div>
+
+      <button class="send-btn" (click)="sendMessage()" [disabled]="!newMessage.trim()">
+        <svg viewBox="0 0 24 24" fill="white" width="18" height="18">
+          <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+        </svg>
+      </button>
+    </div>
+
+  </section>
+
+  <!-- ── PLACEHOLDER si aucune conv sélectionnée ── -->
+  <section class="msg-empty" *ngIf="!activeConv">
+    <div class="empty-illustration">
+      <svg viewBox="0 0 120 120" width="120" height="120">
+        <circle cx="60" cy="60" r="50" fill="#ede9fe"/>
+        <path d="M30 45h60v35a5 5 0 0 1-5 5H35a5 5 0 0 1-5-5V45z" fill="#7c3aed" opacity="0.8"/>
+        <rect x="38" y="55" width="44" height="4" rx="2" fill="white" opacity="0.6"/>
+        <rect x="38" y="64" width="30" height="4" rx="2" fill="white" opacity="0.4"/>
+        <path d="M30 45l30 20 30-20" stroke="white" stroke-width="2" fill="none" opacity="0.6"/>
+      </svg>
+    </div>
+    <h3>Sélectionnez une conversation</h3>
+    <p>Choisissez une conversation dans la liste ou créez-en une nouvelle.</p>
+    <button class="btn-start" (click)="newConversation()">
+      <svg viewBox="0 0 24 24" fill="white" width="16" height="16"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+      Nouvelle conversation
+    </button>
+  </section>
+
+</div>

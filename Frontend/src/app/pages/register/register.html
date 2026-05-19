@@ -1,0 +1,358 @@
+<div class="register-page">
+
+  <!-- ══════════════════════════════════
+       NAVBAR identique à home
+  ══════════════════════════════════ -->
+  <nav class="navbar">
+    <div class="logo">S2T</div>
+    <div class="nav-links">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}">Accueil</a>
+      <a (click)="goToLogin()" class="login-btn">Login</a>
+    </div>
+  </nav>
+
+  <!-- CERCLES DÉCO -->
+  <div class="circle pink"></div>
+  <div class="circle purple"></div>
+  <div class="circle small"></div>
+
+  <!-- ══════════════════════════════════
+       LAYOUT PRINCIPAL
+  ══════════════════════════════════ -->
+  <div class="register-container">
+
+    <!-- ── PANNEAU GAUCHE ── -->
+    <div class="left-panel">
+      <div class="left-content">
+        <h2 class="left-title">Rejoignez<br><span>l'écosystème S2T</span></h2>
+        <p class="left-desc">
+          Connectez-vous à une plateforme intelligente qui accompagne
+          les startups tunisiennes vers la croissance.
+        </p>
+
+        <ul class="feature-list">
+          <li><span class="feat-icon">🚀</span><span>Suivi de progression en temps réel</span></li>
+          <li><span class="feat-icon">🤖</span><span>Analyse IA de vos performances</span></li>
+          <li><span class="feat-icon">📊</span><span>Tableaux de bord personnalisés</span></li>
+          <li><span class="feat-icon">🤝</span><span>Mise en relation incubateurs-startups</span></li>
+        </ul>
+
+        <div class="image-side">
+          <div class="card-img card1"><img src="assets/img1.png" alt="Innovation" /></div>
+          <div class="card-img card2"><img src="assets/img2.png" alt="Équipe" /></div>
+          <div class="deco-circle c1"></div>
+          <div class="deco-circle c2"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PANNEAU DROIT : FORMULAIRE ── -->
+    <div class="right-panel">
+      <div class="register-card">
+
+        <!-- En-tête -->
+        <div class="card-header">
+          <h3>Créer un compte</h3>
+          <p>Étape <strong>{{ step }}</strong> sur <strong>3</strong> — {{ stepLabel }}</p>
+        </div>
+
+        <!-- Barre de progression -->
+        <div class="progress-track">
+          <div class="progress-fill" [style.width]="progress + '%'"></div>
+        </div>
+
+        <!-- Dots -->
+        <div class="step-dots">
+          <span class="dot" [class.done]="step > 1" [class.active]="step === 1">
+            <svg *ngIf="step > 1" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+            <span *ngIf="step <= 1">1</span>
+          </span>
+          <div class="dot-line" [class.done]="step > 1"></div>
+          <span class="dot" [class.done]="step > 2" [class.active]="step === 2">
+            <svg *ngIf="step > 2" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+            <span *ngIf="step <= 2">2</span>
+          </span>
+          <div class="dot-line" [class.done]="step > 2"></div>
+          <span class="dot" [class.active]="step === 3"><span>3</span></span>
+        </div>
+
+        <!-- ════════════════════════════
+             ÉTAPE 1 — Infos personnelles
+        ════════════════════════════ -->
+        <div class="form-step" *ngIf="step === 1">
+
+          <label class="field-label">Votre rôle</label>
+          <div class="role-grid">
+            <button *ngFor="let r of roles"
+                    class="role-card"
+                    [class.active]="selectedRole === r.key"
+                    (click)="selectRole(r.key)">
+              <span class="role-emoji">{{ r.icon }}</span>
+              <span class="role-name">{{ r.label }}</span>
+              <span class="role-desc">{{ r.desc }}</span>
+              <span class="role-check" *ngIf="selectedRole === r.key">✓</span>
+            </button>
+          </div>
+
+          <!-- PORTEUR -->
+          <div class="fields" *ngIf="selectedRole === 'PORTEUR'">
+            <div class="field-group">
+              <label class="field-label">Nom complet <span class="req">*</span></label>
+              <div class="input-wrap">
+                <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <input [(ngModel)]="form.nom" placeholder="Ahmed Ben Ali" name="nom" />
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field-group">
+                <label class="field-label">Téléphone</label>
+                <div class="input-wrap">
+                  <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72c.127.488.266.97.43 1.44a2 2 0 0 1-.45 2.11L7.91 8.96a16 16 0 0 0 6.1 6.1l.96-1.38a2 2 0 0 1 2.11-.45c.47.164.95.303 1.44.43a2 2 0 0 1 1.72 2z"/></svg>
+                  <input [(ngModel)]="form.telephone" placeholder="+216 XX XXX XXX" name="tel" />
+                </div>
+              </div>
+              <div class="field-group">
+                <label class="field-label">Ville</label>
+                <div class="input-wrap">
+                  <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                  <input [(ngModel)]="form.ville" placeholder="Tunis" name="ville" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- INCUBATEUR -->
+          <div class="fields" *ngIf="selectedRole === 'INCUBATEUR'">
+            <div class="field-group">
+              <label class="field-label">Nom de l'organisation <span class="req">*</span></label>
+              <div class="input-wrap">
+                <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                <input [(ngModel)]="form.nomOrganisation" placeholder="Centre d'innovation Tunis" name="org" />
+              </div>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Secteur principal</label>
+              <div class="input-wrap">
+                <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                <input [(ngModel)]="form.secteurIncubateur" placeholder="Tech, Agri, Santé..." name="secteurIncubateur" />
+              </div>
+            </div>
+          </div>
+
+          <!-- EXPERT -->
+          <div class="fields" *ngIf="selectedRole === 'EXPERT'">
+            <div class="field-row">
+              <div class="field-group">
+                <label class="field-label">Nom Complet<span class="req">*</span></label>
+                <div class="input-wrap">
+                  <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  <input [(ngModel)]="form.nom" placeholder="Ben Salah" name="nom" />
+                </div>
+              </div>
+              
+            </div>
+            <div class="field-group">
+              <label class="field-label">Domaine d'expertise <span class="req">*</span></label>
+              <div class="input-wrap">
+                <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                <input [(ngModel)]="form.secteur" placeholder="FinTech, AgriTech, Marketing..." name="secteur" />
+              </div>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Téléphone</label>
+              <div class="input-wrap">
+                <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72c.127.488.266.97.43 1.44a2 2 0 0 1-.45 2.11L7.91 8.96a16 16 0 0 0 6.1 6.1l.96-1.38a2 2 0 0 1 2.11-.45c.47.164.95.303 1.44.43a2 2 0 0 1 1.72 2z"/></svg>
+                <input [(ngModel)]="form.telephone" placeholder="+216 XX XXX XXX" name="tel" />
+              </div>
+            </div>
+          </div>
+
+          <!-- ADMIN -->
+          <div class="fields" *ngIf="selectedRole === 'ADMIN'">
+            <div class="field-row">
+              <div class="field-group">
+                <label class="field-label">Nom <span class="req">*</span></label>
+                <div class="input-wrap">
+                  <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  <input [(ngModel)]="form.nom" placeholder="Ben Ali" name="nom" />
+                </div>
+              </div>
+              <div class="field-group">
+                <label class="field-label">Prénom <span class="req">*</span></label>
+                <div class="input-wrap">
+                  <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  <input [(ngModel)]="form.prenom" placeholder="Ahmed" name="prenom" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /step 1 -->
+
+        <!-- ════════════════════════════
+             ÉTAPE 2 — Infos complémentaires
+        ════════════════════════════ -->
+        <div class="form-step" *ngIf="step === 2">
+
+          <!-- PORTEUR -->
+          <div class="fields" *ngIf="selectedRole === 'PORTEUR'">
+            <div class="field-group">
+              <label class="field-label">Nom de votre startup</label>
+              <div class="input-wrap">
+                <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                <input [(ngModel)]="form.startup" placeholder="AgriTech Pro" name="startup" />
+              </div>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Secteur d'activité</label>
+              <div class="input-wrap">
+                <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                <input [(ngModel)]="form.secteur" placeholder="Agriculture, EdTech, HealthTech..." name="secteur" />
+              </div>
+            </div>
+          </div>
+
+          <!-- INCUBATEUR -->
+          <div class="fields" *ngIf="selectedRole === 'INCUBATEUR'">
+            <div class="field-group">
+              <label class="field-label">Nombre de startups accompagnées</label>
+              <div class="input-wrap">
+                <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                <input [(ngModel)]="form.nbStartups" placeholder="ex: 12" type="number" name="nbStartups" />
+              </div>
+            </div>
+          </div>
+
+          <!-- EXPERT -->
+          <div class="fields" *ngIf="selectedRole === 'EXPERT'">
+            <div class="field-group">
+              <label class="field-label">Années d'expérience</label>
+              <div class="input-wrap">
+                <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <input [(ngModel)]="form.anneesExperience" type="number" min="0" placeholder="ex: 8" name="experience" />
+              </div>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Organisation / Entreprise</label>
+              <div class="input-wrap">
+                <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                <input [(ngModel)]="form.startup" placeholder="ex: Microsoft, Startup indépendant..." name="org" />
+              </div>
+            </div>
+            <div class="field-group">
+              <label class="field-label">Profil LinkedIn (optionnel)</label>
+              <div class="input-wrap">
+                <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+                <input [(ngModel)]="form.roleAdmin" placeholder="linkedin.com/in/votre-profil" name="linkedin" />
+              </div>
+            </div>
+          </div>
+
+          <!-- ADMIN -->
+          <div class="fields" *ngIf="selectedRole === 'ADMIN'">
+            <div class="field-group">
+              <label class="field-label">Type d'administrateur</label>
+              <div class="input-wrap">
+                <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                <input [(ngModel)]="form.roleAdmin" placeholder="Super Admin, Modérateur..." name="roleAdmin" />
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /step 2 -->
+
+        <!-- ════════════════════════════
+             ÉTAPE 3 — Email & Mot de passe
+        ════════════════════════════ -->
+        <div class="form-step" *ngIf="step === 3">
+          <div class="fields">
+
+            <div class="field-group">
+              <label class="field-label">Adresse e-mail <span class="req">*</span></label>
+              <div class="input-wrap">
+                <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                <input [(ngModel)]="form.email" type="email" placeholder="vous@exemple.com" name="email" />
+              </div>
+            </div>
+
+            <div class="field-group">
+              <label class="field-label">Mot de passe <span class="req">*</span></label>
+              <div class="input-wrap">
+                <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <input [(ngModel)]="form.password"
+                       [type]="showPassword ? 'text' : 'password'"
+                       placeholder="Minimum 8 caractères"
+                       name="password" />
+                <button class="eye-btn" type="button" (click)="togglePassword()">
+                  <svg *ngIf="!showPassword" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  <svg *ngIf="showPassword"  width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Récapitulatif -->
+            <div class="recap-box">
+              <div class="recap-title">Récapitulatif</div>
+              <div class="recap-row">
+                <span>Rôle</span>
+                <span class="recap-val">{{ selectedRole }}</span>
+              </div>
+              <div class="recap-row" *ngIf="form.nom">
+                <span>Nom</span>
+                <span class="recap-val">{{ form.nom }} {{ form.prenom }}</span>
+              </div>
+              <div class="recap-row" *ngIf="selectedRole === 'PORTEUR' && form.startup">
+                <span>Startup</span>
+                <span class="recap-val">{{ form.startup }}</span>
+              </div>
+              <div class="recap-row" *ngIf="selectedRole === 'PORTEUR' && form.secteur">
+                <span>Secteur</span>
+                <span class="recap-val">{{ form.secteur }}</span>
+              </div>
+              <div class="recap-row" *ngIf="selectedRole === 'INCUBATEUR' && form.nbStartups">
+                <span>Nb startups</span>
+                <span class="recap-val">{{ form.nbStartups }}</span>
+              </div>
+              <div class="recap-row" *ngIf="selectedRole === 'EXPERT' && form.secteur">
+                <span>Expertise</span>
+                <span class="recap-val">{{ form.secteur }}</span>
+              </div>
+              <div class="recap-row" *ngIf="selectedRole === 'EXPERT' && form.anneesExperience">
+                <span>Expérience</span>
+                <span class="recap-val">{{ form.anneesExperience }} ans</span>
+              </div>
+              <div class="recap-row" *ngIf="selectedRole === 'EXPERT' && form.startup">
+                <span>Organisation</span>
+                <span class="recap-val">{{ form.startup }}</span>
+              </div>
+            </div>
+
+          </div>
+        </div><!-- /step 3 -->
+
+        <!-- NAVIGATION -->
+        <div class="form-nav">
+          <button class="btn-back" *ngIf="step > 1" (click)="prevStep()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+            Retour
+          </button>
+          <button class="btn-next" *ngIf="step < 3" (click)="nextStep()">
+            Suivant
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+          <button class="btn-submit" *ngIf="step === 3" (click)="register()" [disabled]="isLoading">
+            <span *ngIf="!isLoading">S'inscrire 🚀</span>
+            <span *ngIf="isLoading" class="spinner"></span>
+          </button>
+        </div>
+
+        <p class="login-link">
+          Déjà un compte ?
+          <a (click)="goToLogin()">Se connecter</a>
+        </p>
+
+      </div>
+    </div>
+
+  </div>
+</div>

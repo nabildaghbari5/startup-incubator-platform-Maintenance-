@@ -1,0 +1,191 @@
+<div class="pg-wrap">
+
+  <!-- ── HEADER ── -->
+  <div class="pg-header">
+    <div class="pg-header-left">
+      <span class="pg-tag">INCUBATEUR · PROGRAMME</span>
+      <h1 class="pg-title">Phases d'incubation</h1>
+      <p class="pg-sub">{{ phases.length }} phase{{ phases.length > 1 ? 's' : '' }} · Programme actif</p>
+    </div>
+
+    <div class="pg-header-right">
+      <button class="btn-ghost" (click)="saveAll()" [disabled]="saving">
+        💾 {{ saving ? 'Enregistrement...' : 'Enregistrer' }}
+      </button>
+
+      <button class="btn-primary" (click)="openAdd()">
+        ➕ Ajouter une phase
+      </button>
+    </div>
+  </div>
+
+  <!-- ── TABLE ── -->
+  <div class="pg-table-wrap">
+    <table class="pg-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Phase</th>
+          <th>Activités</th>
+          <th>Durée</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let phase of phases; let i = index">
+
+          <td>
+            <div class="num-badge" [style.background]="phase.color">
+              {{ i + 1 }}
+            </div>
+          </td>
+
+          <td>
+            <div class="phase-cell">
+              <div class="phase-icon-box" [style.background]="phase.iconBg">
+                {{ phase.icon }}
+              </div>
+              <span>{{ phase.name }}</span>
+            </div>
+          </td>
+
+          <td>
+            <div class="items-chips">
+              <span *ngFor="let item of phase.items.slice(0,2)" class="chip">
+                {{ item }}
+              </span>
+              <span *ngIf="phase.items.length > 2" class="chip-more">
+                +{{ phase.items.length - 2 }}
+              </span>
+            </div>
+          </td>
+
+          <td>
+            <span class="duration-pill">{{ phase.duration }}</span>
+          </td>
+
+          <td>
+            <button class="tbl-btn edit" (click)="openEdit(i)">✏️</button>
+            <button class="tbl-btn del" (click)="deletePhase(i)">🗑</button>
+          </td>
+
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- EMPTY -->
+    <div class="empty" *ngIf="phases.length === 0">
+      <div class="empty-ico">📋</div>
+      <p>Aucune phase. Commencez par en ajouter une.</p>
+      <button class="btn-primary" (click)="openAdd()">+ Ajouter une phase</button>
+    </div>
+  </div>
+
+  <!-- ── HISTORIQUE ── -->
+  <div class="pg-history">
+    <h2 class="history-title">Historique</h2>
+    <div class="history-list">
+      <div class="history-row" *ngFor="let h of historique">
+        <span class="history-date">{{ h.date }}</span>
+        <span class="history-badge" [ngClass]="h.actionClass">{{ h.action }}</span>
+        <span class="history-desc">{{ h.description }}</span>
+        <span class="history-par">{{ h.par }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast"
+    [style.transform]="toastMsg ? 'translateY(0)' : 'translateY(80px)'"
+    [style.opacity]="toastMsg ? '1' : '0'">
+    {{ toastMsg }}
+  </div>
+
+</div>
+
+
+<!-- ═══════════════ DIALOG ═══════════════ -->
+<dialog #phaseDialog class="pg-dialog">
+  <div class="pg-dialog-inner">
+
+    <!-- HEADER -->
+    <div class="pg-dialog-header">
+      <div>
+        <h3>{{ editingIndex === -1 ? 'Nouvelle phase' : 'Modifier · ' + editingPhase.name }}</h3>
+        <p>{{ editingIndex === -1 ? 'Créer une nouvelle phase' : 'Modifier la phase' }}</p>
+      </div>
+
+      <button class="pg-dialog-close" (click)="closeModal()">✖</button>
+    </div>
+
+    <!-- BODY -->
+    <div class="pg-dialog-body">
+
+      <!-- NOM -->
+      <div class="pg-field">
+        <label>Nom *</label>
+        <input class="pg-input" type="text"
+          [(ngModel)]="editingPhase.name"
+          placeholder="Ex: Idéation" />
+      </div>
+
+      <!-- ROW -->
+      <div class="pg-field-row">
+
+        <!-- ✅ ICONE LISTE -->
+        <div class="pg-field">
+          <label>Icône</label>
+
+          <select class="pg-input"
+            [(ngModel)]="editingPhase.icon">
+
+            <option *ngFor="let ic of iconsList" [value]="ic">
+              {{ ic }}
+            </option>
+
+          </select>
+        </div>
+
+        <!-- COULEUR -->
+        <div class="pg-field">
+          <label>Couleur</label>
+          <input class="pg-input pg-input-color"
+            type="color"
+            [(ngModel)]="editingPhase.color" />
+        </div>
+
+        <!-- DUREE -->
+        <div class="pg-field">
+          <label>Durée</label>
+          <input class="pg-input"
+            type="text"
+            [(ngModel)]="editingPhase.duration"
+            placeholder="1 mois" />
+        </div>
+
+      </div>
+
+      <!-- ACTIVITES -->
+      <div class="pg-field">
+        <label>Activités</label>
+        <textarea class="pg-input pg-textarea"
+          rows="5"
+          [(ngModel)]="itemsText"
+          placeholder="Une activité par ligne"></textarea>
+      </div>
+
+    </div>
+
+    <!-- FOOTER -->
+    <div class="pg-dialog-footer">
+      <button class="pg-btn-cancel" (click)="closeModal()">Annuler</button>
+      <button class="pg-btn-submit"
+        (click)="savePhase()"
+        [disabled]="!editingPhase.name">
+        💾 Enregistrer
+      </button>
+    </div>
+
+  </div>
+</dialog>

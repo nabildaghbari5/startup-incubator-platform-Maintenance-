@@ -1,0 +1,426 @@
+<!-- ╔══════════════════════════════════════════════════════════╗ -->
+<!-- ║  EXPERT DASHBOARD — Angular Template                     ║ -->
+<!-- ╚══════════════════════════════════════════════════════════╝ -->
+<div class="shell" [class.sidebar-closed]="!sidebarOpen">
+
+  <!-- ══ SIDEBAR ══════════════════════════════════════════════ -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <span class="logo-gem">◆</span>
+      <span class="logo-text">ExpertHub</span>
+    </div>
+
+    <nav class="sidebar-nav">
+      <a class="nav-item" [class.active]="page==='dashboard'" (click)="goTo('/expert')">
+        <span class="nav-icon">🏠</span><span class="nav-label">Tableau de bord</span>
+      </a>
+      <!--
+      <a class="nav-item" [class.active]="page==='dashboard'" (click)="goTo('/expert')">
+        <span class="nav-icon">🏠</span><span class="nav-label">Programme</span>
+      </a>
+      -->
+
+      <a class="nav-item" [class.active]="page==='projets'" (click)="goTo('/expert/projets')">
+        <span class="nav-icon">🔍</span><span class="nav-label">Consulter projets</span>
+      </a>
+      <a class="nav-item" [class.active]="page==='evaluer'" (click)="goTo('/expert/evaluer')">
+        <span class="nav-icon">⭐</span><span class="nav-label">Évaluer projets</span>
+        <span class="nav-badge" *ngIf="pendingCount > 0">{{ pendingCount }}</span>
+      </a>
+      <a class="nav-item" [class.active]="page==='messages'" (click)="goTo('/expert/messages')">
+        <span class="nav-icon">💬</span><span class="nav-label">Messagerie</span>
+      </a>
+      <a class="nav-item" [class.active]="page==='profil'" (click)="goTo('/expert/profil')">
+        <span class="nav-icon">👤</span><span class="nav-label">Mon profil</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-chip" (click)="showUserMenu = !showUserMenu">
+        <div class="user-avatar">{{ currentUser.initials }}</div>
+        <div class="user-info">
+          <span class="user-name">{{ currentUser.name }}</span>
+          <span class="user-role">Expert évaluateur</span>
+        </div>
+        <span class="user-caret">⌄</span>
+      </div>
+      <div class="user-dropdown" *ngIf="showUserMenu">
+        <button class="drop-item" (click)="go('profil'); showUserMenu=false">👤 Profil</button>
+        <button class="drop-item danger" (click)="logout()">🚪 Déconnexion</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ══ TOPBAR ════════════════════════════════════════════════ -->
+  <header class="topbar">
+    <button class="burger" (click)="toggleSb()">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="topbar-breadcrumb">
+      <span class="breadcrumb-root">Expert</span>
+      <span class="breadcrumb-sep">/</span>
+      <span class="breadcrumb-page">
+        <ng-container [ngSwitch]="page">
+          <span *ngSwitchCase="'dashboard'">Tableau de bord</span>
+          <span *ngSwitchCase="'projets'">Consulter projets</span>
+          <span *ngSwitchCase="'evaluer'">Évaluer projets</span>
+          <span *ngSwitchCase="'messages'">Messagerie</span>
+          <span *ngSwitchCase="'profil'">Mon profil</span>
+        </ng-container>
+      </span>
+    </div>
+    <div class="topbar-right">
+      <div class="topbar-avatar" (click)="showUserMenu = !showUserMenu">{{ currentUser.initials }}</div>
+    </div>
+  </header>
+
+  <!-- ══ MAIN ══════════════════════════════════════════════════ -->
+  <main class="main-content">
+
+    <!-- ─── DASHBOARD ─────────────────────────────────────── -->
+    <section *ngIf="page==='dashboard'" class="page-anim">
+
+      <div class="page-hero">
+        <div class="hero-text">
+          <h1>Bonjour, <span class="hero-name">{{ currentUser.name }}</span> 👋</h1>
+          <p>Votre espace d'évaluation de projets innovants</p>
+        </div>
+      </div>
+
+      <!-- KPI -->
+      <div class="kpi-grid">
+        <div class="kpi-card kpi-teal">
+          <div class="kpi-glow"></div>
+          <span class="kpi-icon">📋</span>
+          <div class="kpi-body">
+            <span class="kpi-val">{{ projets.length }}</span>
+            <span class="kpi-lbl">Projets disponibles</span>
+          </div>
+        </div>
+        <div class="kpi-card kpi-amber">
+          <div class="kpi-glow"></div>
+          <span class="kpi-icon">⏳</span>
+          <div class="kpi-body">
+            <span class="kpi-val">{{ pendingCount }}</span>
+            <span class="kpi-lbl">En attente</span>
+          </div>
+        </div>
+        <div class="kpi-card kpi-violet">
+          <div class="kpi-glow"></div>
+          <span class="kpi-icon">✅</span>
+          <div class="kpi-body">
+            <span class="kpi-val">{{ totalEvals }}</span>
+            <span class="kpi-lbl">Mes évaluations</span>
+          </div>
+        </div>
+        <div class="kpi-card kpi-rose">
+          <div class="kpi-glow"></div>
+          <span class="kpi-icon">📊</span>
+          <div class="kpi-body">
+            <span class="kpi-val">{{ avgScore }}<small>/100</small></span>
+            <span class="kpi-lbl">Score moyen</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent projets -->
+      <div class="section-title">🔍 Projets récents à évaluer</div>
+      <div class="projets-grid">
+        <div class="projet-card" *ngFor="let p of projets.slice(0,6)" (click)="selectProjet(p); go('evaluer')">
+          <div class="pc-header">
+            <div class="pc-sector-tag">{{ p.secteur }}</div>
+            <span class="pc-statut" [style.background]="statutColor(p.statut)">{{ p.statut }}</span>
+          </div>
+          <h3 class="pc-name">{{ p.nom }}</h3>
+          <p class="pc-desc">{{ p.description | slice:0:100 }}…</p>
+          <div class="pc-footer">
+            <span class="pc-porteur">👤 {{ p.porteurNom }}</span>
+            <button class="pc-btn">Évaluer →</button>
+          </div>
+        </div>
+      </div>
+      <div class="empty-state" *ngIf="!projets.length">
+        <span class="empty-icon">📂</span>
+        <p>Aucun projet disponible</p>
+      </div>
+
+    </section>
+
+    <!-- ─── CONSULTER PROJETS ─────────────────────────────── -->
+    <section *ngIf="page==='projets'" class="page-anim">
+      <div class="page-title-row">
+        <h2 class="page-title">Consulter les projets</h2>
+      
+      </div>
+
+      <div class="table-card">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Porteur</th>
+              <th>Titre</th>
+              <th>Secteur</th>
+              <th>Description</th>
+              <th>Statut</th>
+              <th>Startup Validée</th>
+              <th>Date de soumission</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let projet of projects">
+              <td class="porteur-cell">
+                {{ projet.porteur.nom }}
+              </td>
+              <td class="titre-cell">
+                {{ projet.titre }}
+              </td>
+              <td class="secteur-cell">
+                {{ projet.secteur }}
+              </td>
+              <td class="description-cell">
+                {{ projet.description }}
+              </td>
+
+              <td>
+                <span class="statut-pill" [style.background]="statutProjetColor(projet.statut)">
+                  {{ projet.statut }}
+                </span>
+              </td>
+
+              <td>
+
+                <span *ngIf="projet.startupValidee; else nonValide">
+                  ✅ Oui
+                </span>
+
+                <ng-template #nonValide>
+                  ❌ Non
+                </ng-template>
+
+              </td>
+
+              <td>
+                {{ projet.dateSoumission | date:'dd/MM/yyyy HH:mm' }}
+              </td>
+
+            </tr>
+          
+          </tbody>
+        </table>
+        <div class="empty-state" *ngIf="!projects.length">
+          <span class="empty-icon">📋</span>
+          <p>Aucun projet trouvé</p>
+        </div>
+      </div>
+    </section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <!-- ─── ÉVALUER ───────────────────────────────────────── -->
+    <section *ngIf="page==='evaluer'" class="page-anim evaluer-layout">
+
+      <!-- Liste projets -->
+      <div class="eval-list-panel">
+        <div class="elp-head">
+          <span class="elp-title">Projets</span>
+          <span class="elp-count">{{ projets.length }}</span>
+        </div>
+        <div class="elp-search">
+          <input placeholder="Filtrer…" [(ngModel)]="projetSearch" (ngModelChange)="filterProjets()">
+        </div>
+        <div class="elp-items">
+          <div class="elp-item" *ngFor="let p of filteredProjets" [class.selected]="selectedProjet?.id === p.id"
+            (click)="selectProjet(p)">
+            <div class="elp-dot" [style.background]="statutColor(p.statut)"></div>
+            <div class="elp-info">
+              <span class="elp-name">{{ p.nom }}</span>
+              <span class="elp-sector">{{ p.secteur }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Formulaire évaluation -->
+      <div class="eval-form-panel" *ngIf="selectedProjet">
+        <div class="efp-header">
+          <div>
+            <h2 class="efp-title">{{ selectedProjet.nom }}</h2>
+            <p class="efp-porteur">👤 {{ selectedProjet.porteurNom }} · {{ selectedProjet.secteur }}</p>
+          </div>
+          <span class="efp-statut" [style.background]="statutColor(selectedProjet.statut)">{{ selectedProjet.statut
+            }}</span>
+        </div>
+
+        <p class="efp-desc">{{ selectedProjet.description }}</p>
+
+        <div class="score-sliders">
+          <div class="slider-row">
+            <label>🤖 IA / Innovation</label>
+            <input type="range" min="0" max="100" [(ngModel)]="evalForm.scoreIA">
+            <span class="slider-val" [class]="scoreClass(evalForm.scoreIA)">{{ evalForm.scoreIA }}</span>
+          </div>
+          <div class="slider-row">
+            <label>📈 Marché</label>
+            <input type="range" min="0" max="100" [(ngModel)]="evalForm.scoreMarket">
+            <span class="slider-val" [class]="scoreClass(evalForm.scoreMarket)">{{ evalForm.scoreMarket }}</span>
+          </div>
+          <div class="slider-row">
+            <label>👥 Équipe</label>
+            <input type="range" min="0" max="100" [(ngModel)]="evalForm.scoreTeam">
+            <span class="slider-val" [class]="scoreClass(evalForm.scoreTeam)">{{ evalForm.scoreTeam }}</span>
+          </div>
+          <div class="slider-row">
+            <label>⚙️ Technologie</label>
+            <input type="range" min="0" max="100" [(ngModel)]="evalForm.scoreTech">
+            <span class="slider-val" [class]="scoreClass(evalForm.scoreTech)">{{ evalForm.scoreTech }}</span>
+          </div>
+          <div class="slider-row">
+            <label>💰 Finance</label>
+            <input type="range" min="0" max="100" [(ngModel)]="evalForm.scoreFinance">
+            <span class="slider-val" [class]="scoreClass(evalForm.scoreFinance)">{{ evalForm.scoreFinance }}</span>
+          </div>
+        </div>
+
+        <!-- Score global -->
+        <div class="score-global">
+          <div class="sg-circle" [class]="'score-' + scoreClass(avg(evalForm))">
+            <span>{{ avg(evalForm) }}</span>
+            <small>/100</small>
+          </div>
+          <div class="sg-label">Score global calculé</div>
+        </div>
+
+        <div class="comment-row">
+          <label>💬 Commentaire</label>
+          <textarea rows="4" placeholder="Votre analyse du projet…" [(ngModel)]="evalForm.commentaire"></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button class="btn-cancel" (click)="selectedProjet = null">Annuler</button>
+          <button class="btn-submit" [disabled]="isSubmitting" (click)="submitEval()">
+            {{ isSubmitting ? 'Envoi…' : '✅ Soumettre l\'évaluation' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Placeholder si rien sélectionné -->
+      <div class="eval-placeholder" *ngIf="!selectedProjet">
+        <span class="empty-icon">⭐</span>
+        <p>Sélectionnez un projet à évaluer</p>
+      </div>
+
+    </section>
+
+    <!-- ─── MESSAGES ──────────────────────────────────────── -->
+    <section *ngIf="page==='messages'" class="page-anim page-messages">
+      <div class="contacts-panel">
+        <div class="contacts-head">💬 Conversations</div>
+        <div class="contact-list">
+          <div class="contact-item" *ngFor="let c of contacts" [class.active]="c === activeContact"
+            (click)="selectContact(c)">
+            <div class="contact-avatar">{{ c.substring(0,2).toUpperCase() }}</div>
+            <span class="contact-email">{{ c }}</span>
+          </div>
+          <div class="empty-state sm" *ngIf="!contacts.length">
+            <p>Aucun contact</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-panel">
+        <div class="chat-header" *ngIf="activeContact">
+          <div class="contact-avatar">{{ activeContact.substring(0,2).toUpperCase() }}</div>
+          <span>{{ activeContact }}</span>
+        </div>
+        <div class="chat-placeholder" *ngIf="!activeContact">
+          <span class="empty-icon">💬</span>
+          <p>Sélectionnez une conversation</p>
+        </div>
+        <div class="messages-list" *ngIf="activeContact">
+          <div class="msg-bubble" *ngFor="let m of messages" [class.mine]="isMine(m)" [class.theirs]="!isMine(m)">
+            <p class="msg-text">{{ m.content }}</p>
+            <span class="msg-time">{{ m.sentAt | date:'HH:mm' }}</span>
+          </div>
+        </div>
+        <div class="chat-input-row" *ngIf="activeContact">
+          <input class="msg-input" placeholder="Votre message…" [(ngModel)]="newMessage" (keyup.enter)="sendMsg()">
+          <button class="btn-send" (click)="sendMsg()">➤</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── PROFIL ─────────────────────────────────────────── -->
+    <section *ngIf="page==='profil'" class="page-anim page-profil">
+      <div class="profil-card">
+        <div class="profil-avatar-lg">{{ currentUser.initials }}</div>
+        <h2 class="profil-name">{{ currentUser.name }}</h2>
+        <p class="profil-email">{{ currentUser.email }}</p>
+        <span class="profil-role-badge">Expert évaluateur</span>
+        <div class="profil-stats">
+          <div class="p-stat">
+            <span class="p-val">{{ totalEvals }}</span>
+            <span class="p-lbl">Évaluations</span>
+          </div>
+          <div class="p-stat">
+            <span class="p-val">{{ avgScore }}</span>
+            <span class="p-lbl">Score moyen</span>
+          </div>
+          <div class="p-stat">
+            <span class="p-val">{{ pendingCount }}</span>
+            <span class="p-lbl">En attente</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ══ TOASTS ════════════════════════════════════════════════════ -->
+<div class="toast-container">
+  <div class="toast" *ngFor="let t of toasts" [class]="'toast--' + t.type">{{ t.msg }}</div>
+</div>

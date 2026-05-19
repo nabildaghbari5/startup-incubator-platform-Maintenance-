@@ -1,0 +1,57 @@
+<div class="documents-page">
+
+  <!-- HEADER -->
+  <div class="doc-header">
+    <h2>📁 Mes Documents</h2>
+    <p>Gérez et téléchargez vos fichiers liés à votre projet</p>
+  </div>
+
+  <!-- UPLOAD -->
+  <div class="upload-card">
+    <h3>📤 Ajouter un document</h3>
+
+    <div class="upload-box">
+      <input type="file" (change)="onFileSelected($event)" />
+      <p>Glisser-déposer ou cliquer pour sélectionner un fichier</p>
+    </div>
+
+    <button class="btn-upload" (click)="uploadFile()">
+      Upload
+    </button>
+  </div>
+
+  <!-- LISTE DOCUMENTS -->
+  <div class="doc-list-card">
+    <h3>📄 Mes fichiers</h3>
+
+    <div class="doc-item" *ngFor="let doc of documents">
+
+      <div class="doc-left">
+        <span class="doc-icon">📄</span>
+
+        <div class="doc-info">
+          <div class="doc-name">{{ doc.name }}</div>
+          <div class="doc-date">{{ doc.date }}</div>
+        </div>
+      </div>
+
+      <div class="doc-actions">
+        <button class="btn-download" (click)="download(doc)">
+          ⬇ Télécharger
+        </button>
+
+        <button class="btn-delete" (click)="delete(doc)">
+          ❌ Supprimer
+        </button>
+      </div>
+
+    </div>
+
+    <!-- SI VIDE -->
+    <div class="empty" *ngIf="documents.length === 0">
+      Aucun document pour le moment
+    </div>
+
+  </div>
+
+</div>
