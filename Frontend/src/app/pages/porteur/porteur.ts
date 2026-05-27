@@ -1,9 +1,11 @@
+import { ProgrammePorteur } from './components/programme-porteur/programme-porteur';
 import { ProjetService } from './service/projet-service';
 import { Component, OnInit, OnDestroy, HostListener, ViewEncapsulation, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { PhaseService } from './service/phase-service';
 
 interface Phase { id?: number; numero: number; mois: string; titre: string; icone: string; description: string; couleur: string; }
 interface EvenementDTO { id: number; titre: string; type: string; typeLabel: string; date: string; day: string; month: string; heureDebut: string; heureFin: string; lieu?: string; }
@@ -14,7 +16,7 @@ interface MessageDTO { id: number; sender: string; receiver: string; content: st
 @Component({
   selector: 'app-porteur',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterModule , ProgrammePorteur],
   templateUrl: './porteur.html',
   styleUrls: ['./porteur.css'],
   encapsulation: ViewEncapsulation.None
@@ -25,6 +27,7 @@ export class PorteurComponent implements OnInit, OnDestroy {
   private get h() { return new HttpHeaders({ Authorization: 'Bearer ' + (localStorage.getItem('token') || '') }); }
   // ✅ FIX 1 — utilise userId (même clé que le login stocke)
   private get incId() { return localStorage.getItem('userId') || '1'; }
+  phases: any[] = [];
 
   constructor(
     private http: HttpClient,
@@ -32,6 +35,7 @@ export class PorteurComponent implements OnInit, OnDestroy {
     private router: Router,
     private cdr: ChangeDetectorRef,
     private fb: FormBuilder,
+    private phaseservice: PhaseService
   ) { }
   projects: any[] = [];
   showProjetModal = false;
@@ -75,7 +79,6 @@ export class PorteurComponent implements OnInit, OnDestroy {
   toasts: { id: number; msg: string; type: string }[] = [];
   private tid = 0;
 
-  phases: Phase[] = [];
   currentPhaseIndex = 0;
 
   allEvents: EvenementDTO[] = [];
@@ -105,6 +108,7 @@ export class PorteurComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.initForm();
     this.loadProjects();
+    this.loadPhases();
     const token = localStorage.getItem('token') || '';
     if (!token) { this.router.navigate(['/login']); return; }
     // Extraire email et role du token JWT
@@ -120,7 +124,6 @@ export class PorteurComponent implements OnInit, OnDestroy {
     } catch (e) { console.error('JWT decode error', e); }
 
     this.page = 'dashboard';
-    this.loadPhases();
     this.loadEvents();
     this.loadDocuments();
     this.loadEvaluations();
@@ -266,9 +269,6 @@ loadProjects(): void {
 
     });
 }
-
-
-
 supprimerProjet(id: number): void {
 
   this.projetService.supprimerProjet(id)
@@ -296,6 +296,19 @@ supprimerProjet(id: number): void {
 
     });
 
+}
+
+
+loadPhases(): void {
+  this.phaseservice.findAllPhase().subscribe({
+    next: (phases) => {
+      this.phases = phases;
+      console.log(this.phases);
+    },
+    error: (err) => {
+      console.error('Erreur lors du chargement des phases :', err);
+    }  
+  });
 }
 
 
@@ -342,7 +355,6 @@ supprimerProjet(id: number): void {
   go(p: string) {
     this.page = p;
     if (p === 'messages') this.loadContacts();
-    if (p === 'programme') this.loadPhases();
     if (p === 'documents') this.loadDocuments();
     if (p === 'evaluations') this.loadEvaluations();
   }
@@ -361,11 +373,7 @@ supprimerProjet(id: number): void {
   }
   get nextEvent(): EvenementDTO | null { return this.upcomingEvents[0] || null; }
 
-  // ── PHASES ───────────────────────────────────────────────
-  loadPhases() {
-    this.http.get<Phase[]>(`${this.api}/incubateur/${this.incId}/phases`, { headers: this.h })
-      .subscribe({ next: p => { this.phases = [...p]; this.cdr.detectChanges(); }, error: () => { } });
-  }
+
 
   phaseStatut(i: number): string {
     if (i < this.currentPhaseIndex) return 'termine';

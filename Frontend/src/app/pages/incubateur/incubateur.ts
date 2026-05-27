@@ -512,8 +512,31 @@ changerStatutProjet(): void {
 
   // ── PHASES ────────────────────────────────────────────────
   loadPhases(){
-    this.http.get<Phase[]>(`${this.api}/incubateur/${this.incId}/phases`,{headers:this.h})
-      .subscribe({next:p=>{this.phases=[...p];this.cdr.detectChanges();},error:()=>{}});
+
+  this.http.get<Phase[]>(
+
+    `${this.api}/phases/incubateur/${this.incId}`,
+
+    {
+      headers: this.h
+    }
+
+  )
+
+  .subscribe({
+
+    next: p => {
+
+      this.phases = [...p];
+
+      this.cdr.detectChanges();
+
+    },
+
+    error: () => {}
+
+  });
+
   }
   openAddPhase(){
     this.editPhaseMode=false;
@@ -530,43 +553,147 @@ changerStatutProjet(): void {
     this.currentPhaseIndex=i;
     this.toast(`Phase "${this.phases[i].titre}" définie comme active`,'success');
   }
-  savePhase(){
-    if(!this.phaseForm.titre?.trim()){this.toast('Le titre est requis','error');return;}
-    const payload={
-      titre:this.phaseForm.titre.trim(),
-      mois:this.phaseForm.mois,
-      icone:this.phaseForm.icone||'📌',
-      description:this.phaseForm.description||'',
-      couleur:this.phaseForm.couleur||'#ec4899',
-      numero:this.phaseForm.numero
-    };
-    const url=this.editPhaseMode&&this.phaseForm.id
-      ?`${this.api}/incubateur/${this.incId}/phases/${this.phaseForm.id}`
-      :`${this.api}/incubateur/${this.incId}/phases`;
-    const req=this.editPhaseMode&&this.phaseForm.id
-      ?this.http.put<Phase>(url,payload,{headers:this.h})
-      :this.http.post<Phase>(url,payload,{headers:this.h});
-    req.subscribe({
-      next:(phase)=>{
-        if(this.editPhaseMode){
-          const idx=this.phases.findIndex(p=>p.id===phase.id);
-          if(idx>-1)this.phases[idx]={...phase};
-          this.phases=[...this.phases];
-        } else {
-          this.phases=[...this.phases,phase];
-        }
-        this.showPhaseModal=false;
-        this.toast(this.editPhaseMode?'Phase mise à jour ✅':'Phase ajoutée ✅','success');
-        this.cdr.detectChanges();
-      },
-      error:(err)=>this.toast(err.error?.error||'Erreur','error')
-    });
+  savePhase() {
+
+  if (!this.phaseForm.titre?.trim()) {
+
+    this.toast(
+      'Le titre est requis',
+      'error'
+    );
+
+    return;
+
   }
+
+  const payload = {
+
+    titre: this.phaseForm.titre.trim(),
+
+    mois: this.phaseForm.mois,
+
+    icone:
+      this.phaseForm.icone || '📌',
+
+    description:
+      this.phaseForm.description || '',
+
+    couleur:
+      this.phaseForm.couleur || '#ec4899',
+
+    numero: this.phaseForm.numero
+
+  };
+
+  const url =
+
+    this.editPhaseMode &&
+    this.phaseForm.id
+
+      ? `${this.api}/phases/${this.phaseForm.id}`
+
+      : `${this.api}/phases/incubateur/${this.incId}`;
+
+  const req =
+
+    this.editPhaseMode &&
+    this.phaseForm.id
+
+      ? this.http.put<Phase>(
+
+          url,
+
+          payload,
+
+          {
+            headers: this.h
+          }
+
+        )
+
+      : this.http.post<Phase>(
+
+          url,
+
+          payload,
+
+          {
+            headers: this.h
+          }
+
+        );
+
+  req.subscribe({
+
+    next: (phase) => {
+
+      if (this.editPhaseMode) {
+
+        const idx =
+          this.phases.findIndex(
+            p => p.id === phase.id
+          );
+
+        if (idx > -1) {
+
+          this.phases[idx] = {
+            ...phase
+          };
+
+        }
+
+        this.phases = [...this.phases];
+
+      } else {
+
+        this.phases = [
+
+          ...this.phases,
+
+          phase
+
+        ];
+
+      }
+
+      this.showPhaseModal = false;
+
+      this.toast(
+
+        this.editPhaseMode
+
+          ? 'Phase mise à jour ✅'
+
+          : 'Phase ajoutée ✅',
+
+        'success'
+
+      );
+
+      this.cdr.detectChanges();
+
+    },
+
+    error: (err) => {
+
+      this.toast(
+
+        err.error?.error || 'Erreur',
+
+        'error'
+
+      );
+
+    }
+
+  });
+
+   }
   openDelPhase(p:Phase){this.phaseToDelete=p;this.showPhaseDeleteModal=true;}
   delPhase(){
     if(!this.phaseToDelete)return;
     const id=this.phaseToDelete.id;
-    this.http.delete(`${this.api}/incubateur/${this.incId}/phases/${id}`,{headers:this.h})
+    this.http.delete(`${this.api}/phases/${id}`,{headers:this.h})
       .subscribe({
         next:()=>{
           this.phases=this.phases.filter(p=>p.id!==id);

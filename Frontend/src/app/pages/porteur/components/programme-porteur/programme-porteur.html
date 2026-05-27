@@ -1,0 +1,47 @@
+      <div class="page-wrap">
+       <div class="ph">
+          <div>
+            <div class="ph-title">Les phases de votre projet</div>
+          </div>
+         
+        </div>
+
+        <div class="rdv-banner" *ngIf="upcomingRdv">  
+          <span class="rdv-ic">📅</span>
+          <div class="rdv-body">
+            <div class="rdv-ttl">{{ upcomingRdv.titre }}</div>
+            <div class="rdv-sub">{{ upcomingRdv.day }} {{ upcomingRdv.month }} · {{ upcomingRdv.heureDebut }}–{{
+              upcomingRdv.heureFin }}</div>
+          </div>
+          <div class="rdv-cnt">{{ rdvDaysLeft===0?'Aujourd\'hui':'dans '+rdvDaysLeft+'j' }}</div>
+        </div>
+
+        <!-- Phases -->
+        <div class="card">
+          <div class="card-header">
+            <div style="display:flex;align-items:center;gap:10px"><span class="card-title">Phases</span></div>
+          </div>
+          <div class="card-body">
+           
+            <div class="phases-track">
+              <div class="phase-card" *ngFor="let p of phases"
+                [style.border-top-color]="p.couleur" >
+                <div class="phase-num" [style.background]="p.couleur">{{ p.numero }}</div>
+                <div class="phase-mo">{{ p.mois }}</div>
+                <span class="phase-ic">{{ p.icone }}</span>
+                <div class="phase-ttl">{{ p.titre }}</div>
+                <div class="phase-desc">{{ p.description }}</div>
+                <div class="phase-foot">
+                
+                  <div class="phase-acts">
+                    
+                  </div>
+                </div>
+              </div>
+             
+            </div>
+          </div>
+        </div>
+
+      </div>
+     

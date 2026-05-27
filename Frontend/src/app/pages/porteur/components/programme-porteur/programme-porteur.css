@@ -1,0 +1,281 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+/* ═══════════════════════════════════════
+   Programme porteur — thème incubation
+═══════════════════════════════════════ */
+:host {
+  --font: 'Inter', sans-serif;
+  --pink: #ec4899;
+  --purple: #a855f7;
+  --green: #10b981;
+  --amber: #f59e0b;
+  --bg: #f0f4ff;
+  --surface: #ffffff;
+  --border: #e2e8f0;
+  --text: #0f172a;
+  --text2: #64748b;
+  --text3: #94a3b8;
+
+  display: block;
+  font-family: var(--font);
+  font-size: 14px;
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* ══ Page layout ══ */
+.page-wrap {
+  max-width: 1280px;
+  padding: 28px 32px 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.ph {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.ph-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.5px;
+}
+
+/* ══ Bannière prochain RDV ══ */
+.rdv-banner {
+  background: linear-gradient(135deg, #fff5f8, #fdf4ff);
+  border: 1.5px solid rgba(236, 72, 153, 0.2);
+  border-radius: 14px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.rdv-banner:hover {
+  border-color: rgba(236, 72, 153, 0.35);
+  box-shadow: 0 4px 16px rgba(236, 72, 153, 0.08);
+}
+
+.rdv-ic {
+  font-size: 26px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.rdv-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.rdv-ttl {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--pink);
+}
+
+.rdv-sub {
+  font-size: 12px;
+  color: var(--purple);
+  margin-top: 2px;
+}
+
+.rdv-cnt {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--pink);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ══ Card container ══ */
+.card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.card-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.card-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.card-body {
+  padding: 16px 20px;
+}
+
+/* ══ Piste horizontale des phases ══ */
+.phases-track {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.phases-track::-webkit-scrollbar {
+  height: 6px;
+}
+
+.phases-track::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 6px;
+}
+
+.phase-card {
+  min-width: 205px;
+  max-width: 205px;
+  flex-shrink: 0;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  transition: all 0.2s;
+  border-top: 3px solid var(--border);
+  display: flex;
+  flex-direction: column;
+}
+
+.phase-card:hover {
+  box-shadow: 0 6px 20px rgba(236, 72, 153, 0.1);
+  transform: translateY(-2px);
+}
+
+.phase-num {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.phase-mo {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--pink);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+
+.phase-ic {
+  font-size: 28px;
+  margin-bottom: 8px;
+  display: block;
+  line-height: 1;
+}
+
+.phase-ttl {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.3;
+  margin-bottom: 6px;
+}
+
+.phase-desc {
+  font-size: 12px;
+  color: var(--text2);
+  line-height: 1.5;
+  flex: 1;
+}
+
+.phase-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 10px;
+  margin-top: 10px;
+  border-top: 1px solid var(--border);
+}
+
+.phase-acts {
+  display: flex;
+  gap: 4px;
+}
+
+/* ══ États optionnels des phases ══ */
+.phase-card--en_cours {
+  border-left: 4px solid var(--pink);
+  box-shadow: 0 4px 16px rgba(236, 72, 153, 0.1);
+}
+
+.phase-card--termine {
+  border-left: 4px solid var(--green);
+  opacity: 0.85;
+}
+
+.phase-card--a_venir {
+  border-left: 4px solid var(--border);
+}
+
+/* ══ Responsive ══ */
+@media (max-width: 768px) {
+  .page-wrap {
+    padding: 16px 16px 32px;
+    gap: 18px;
+  }
+
+  .ph-title {
+    font-size: 18px;
+  }
+
+  .rdv-banner {
+    flex-wrap: wrap;
+    padding: 14px 16px;
+  }
+
+  .rdv-cnt {
+    font-size: 18px;
+    width: 100%;
+    text-align: right;
+  }
+
+  .phase-card {
+    min-width: 180px;
+    max-width: 180px;
+  }
+}
+
+@media (max-width: 500px) {
+  .phases-track {
+    gap: 10px;
+  }
+
+  .phase-card {
+    min-width: 165px;
+    max-width: 165px;
+    padding: 14px;
+  }
+}

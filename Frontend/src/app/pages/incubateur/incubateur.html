@@ -539,18 +539,24 @@
                 <div class="phase-ttl">{{ p.titre }}</div>
                 <div class="phase-desc">{{ p.description }}</div>
                 <div class="phase-foot">
-                  <div class="phase-nav">
+                  <!--
+                 <div class="phase-nav">
                     <button class="phase-nav-btn" [disabled]="i===0" (click)="movePhase(i,-1)">‹</button>
                     <button class="phase-nav-btn" [disabled]="i===phases.length-1" (click)="movePhase(i,1)">›</button>
                   </div>
+                  -->
+            
                   <div class="phase-acts">
-                    <button class="ia-btn" (click)="setActivePhase(i)" title="Définir comme active"
+                    <!--
+                     <button class="ia-btn" (click)="setActivePhase(i)" title="Définir comme active"
                       [class.active-phase-btn]="i===currentPhaseIndex">
                       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                         stroke-width="2">
                         <polyline points="20 6 9 17 4 12" />
                       </svg>
                     </button>
+                    -->
+                   
                     <button class="ia-btn" (click)="openEditPhase(p)"><svg width="11" height="11" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
@@ -1208,7 +1214,7 @@
           <div class="frow">
             <div class="fg"><label>Titre <span class="req">*</span></label><input [(ngModel)]="phaseForm.titre"
                 placeholder="ex: Business Model" /></div>
-            <div class="fg"><label>Label</label><input [(ngModel)]="phaseForm.mois" placeholder="ex: MOIS 3" /></div>
+            <div class="fg"><label>Label</label><input [(ngModel)]="phaseForm.mois" placeholder="ex: Label" /></div>
           </div>
           <div class="fg"><label>Description</label><textarea [(ngModel)]="phaseForm.description" rows="3"></textarea>
           </div>

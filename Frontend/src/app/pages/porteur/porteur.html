@@ -53,6 +53,7 @@
     </div>
   </aside>
 
+
   <!-- ══ TOPBAR ════════════════════════════════════════════════ -->
   <header class="topbar">
     <button class="burger" (click)="toggleSb()">
@@ -66,7 +67,7 @@
         <span *ngSwitchCase="'documents'">Mes documents</span>
         <span *ngSwitchCase="'evaluations'">Mes évaluations</span>
         <span *ngSwitchCase="'messages'">Messages</span>
-        <span *ngSwitchCase="'profil'">Mon profil</span>
+        <span *ngSwitchCase="'profil'">Mon profil</span> 
         <span *ngSwitchCase="'parametres'">Paramètres</span>
       </ng-container>
     </div>
@@ -74,7 +75,6 @@
       <div class="topbar-avatar" (click)="showUserMenu = !showUserMenu">{{ currentUser.initials }}</div>
     </div>
   </header>
-
   <!-- ══ MAIN ══════════════════════════════════════════════════ -->
   <main class="main-content">
 
@@ -557,45 +557,27 @@
 
     <!-- ─── PROGRAMME ──────────────────────────────────────── -->
     <section *ngIf="page==='programme'" class="page-programme">
-      <div class="programme-header">
-        <h1>Programme d'incubation</h1>
-        <div class="progress-global">
-          <span>Progression globale</span>
-          <div class="progress-track">
-            <div class="progress-fill" [style.width.%]="progressPct"></div>
-          </div>
-          <strong>{{ progressPct }}%</strong>
-        </div>
-      </div>
-
-      <div class="phases-timeline">
-        <div class="phase-card" *ngFor="let phase of phases; let i = index" [class]="'phase-card--' + phaseStatut(i)"
-          [style.--phase-color]="phase.couleur">
-          <div class="phase-connector" *ngIf="i < phases.length - 1"></div>
-
-          <div class="phase-number">{{ phase.numero }}</div>
-
-          <div class="phase-body">
-            <div class="phase-head">
-              <div class="phase-icon-wrap" [style.background]="phase.couleur + '22'">
-                <span class="phase-icone">{{ phase.icone }}</span>
-              </div>
-              <div class="phase-meta">
-                <h3 class="phase-titre">{{ phase.titre }}</h3>
-                <span class="phase-mois">{{ phase.mois }}</span>
-              </div>
-              <span class="phase-badge">{{ phaseStatutLabel(i) }}</span>
-            </div>
-            <p class="phase-desc">{{ phase.description }}</p>
-          </div>
-        </div>
-
-        <div class="empty-state" *ngIf="!phases.length">
-          <span class="empty-icon">🗺️</span>
-          <p>Aucune phase définie</p>
-        </div>
-      </div>
+      <app-programme-porteur 
+      [phases]="phases"></app-programme-porteur>
     </section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     <!-- ─── DOCUMENTS ─────────────────────────────────────── -->
     <section *ngIf="page==='documents'" class="page-documents">
@@ -805,6 +787,9 @@
   </main><!-- /main-content -->
 
 </div><!-- /shell -->
+
+
+
 
 <!-- ══ TOASTS ════════════════════════════════════════════════════ -->
 <div class="toast-container">
