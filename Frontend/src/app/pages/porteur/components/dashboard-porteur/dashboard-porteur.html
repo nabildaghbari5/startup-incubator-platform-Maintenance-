@@ -1,0 +1,213 @@
+<div class="dash-analytics">
+
+  <div class="dash-loading" *ngIf="loading">
+    <span class="dash-loading-spinner"></span>
+    <p>Chargement du tableau de bord…</p>
+  </div>
+
+  <ng-container *ngIf="!loading && snapshot">
+
+  <!-- Bandeau d'aperçu -->
+  <div class="dash-hero">
+    <div class="dash-hero-text">
+      <h1 class="dash-hero-title">Tableau de bord analytique</h1>
+      <p class="dash-hero-sub">Vue d'ensemble de votre parcours d'incubation</p>
+    </div>
+    <span class="dash-mock-badge" *ngIf="loadError">Mode dégradé</span>
+    <span class="dash-mock-badge dash-live-badge" *ngIf="!loadError && !loading">Données live</span>
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="kpi-grid kpi-grid--6">
+    <div class="kpi-card accent-indigo">
+      <div class="kpi-icon">🚀</div>
+      <div class="kpi-body">
+        <span class="kpi-value kpi-value--sm">{{ currentPhaseName }}</span>
+        <span class="kpi-label">Phase actuelle</span>
+      </div>
+    </div>
+    <div class="kpi-card accent-emerald">
+      <div class="kpi-icon">📈</div>
+      <div class="kpi-body">
+        <span class="kpi-value">{{ progressPct }}%</span>
+        <span class="kpi-label">Progression programme</span>
+      </div>
+      <div class="kpi-bar">
+        <div class="kpi-bar-fill" [style.width.%]="progressPct"></div>
+      </div>
+    </div>
+    <div class="kpi-card accent-amber">
+      <div class="kpi-icon">⭐</div>
+      <div class="kpi-body">
+        <span class="kpi-value">{{ kpis.scoreMoyen }}/100</span>
+        <span class="kpi-label">Score moyen phases</span>
+      </div>
+    </div>
+    <div class="kpi-card accent-violet">
+      <div class="kpi-icon">📅</div>
+      <div class="kpi-body">
+        <span class="kpi-value">{{ kpis.evenementsMois }}</span>
+        <span class="kpi-label">Événements ce mois</span>
+      </div>
+    </div>
+    <div class="kpi-card accent-cyan">
+      <div class="kpi-icon">📊</div>
+      <div class="kpi-body">
+        <span class="kpi-value">{{ kpis.projetsActifs }}</span>
+        <span class="kpi-label">Projets actifs</span>
+      </div>
+    </div>
+    <div class="kpi-card accent-rose">
+      <div class="kpi-icon">🎯</div>
+      <div class="kpi-body">
+        <span class="kpi-value">{{ kpis.tauxParticipation }}%</span>
+        <span class="kpi-label">Taux de participation</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rangée graphiques principaux -->
+  <div class="charts-row charts-row--2">
+    <div class="chart-card">
+      <div class="chart-card-header">
+        <div>
+          <h3 class="chart-title">Progression globale</h3>
+          <p class="chart-subtitle">{{ kpis.phasesCompletees }}/{{ kpis.phasesTotal }} phases complétées</p>
+        </div>
+      </div>
+      <div echarts [options]="progressGauge" class="chart-box chart-box--gauge"></div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-card-header">
+        <div>
+          <h3 class="chart-title">Scores experts par phase</h3>
+          <p class="chart-subtitle">Évaluation des livrables soumis</p>
+        </div>
+      </div>
+      <div echarts [options]="phaseRadar" class="chart-box"></div>
+    </div>
+  </div>
+
+  <!-- Rangée graphiques secondaires -->
+  <div class="charts-row charts-row--2">
+    <div class="chart-card">
+      <div class="chart-card-header">
+        <div>
+          <h3 class="chart-title">Détail des scores</h3>
+          <p class="chart-subtitle">Note /100 par phase évaluée</p>
+        </div>
+      </div>
+      <div echarts [options]="phaseScoresBar" class="chart-box chart-box--tall"></div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-card-header">
+        <div>
+          <h3 class="chart-title">Événements par type</h3>
+          <p class="chart-subtitle">Répartition des activités du programme</p>
+        </div>
+        <button class="btn-sm" (click)="go('programme')">Voir tout</button>
+      </div>
+      <div echarts [options]="eventsByType" class="chart-box"></div>
+    </div>
+  </div>
+
+  <!-- Rangée activité + statuts -->
+  <div class="charts-row charts-row--3">
+    <div class="chart-card chart-card--wide">
+      <div class="chart-card-header">
+        <div>
+          <h3 class="chart-title">Activité mensuelle</h3>
+          <p class="chart-subtitle">Événements et documents soumis</p>
+        </div>
+      </div>
+      <div echarts [options]="activityTimeline" class="chart-box"></div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-card-header">
+        <div>
+          <h3 class="chart-title">Statut des projets</h3>
+          <p class="chart-subtitle">Répartition par statut</p>
+        </div>
+        <button class="btn-sm" (click)="go('projet')">Mes projets</button>
+      </div>
+      <div echarts [options]="projetStatutPie" class="chart-box"></div>
+    </div>
+  </div>
+
+  <!-- Avancement des phases -->
+  <div class="chart-card chart-card--full">
+    <div class="chart-card-header">
+      <div>
+        <h3 class="chart-title">Avancement du programme</h3>
+        <p class="chart-subtitle">Prochain jalon : {{ nextJalon }}</p>
+      </div>
+      <div class="phase-legend">
+        <span class="phase-legend-item"><i class="dot dot--done"></i> Terminé</span>
+        <span class="phase-legend-item"><i class="dot dot--active"></i> En cours</span>
+        <span class="phase-legend-item"><i class="dot dot--pending"></i> À venir</span>
+      </div>
+    </div>
+    <div class="phase-steps">
+      <div class="phase-step" *ngFor="let p of snapshot.phases"
+        [class.phase-step--termine]="p.statut === 'termine'"
+        [class.phase-step--en_cours]="p.statut === 'en_cours'"
+        [class.phase-step--a_venir]="p.statut === 'a_venir'">
+        <div class="phase-step-icon" [style.background]="p.couleur">{{ p.icone }}</div>
+        <div class="phase-step-info">
+          <span class="phase-step-mois">{{ p.mois }}</span>
+          <span class="phase-step-titre">{{ p.titre }}</span>
+          <span class="phase-step-score" *ngIf="p.score != null">⭐ {{ p.score }}/100</span>
+          <span class="phase-step-score phase-step-score--pending" *ngIf="p.fichierNom && p.score == null">⏳ En évaluation</span>
+        </div>
+      </div>
+    </div>
+    <div echarts [options]="phaseStatusBar" class="chart-box chart-box--compact"></div>
+  </div>
+
+  <!-- Listes rapides -->
+  <div class="dash-row">
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">📅 Événements à venir</h2>
+        <button class="btn-sm" (click)="go('programme')">Voir tout</button>
+      </div>
+      <div class="event-list">
+        <div class="event-item" *ngFor="let ev of upcomingEvents">
+          <div class="event-date-badge" [style.background]="typeColor(ev.type)">
+            <span class="ev-day">{{ ev.day }}</span>
+            <span class="ev-month">{{ ev.month }}</span>
+          </div>
+          <div class="event-info">
+            <p class="event-title">{{ ev.titre }}</p>
+            <p class="event-meta">{{ ev.heureDebut }} – {{ ev.heureFin }}
+              <span *ngIf="ev.lieu"> · {{ ev.lieu }}</span>
+            </p>
+          </div>
+          <span class="event-type-pill" [style.background]="typeColor(ev.type)">{{ ev.typeLabel }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">📁 Derniers documents</h2>
+      </div>
+      <div class="doc-list">
+        <div class="doc-item" *ngFor="let d of snapshot.documentsRecents">
+          <span class="doc-emoji">{{ docIcon(d.type) }}</span>
+          <div class="doc-info">
+            <p class="doc-name">{{ d.nom }}</p>
+            <p class="doc-meta">{{ d.taille }} · {{ d.uploadedAt | date:'dd/MM/yyyy' }}</p>
+          </div>
+          <span class="statut-pill" [style.background]="statutDocColor(d.statut)">{{ d.statut }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  </ng-container>
+
+</div>

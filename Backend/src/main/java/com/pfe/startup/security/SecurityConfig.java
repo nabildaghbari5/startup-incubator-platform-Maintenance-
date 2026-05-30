@@ -48,6 +48,12 @@ public class SecurityConfig {
 
                         .requestMatchers("/api/satisfaction/**").permitAll()
 
+                        .requestMatchers("/api/dashboard/**").permitAll()
+
+                        .requestMatchers("/api/evaluations/**").permitAll()
+
+                        .requestMatchers("/api/incubateur/**").permitAll()
+
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
                         .anyRequest().authenticated()

@@ -9,7 +9,6 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-
 public class EvenementService {
 
     private final EvenementRepository evenementRepository;

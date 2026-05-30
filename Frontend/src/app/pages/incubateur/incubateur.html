@@ -412,58 +412,7 @@
 
       <!-- ══════ DASHBOARD ══════ -->
       <div *ngIf="page==='Tableau de board'" class="page-wrap">
-        <div class="ph">
-          <div>
-            <div class="ph-title">Tableau de board</div>
-            <div class="ph-sub">Bienvenue, {{ currentUser.name }} · {{ upcomingEvents.length }} événement(s) à venir
-            </div>
-          </div>
-          <div class="ph-actions">
-            <button class="btn btn-secondary btn-sm" (click)="go('programme')">Voir programme →</button>
-            <button class="btn btn-primary btn-sm" (click)="go('startups');openAdd()">+ Startup</button>
-          </div>
-        </div>
-
-        <!-- KPI: nb projets + événements -->
-        <div class="stats-grid" style="grid-template-columns:repeat(2,1fr)">
-          <div class="stat-card purple" (click)="go('startups')">
-            <div class="stat-icon">📂</div>
-            <div class="stat-body">
-              <div class="stat-value">{{ stats.totalStartups }}</div>
-              <div class="stat-label">Projets</div>
-            </div>
-          </div>
-          <div class="stat-card blue" (click)="go('programme')">
-            <div class="stat-icon">📅</div>
-            <div class="stat-body">
-              <div class="stat-value">{{ upcomingEvents.length }}</div>
-              <div class="stat-label">Prochains événements</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Prochains événements -->
-        <div class="card">
-          <div class="card-header">
-            <span class="card-title">📅 Prochains événements</span>
-            <a class="card-link" (click)="go('programme')">Voir tout →</a>
-          </div>
-          <div class="card-body">
-            <div class="card-empty" *ngIf="upcomingEvents.length===0">Aucun événement à venir</div>
-            <div class="ev-list" *ngIf="upcomingEvents.length>0">
-              <div class="ev-item" *ngFor="let e of upcomingEvents">
-                <div class="ev-date"><span class="ev-day">{{ e.day }}</span><span class="ev-mo">{{ e.month }}</span>
-                </div>
-                <div class="ev-body">
-                  <div class="ev-ttl">{{ e.titre }}</div>
-                  <div class="ev-time">{{ e.heureDebut }} – {{ e.heureFin }}<span *ngIf="e.lieu"> · {{ e.lieu }}</span>
-                  </div>
-                </div>
-                <span class="ev-type" [ngClass]="e.type">{{ e.typeLabel }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
+       
 
       </div>
 

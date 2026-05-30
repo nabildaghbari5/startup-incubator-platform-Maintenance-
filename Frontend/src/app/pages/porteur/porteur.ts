@@ -1,5 +1,6 @@
 import { EventPorteur } from './components/event-porteur/event-porteur';
 import { ProgrammePorteur } from './components/programme-porteur/programme-porteur';
+import { DashboardPorteur } from './components/dashboard-porteur/dashboard-porteur';
 import { ProjetService } from './service/projet-service';
 import { Component, OnInit, OnDestroy, HostListener, ViewEncapsulation, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -18,7 +19,7 @@ interface MessageDTO { id: number; sender: string; receiver: string; content: st
 @Component({
   selector: 'app-porteur',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterModule , ProgrammePorteur, EventPorteur],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterModule , ProgrammePorteur, EventPorteur, DashboardPorteur],
   templateUrl: './porteur.html',
   styleUrls: ['./porteur.css'],
   encapsulation: ViewEncapsulation.None

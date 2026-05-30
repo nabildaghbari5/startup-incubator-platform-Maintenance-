@@ -40,6 +40,10 @@ public class Evaluation {
     private Startup startup;
 
     @ManyToOne
+    @JoinColumn(name = "projet_id")
+    private Projet projet;
+
+    @ManyToOne
     @JoinColumn(name = "expert_id")
     private User expert;
 }

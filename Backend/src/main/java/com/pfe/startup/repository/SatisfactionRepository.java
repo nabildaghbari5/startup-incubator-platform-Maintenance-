@@ -13,4 +13,6 @@ public interface SatisfactionRepository extends JpaRepository<Satisfaction, Long
     Optional<Satisfaction> findByPorteurIdAndEvenementId(Long porteurId, Long evenementId);
 
     boolean existsByPorteurIdAndEvenementId(Long porteurId, Long evenementId);
+
+    List<Satisfaction> findByEvenement_Incubateur_IdOrderByCreatedAtDesc(Long incubateurId);
 }

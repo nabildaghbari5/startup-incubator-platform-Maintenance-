@@ -25,6 +25,12 @@ public class Document {
     /** Note attribuée par l'expert (0–100), null si non évalué */
     private Integer score;
 
+    /** Statut de revue incubateur : soumis, en_revision, valide, rejete */
+    private String reviewStatut;
+
+    @Column(length = 3000)
+    private String reviewCommentaire;
+
     @ManyToOne
     @JoinColumn(name = "porteur_id")
     private User porteur;
