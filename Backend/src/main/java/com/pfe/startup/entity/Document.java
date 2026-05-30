@@ -25,6 +25,9 @@ public class Document {
     /** Note attribuée par l'expert (0–100), null si non évalué */
     private Integer score;
 
+    /** Date à laquelle l'expert a attribué la note */
+    private LocalDateTime scoredAt;
+
     /** Statut de revue incubateur : soumis, en_revision, valide, rejete */
     private String reviewStatut;
 

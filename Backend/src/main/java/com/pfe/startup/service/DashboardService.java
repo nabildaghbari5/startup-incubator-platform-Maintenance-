@@ -211,32 +211,30 @@ public class DashboardService {
         userRepository.findById(expertId)
                 .orElseThrow(() -> new NoSuchElementException("Expert introuvable id=" + expertId));
 
-        List<Evaluation> evaluations = evaluationRepository.findByExpertIdOrderByCreatedAtDesc(expertId);
+        List<Document> allDocuments = documentRepository.findAll();
         List<Document> pendingDocs = documentRepository.findByScoreIsNullOrderByUploadedAtDesc();
+        List<Document> scoredDocs = allDocuments.stream()
+                .filter(d -> d.getScore() != null)
+                .toList();
         List<Projet> pendingProjets = projetRepository.findAll().stream()
                 .filter(p -> p.getStatut() == StatutProjet.EN_ATTENTE
                         || p.getStatut() == StatutProjet.EN_COURS_ANALYSE)
                 .toList();
 
         YearMonth now = YearMonth.now();
-        List<Document> scoredThisMonth = documentRepository.findAll().stream()
-                .filter(d -> d.getScore() != null && d.getUploadedAt() != null
-                        && YearMonth.from(d.getUploadedAt()).equals(now))
-                .toList();
+        long scoredThisMonth = scoredDocs.stream()
+                .filter(d -> isDocumentScoredInMonth(d, now))
+                .count();
 
-        int avgEval = evaluations.isEmpty() ? 0 :
-                (int) Math.round(evaluations.stream().mapToInt(evaluationService::avgScore).average().orElse(0));
-
-        int avgDocScore = scoredThisMonth.isEmpty() ? 0 :
-                (int) Math.round(scoredThisMonth.stream().mapToInt(Document::getScore).average().orElse(0));
+        int avgDocScore = scoredDocs.isEmpty() ? 0 :
+                (int) Math.round(scoredDocs.stream().mapToInt(Document::getScore).average().orElse(0));
 
         DashboardExpertKpisDTO kpis = DashboardExpertKpisDTO.builder()
-                .totalEvaluations(evaluations.size())
-                .scoreMoyen(avgEval)
                 .projetsEnAttente(pendingProjets.size())
                 .documentsEnAttente(pendingDocs.size())
-                .documentsEvaluesMois(scoredThisMonth.size())
+                .documentsEvaluesMois((int) scoredThisMonth)
                 .scoreMoyenDocuments(avgDocScore)
+                .documentsNotesTotal(scoredDocs.size())
                 .build();
 
         List<Map<String, Object>> projetMaps = pendingProjets.stream().limit(10)
@@ -271,20 +269,24 @@ public class DashboardService {
                 })
                 .toList();
 
-        List<EvaluationDTO> recentEvals = evaluations.stream()
-                .limit(5)
-                .map(evaluationService::toDto)
-                .toList();
-
-        DashboardActiviteMensuelleDTO activite = buildExpertActivite(evaluations, documentRepository.findAll());
+        DashboardActiviteMensuelleDTO activite = buildExpertActivite(scoredDocs);
 
         return DashboardExpertSnapshotDTO.builder()
                 .kpis(kpis)
                 .projetsEnAttente(projetMaps)
-                .documentsRecents(docMaps)
-                .mesEvaluations(recentEvals)
+                .documentsEnAttente(docMaps)
                 .activiteMensuelle(activite)
                 .build();
+    }
+
+    private boolean isDocumentScoredInMonth(Document document, YearMonth month) {
+        if (document.getScore() == null) {
+            return false;
+        }
+        if (document.getScoredAt() != null) {
+            return YearMonth.from(document.getScoredAt()).equals(month);
+        }
+        return document.getUploadedAt() != null && YearMonth.from(document.getUploadedAt()).equals(month);
     }
 
     private DashboardActiviteMensuelleDTO buildIncubateurActivite(
@@ -318,30 +320,21 @@ public class DashboardService {
                 .build();
     }
 
-    private DashboardActiviteMensuelleDTO buildExpertActivite(
-            List<Evaluation> evaluations,
-            List<Document> documents
-    ) {
+    private DashboardActiviteMensuelleDTO buildExpertActivite(List<Document> scoredDocuments) {
         List<String> labels = new ArrayList<>();
-        List<Integer> evalCounts = new ArrayList<>();
         List<Integer> docCounts = new ArrayList<>();
 
         YearMonth now = YearMonth.now();
         for (int i = 5; i >= 0; i--) {
             YearMonth ym = now.minusMonths(i);
             labels.add(MONTHS[ym.getMonthValue() - 1]);
-            evalCounts.add((int) evaluations.stream()
-                    .filter(e -> e.getCreatedAt() != null && YearMonth.from(e.getCreatedAt()).equals(ym))
-                    .count());
-            docCounts.add((int) documents.stream()
-                    .filter(d -> d.getScore() != null && d.getUploadedAt() != null
-                            && YearMonth.from(d.getUploadedAt()).equals(ym))
+            docCounts.add((int) scoredDocuments.stream()
+                    .filter(d -> isDocumentScoredInMonth(d, ym))
                     .count());
         }
 
         return DashboardActiviteMensuelleDTO.builder()
                 .labels(labels)
-                .evenements(evalCounts)
                 .documents(docCounts)
                 .build();
     }

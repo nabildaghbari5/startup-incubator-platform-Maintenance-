@@ -73,7 +73,7 @@
               <div class="udrop-email">{{ currentUser.email }}</div>
             </div>
             <div class="udrop-divider"></div>
-            <button class="udrop-item" type="button" (click)="go('profil'); showUserMenu = false">
+            <button class="udrop-item" type="button" (click)="goTo('/porteur/profil'); showUserMenu = false">
               Mon profil
             </button>
             <button class="udrop-item danger" type="button" (click)="logout()">
@@ -567,19 +567,39 @@
 
 
     <!-- ─── PROFIL ─────────────────────────────────────────── -->
-    <section *ngIf="page==='profil'" class="page-profil">
-      <div class="profil-card">
-        <div class="profil-avatar-lg">{{ currentUser.initials }}</div>
+    <section *ngIf="page==='profil'" class="page-anim page-profil">
+      <div class="profil-card profil-main-card">
+        <div class="profil-photo-wrap" (click)="triggerPhotoUpload()">
+          <div class="profil-photo"
+            [style.background-image]="profilPhoto ? 'url(' + profilPhoto + ')' : ''"
+            [style.background]="profilPhoto ? 'none' : 'linear-gradient(135deg,var(--pink),var(--purple))'">
+            <span *ngIf="!profilPhoto">{{ currentUser.initials }}</span>
+            <div class="profil-photo-overlay">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                <circle cx="12" cy="13" r="4" />
+              </svg>
+              <span>Changer</span>
+            </div>
+          </div>
+          <input type="file" id="porteurPhotoInput" hidden accept="image/*" (change)="onPhotoSelected($event)" />
+        </div>
         <h2 class="profil-name">{{ currentUser.name }}</h2>
         <p class="profil-email">{{ currentUser.email }}</p>
         <span class="profil-role-badge">Porteur de projet</span>
         <div class="profil-stats">
-          <div class="p-stat"><span class="p-stat-val">{{ phases.length }}</span><span
-              class="p-stat-label">Phases</span></div>
-          <div class="p-stat"><span class="p-stat-val">{{ documents.length }}</span><span
-              class="p-stat-label">Documents</span></div>
-          <div class="p-stat"><span class="p-stat-val">{{ evaluations.length }}</span><span
-              class="p-stat-label">Évaluations</span></div>
+          <div class="p-stat">
+            <span class="p-stat-val">{{ projects.length }}</span>
+            <span class="p-stat-label">Projets</span>
+          </div>
+          <div class="p-stat">
+            <span class="p-stat-val">{{ phases.length }}</span>
+            <span class="p-stat-label">Phases</span>
+          </div>
+          <div class="p-stat">
+            <span class="p-stat-val">{{ upcomingEvents.length }}</span>
+            <span class="p-stat-label">Événements</span>
+          </div>
         </div>
       </div>
     </section>

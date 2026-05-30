@@ -524,10 +524,20 @@
 .page-messages > *:not(h2){display:flex;flex:1;border:1.5px solid var(--border);border-radius:16px;overflow:hidden;background:var(--surface);box-shadow:0 4px 16px rgba(0,0,0,.06);margin-bottom:22px}
 
 /* ══ PROFIL PAGE ══ */
-.page-profil{display:flex;align-items:flex-start;justify-content:center;padding-top:40px}
+.page-profil{
+  display:flex;align-items:flex-start;justify-content:center;
+  padding-top:40px;
+}
 .profil-card{
   max-width:400px;width:100%;
-  text-align:center;padding:36px 28px;
+  background:var(--surface);border:1.5px solid var(--border);
+  border-radius:var(--radius);padding:36px 28px;
+  text-align:center;display:flex;flex-direction:column;align-items:center;gap:14px;
+  box-shadow:0 2px 8px rgba(0,0,0,.04);position:relative;overflow:hidden;
+}
+.profil-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--pink),var(--purple));
 }
 .profil-avatar-lg{
   width:76px;height:76px;border-radius:50%;
@@ -545,10 +555,20 @@
   color:var(--pink);margin-bottom:24px;
   border:1px solid rgba(236,72,153,.2);
 }
-.profil-stats{display:flex;gap:20px;justify-content:center;flex-wrap:wrap}
+.profil-stats{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;margin-top:8px}
 .p-stat{display:flex;flex-direction:column;align-items:center;gap:4px}
 .p-stat-val{font-size:24px;font-weight:800;color:var(--pink)}
 .p-stat-label{font-size:12px;color:var(--text2)}
+.profil-edit-card{padding:28px;border-top:3px solid var(--pink)}
+.profil-edit-title{font-size:16px;font-weight:800;color:var(--text);margin-bottom:18px}
+.profil-form{display:flex;flex-direction:column;gap:14px}
+.profil-form .fg{display:flex;flex-direction:column;gap:6px}
+.profil-form label{font-size:12px;font-weight:600;color:var(--text2)}
+.profil-form input{
+  padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;
+  background:var(--bg);color:var(--text);font-size:13px;
+}
+.profil-form input:focus{outline:none;border-color:var(--pink)}
 
 /* ══ PARAMÈTRES PAGE ══ */
 .page-parametres{display:flex;align-items:flex-start}

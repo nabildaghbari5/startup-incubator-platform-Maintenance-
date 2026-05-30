@@ -104,6 +104,7 @@ public class DocumentService {
                 .orElseThrow(() -> new NoSuchElementException("Document introuvable id=" + documentId));
 
         document.setScore(score);
+        document.setScoredAt(java.time.LocalDateTime.now());
         document = documentRepository.save(document);
         return toListItemDto(document);
     }

@@ -73,12 +73,16 @@ export class PorteurComponent implements OnInit, OnDestroy {
 
   get currentUser() {
     const email = localStorage.getItem('email') || '';
+    const nom = localStorage.getItem('nom') || email || 'Porteur';
     return {
-      name: email || 'Porteur',
-      initials: (email || 'PO').substring(0, 2).toUpperCase(),
-      email: email
+      name: nom,
+      initials: nom.substring(0, 2).toUpperCase(),
+      email
     };
   }
+
+  profilPhoto = localStorage.getItem('profilPhoto') || '';
+  profilForm = { nom: localStorage.getItem('nom') || '', newPassword: '', confirmPassword: '' };
 
   get pageLabel(): string {
     const labels: Record<string, string> = {
@@ -376,6 +380,7 @@ loadPhases(): void {
   @HostListener('document:keydown.escape') onEsc() { this.showUserMenu = false; }
 
   goTo(route: string) {
+    this.router.navigateByUrl(route);
     const map: Record<string, string> = {
       '/porteur': 'dashboard',
       '/porteur/projet': 'projet',
@@ -618,5 +623,43 @@ loadPhases(): void {
     const t = { id: ++this.tid, msg, type };
     this.toasts.push(t);
     setTimeout(() => { this.toasts = this.toasts.filter(x => x.id !== t.id); this.cdr.detectChanges(); }, 3500);
+  }
+
+  triggerPhotoUpload() { document.querySelector<HTMLInputElement>('#porteurPhotoInput')?.click(); }
+
+  onPhotoSelected(event: Event) {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e: ProgressEvent<FileReader>) => {
+      this.profilPhoto = e.target?.result as string;
+      localStorage.setItem('profilPhoto', this.profilPhoto);
+      this.cdr.detectChanges();
+      this.toast('Photo de profil mise à jour', 'success');
+      const fd = new FormData();
+      fd.append('photo', file);
+      this.http.post(`${this.api}/users/photo`, fd, {
+        headers: new HttpHeaders({ Authorization: 'Bearer ' + (localStorage.getItem('token') || '') })
+      }).subscribe({ error: () => {} });
+    };
+    reader.readAsDataURL(file);
+  }
+
+  saveProfil() {
+    if (this.profilForm.newPassword && this.profilForm.newPassword !== this.profilForm.confirmPassword) {
+      this.toast('Les mots de passe ne correspondent pas', 'error');
+      return;
+    }
+    const payload: Record<string, string> = {};
+    if (this.profilForm.nom) {
+      payload['nom'] = this.profilForm.nom;
+      localStorage.setItem('nom', this.profilForm.nom);
+    }
+    if (this.profilForm.newPassword) payload['password'] = this.profilForm.newPassword;
+    this.http.put(`${this.api}/users/profil`, payload, { headers: this.h })
+      .subscribe({
+        next: () => this.toast('Profil mis à jour', 'success'),
+        error: () => this.toast('Erreur lors de la mise à jour', 'error')
+      });
   }
 }

@@ -279,6 +279,42 @@ button { font-family: var(--font); cursor: pointer; border: none; }
 .breadcrumb-page { color: var(--text); font-weight: 700; }
 
 .topbar-right { display: flex; align-items: center; gap: 8px; }
+.tb-user-wrap { position: relative; }
+.tb-user-wrap .user-dropdown--topbar {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  left: auto;
+  bottom: auto;
+  width: 220px;
+}
+.udrop-info { padding: 12px 14px; border-bottom: 1px solid var(--border); }
+.udrop-name { font-size: 13px; font-weight: 700; color: var(--text); }
+.udrop-email { font-size: 12px; color: var(--text2); margin-top: 1px; }
+.udrop-divider { height: 1px; background: var(--border); margin: 2px 0; }
+.udrop-item,
+.drop-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: var(--text);
+  cursor: pointer;
+  transition: background .15s;
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  font-family: var(--font);
+}
+.udrop-item:hover,
+.drop-item:hover { background: var(--bg); }
+.udrop-item.danger,
+.drop-item.danger { color: var(--rose); }
+.udrop-item.danger:hover,
+.drop-item.danger:hover { background: #fff5f5; }
+
 .topbar-avatar {
   width: 34px;
   height: 34px;

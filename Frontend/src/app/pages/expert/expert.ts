@@ -6,6 +6,8 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { ProjetService } from '../porteur/service/projet-service';
 import { PhaseService } from '../porteur/service/phase-service';
 import { DocumentsService, DocumentsDTO } from '../porteur/service/documents-service';
+import { DashboardExpert } from './components/dashboard-expert/dashboard-expert';
+import { DashboardExpertSnapshot } from './service/dashboard-expert-service';
 
 interface ProjetDTO {
   id: number;
@@ -45,7 +47,7 @@ interface MessageDTO {
 @Component({
   selector: 'app-expert',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, DashboardExpert],
   templateUrl: './expert.html',
   styleUrls: ['./expert.css'],
   encapsulation: ViewEncapsulation.None
@@ -87,9 +89,10 @@ export class ExpertComponent implements OnInit, OnDestroy {
   newMessage = '';
 
   // Stats
-  totalEvals = 0;
-  avgScore = 0;
+  documentsNotesMois = 0;
+  scoreMoyenDocuments = 0;
   pendingCount = 0;
+  documentsEnAttenteCount = 0;
 
 
   projects: any[] = [];
@@ -137,6 +140,7 @@ statutProjetColor(statut: string): string {
 
   ngOnInit() {
     this.syncPageFromUrl();
+    this.loadDashboard();
     this.loadProjets();
     this.loadMyEvaluations();
     this.loadPageData();
@@ -211,6 +215,10 @@ statutProjetColor(statut: string): string {
     this.selectedProjet = null;
   }
 
+  closeDrops() {
+    this.showUserMenu = false;
+  }
+
   goTo(route: string) {
     this.router.navigateByUrl(route);
     const map: Record<string, string> = {
@@ -232,11 +240,44 @@ statutProjetColor(statut: string): string {
     if (p === 'projets')   this.loadProjets();
     if (p === 'phases')    this.loadPhases();
     if (p === 'evaluer')   { this.loadProjets(); this.loadMyEvaluations(); }
-    if (p === 'dashboard') { this.loadProjets(); this.loadMyEvaluations(); }
+    if (p === 'dashboard') { this.loadDashboard(); }
+  }
+
+  onDashboardNavigate(p: string) {
+    const routes: Record<string, string> = {
+      projets: '/expert/projets',
+      phases: '/expert/phases',
+      evaluer: '/expert/evaluer',
+    };
+    if (routes[p]) {
+      this.goTo(routes[p]);
+    } else {
+      this.go(p);
+    }
+  }
+
+  loadDashboard() {
+    const expertId = localStorage.getItem('userId') || '1';
+    this.http.get<DashboardExpertSnapshot>(`${this.api}/dashboard/expert/${expertId}`, { headers: this.h })
+      .subscribe({
+        next: snap => {
+          const k = snap.kpis;
+          this.pendingCount = k.projetsEnAttente;
+          this.documentsEnAttenteCount = k.documentsEnAttente;
+          this.documentsNotesMois = k.documentsEvaluesMois;
+          this.scoreMoyenDocuments = k.scoreMoyenDocuments;
+          this.cdr.detectChanges();
+        },
+        error: () => {},
+      });
   }
 
   toggleSb() { this.sidebarOpen = !this.sidebarOpen; }
-  logout()   { localStorage.clear(); this.router.navigate(['/login']); }
+  logout() {
+    this.showUserMenu = false;
+    localStorage.clear();
+    this.router.navigate(['/login']);
+  }
 
   // ── PROJETS ──────────────────────────────────────────────
   loadProjets() {
@@ -331,14 +372,6 @@ statutProjetColor(statut: string): string {
 
       this.myEvaluations = e;
 
-      this.totalEvals = e.length;
-
-      this.avgScore = e.length
-        ? Math.round(
-            e.reduce((acc, ev) => acc + this.avg(ev), 0) / e.length
-          )
-        : 0;
-
       this.cdr.detectChanges();
 
     },
@@ -408,6 +441,7 @@ statutProjetColor(statut: string): string {
       this.evalForm = this.emptyEval();
 
       this.loadMyEvaluations();
+      this.loadDashboard();
 
     },
 

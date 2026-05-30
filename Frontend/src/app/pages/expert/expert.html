@@ -39,9 +39,14 @@
         </div>
         <span class="user-caret">⌄</span>
       </div>
-      <div class="user-dropdown" *ngIf="showUserMenu">
-        <button class="drop-item" (click)="go('profil'); showUserMenu=false">👤 Profil</button>
-        <button class="drop-item danger" (click)="logout()">🚪 Déconnexion</button>
+      <div class="user-dropdown" *ngIf="showUserMenu" (click)="$event.stopPropagation()">
+        <div class="udrop-info">
+          <div class="udrop-name">{{ currentUser.name }}</div>
+          <div class="udrop-email">{{ currentUser.email }}</div>
+        </div>
+        <div class="udrop-divider"></div>
+        <button class="udrop-item" type="button" (click)="goTo('/expert/profil'); showUserMenu = false">👤 Mon profil</button>
+        <button class="udrop-item danger" type="button" (click)="logout()">🚪 Déconnexion</button>
       </div>
     </div>
   </aside>
@@ -66,83 +71,29 @@
       </span>
     </div>
     <div class="topbar-right">
-      <div class="topbar-avatar" (click)="showUserMenu = !showUserMenu">{{ currentUser.initials }}</div>
+      <div class="tb-user-wrap">
+        <div class="topbar-avatar" (click)="showUserMenu = !showUserMenu; $event.stopPropagation()">
+          {{ currentUser.initials }}
+        </div>
+        <div class="user-dropdown user-dropdown--topbar" *ngIf="showUserMenu" (click)="$event.stopPropagation()">
+          <div class="udrop-info">
+            <div class="udrop-name">{{ currentUser.name }}</div>
+            <div class="udrop-email">{{ currentUser.email }}</div>
+          </div>
+          <div class="udrop-divider"></div>
+          <button class="udrop-item" type="button" (click)="goTo('/expert/profil'); showUserMenu = false">👤 Mon profil</button>
+          <button class="udrop-item danger" type="button" (click)="logout()">🚪 Déconnexion</button>
+        </div>
+      </div>
     </div>
   </header>
 
   <!-- ══ MAIN ══════════════════════════════════════════════════ -->
-  <main class="main-content">
+  <main class="main-content" (click)="closeDrops()">
 
     <!-- ─── DASHBOARD ─────────────────────────────────────── -->
     <section *ngIf="page==='dashboard'" class="page-anim">
-
-      <div class="page-hero">
-        <div class="hero-text">
-          <h1>Bonjour, <span class="hero-name">{{ currentUser.name }}</span> 👋</h1>
-          <p>Votre espace d'évaluation de projets innovants</p>
-        </div>
-      </div>
-
-      <!-- KPI -->
-      <div class="kpi-grid">
-        <div class="kpi-card kpi-teal">
-          <div class="kpi-glow"></div>
-          <span class="kpi-icon">📋</span>
-          <div class="kpi-body">
-            <span class="kpi-val">{{ projets.length }}</span>
-            <span class="kpi-lbl">Projets disponibles</span>
-          </div>
-        </div>
-        <div class="kpi-card kpi-amber">
-          <div class="kpi-glow"></div>
-          <span class="kpi-icon">⏳</span>
-          <div class="kpi-body">
-            <span class="kpi-val">{{ pendingCount }}</span>
-            <span class="kpi-lbl">En attente</span>
-          </div>
-        </div>
-        <div class="kpi-card kpi-violet">
-          <div class="kpi-glow"></div>
-          <span class="kpi-icon">✅</span>
-          <div class="kpi-body">
-            <span class="kpi-val">{{ totalEvals }}</span>
-            <span class="kpi-lbl">Mes évaluations</span>
-          </div>
-        </div>
-        <div class="kpi-card kpi-rose">
-          <div class="kpi-glow"></div>
-          <span class="kpi-icon">📊</span>
-          <div class="kpi-body">
-            <span class="kpi-val">{{ avgScore }}<small>/100</small></span>
-            <span class="kpi-lbl">Score moyen</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Recent projets -->
-      <div class="section-title">🔍 Projets récents à évaluer</div>
-      <div class="projets-grid">
-        <div class="projet-card" *ngFor="let p of projets.slice(0,6)" (click)="selectProjet(p); go('evaluer')">
-          <div class="pc-header">
-            <div class="pc-sector-tag">{{ p.secteur }}</div>
-            <span class="pc-statut" [style.background]="statutColor(p.statut)">{{ p.statut }}</span>
-          </div>
-          <h3 class="pc-name">{{ p.nom }}</h3>
-          <p class="pc-desc">{{ p.description | slice:0:100 }}…</p>
-          <div class="pc-footer">
-            <span class="pc-porteur">👤 {{ p.porteurNom }}</span>
-            <button class="pc-btn">Évaluer →</button>
-          </div>
-        </div>
-      </div>
-      <div class="empty-state" *ngIf="loadingProjects">
-        <p>Chargement des projets…</p>
-      </div>
-      <div class="empty-state" *ngIf="!loadingProjects && !projets.length">
-        <span class="empty-icon">📂</span>
-        <p>Aucun projet disponible</p>
-      </div>
-
+      <app-dashboard-expert (navigate)="onDashboardNavigate($event)"></app-dashboard-expert>
     </section>
 
     <!-- ─── CONSULTER PROJETS ─────────────────────────────── -->
@@ -516,16 +467,16 @@
         <span class="profil-role-badge">Expert évaluateur</span>
         <div class="profil-stats">
           <div class="p-stat">
-            <span class="p-val">{{ totalEvals }}</span>
-            <span class="p-lbl">Évaluations</span>
+            <span class="p-val">{{ documentsNotesMois }}</span>
+            <span class="p-lbl">Docs notés ce mois</span>
           </div>
           <div class="p-stat">
-            <span class="p-val">{{ avgScore }}</span>
-            <span class="p-lbl">Score moyen</span>
+            <span class="p-val">{{ scoreMoyenDocuments }}</span>
+            <span class="p-lbl">Score moy. documents</span>
           </div>
           <div class="p-stat">
             <span class="p-val">{{ pendingCount }}</span>
-            <span class="p-lbl">En attente</span>
+            <span class="p-lbl">Projets en attente</span>
           </div>
         </div>
       </div>

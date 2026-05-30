@@ -13,7 +13,6 @@ import java.util.Map;
 public class DashboardExpertSnapshotDTO {
     private DashboardExpertKpisDTO kpis;
     private List<Map<String, Object>> projetsEnAttente;
-    private List<Map<String, Object>> documentsRecents;
-    private List<EvaluationDTO> mesEvaluations;
+    private List<Map<String, Object>> documentsEnAttente;
     private DashboardActiviteMensuelleDTO activiteMensuelle;
 }

@@ -29,6 +29,13 @@ export const routes: Routes = [
 
   // DASHBOARDS
   { path: 'porteur', component: PorteurComponent },
+  { path: 'porteur/projet', component: PorteurComponent },
+  { path: 'porteur/programme', component: PorteurComponent },
+  { path: 'porteur/documents', component: PorteurComponent },
+  { path: 'porteur/evaluations', component: PorteurComponent },
+  { path: 'porteur/messages', component: PorteurComponent },
+  { path: 'porteur/profil', component: PorteurComponent },
+  { path: 'porteur/parametres', component: PorteurComponent },
   { path: 'admin', component: AdminComponent },
   { path: 'expert', component: ExpertComponent },
   { path: 'incubateur', component: IncubateurComponent },

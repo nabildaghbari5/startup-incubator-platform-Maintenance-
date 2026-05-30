@@ -1,0 +1,137 @@
+<div class="dash-analytics">
+
+  <div class="dash-loading" *ngIf="loading">
+    <span class="dash-loading-spinner"></span>
+    <p>Chargement du tableau de bord…</p>
+  </div>
+
+  <div class="dash-error" *ngIf="!loading && loadError">
+    <span class="dash-error-icon">⚠️</span>
+    <p>Impossible de charger les données du dashboard.</p>
+    <button class="btn btn-secondary btn-sm" (click)="load()">Réessayer</button>
+  </div>
+
+  <ng-container *ngIf="!loading && !loadError && snapshot">
+
+    <!-- Bandeau -->
+    <div class="dash-hero">
+      <div class="dash-hero-text">
+        <h1 class="dash-hero-title">Tableau de bord Expert</h1>
+        <p class="dash-hero-sub">
+          Consultation des projets et notation des documents · {{ totalTaches }} tâche(s) en attente
+        </p>
+      </div>
+      <div class="dash-hero-actions">
+        <span class="dash-live-badge">Données live</span>
+        <button class="btn btn-secondary btn-sm" (click)="go('phases')">Phases →</button>
+        <button class="btn btn-primary btn-sm" (click)="go('projets')">Consulter projets</button>
+      </div>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="kpi-grid kpi-grid--4">
+      <div class="kpi-card accent-amber" (click)="go('projets')">
+        <div class="kpi-icon">⏳</div>
+        <div class="kpi-body">
+          <span class="kpi-value">{{ kpis.projetsEnAttente }}</span>
+          <span class="kpi-label">Projets en attente d'évaluation</span>
+        </div>
+      </div>
+      <div class="kpi-card accent-violet" (click)="go('phases')">
+        <div class="kpi-icon">📄</div>
+        <div class="kpi-body">
+          <span class="kpi-value">{{ kpis.documentsEnAttente }}</span>
+          <span class="kpi-label">Documents à noter</span>
+        </div>
+      </div>
+      <div class="kpi-card accent-cyan kpi-card--static">
+        <div class="kpi-icon">📊</div>
+        <div class="kpi-body">
+          <span class="kpi-value">{{ kpis.documentsEvaluesMois }}</span>
+          <span class="kpi-label">Documents notés ce mois-ci</span>
+        </div>
+      </div>
+      <div class="kpi-card accent-blue kpi-card--static">
+        <div class="kpi-icon">🎯</div>
+        <div class="kpi-body">
+          <span class="kpi-value">{{ kpis.scoreMoyenDocuments }}<small>/100</small></span>
+          <span class="kpi-label">Score moyen des documents</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Graphiques -->
+    <div class="charts-row charts-row--2">
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <div>
+            <h3 class="chart-title">Répartition de la charge d'évaluation</h3>
+            <p class="chart-subtitle">Projets en attente, documents à noter et documents déjà notés</p>
+          </div>
+        </div>
+        <div echarts [options]="workloadPie" class="chart-box"></div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <div>
+            <h3 class="chart-title">Activité mensuelle</h3>
+            <p class="chart-subtitle">Documents notés sur les 6 derniers mois</p>
+          </div>
+        </div>
+        <div echarts [options]="activityTimeline" class="chart-box chart-box--tall"></div>
+      </div>
+    </div>
+
+    <!-- Listes rapides -->
+    <div class="dash-row">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">📋 Projets à évaluer</h2>
+          <button class="btn-sm btn btn-secondary" (click)="go('projets')">Voir tout</button>
+        </div>
+        <div class="card-body">
+          <div class="card-empty" *ngIf="!projetsAttente.length">Aucun projet en attente d'évaluation</div>
+          <div class="proj-list" *ngIf="projetsAttente.length">
+            <div class="proj-item" *ngFor="let p of projetsAttente.slice(0, 5)" (click)="go('projets')">
+              <div class="proj-item-body">
+                <div class="proj-item-name">{{ p.titre }}</div>
+                <div class="proj-item-meta">
+                  {{ p.porteurNom || p.porteurEmail }}
+                  <span *ngIf="p.secteur"> · {{ p.secteur }}</span>
+                </div>
+              </div>
+              <span class="statut-pill" [style.background]="statutColor(p.statut)">
+                {{ statutLabel(p.statut) }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">📄 Documents en attente d'évaluation</h2>
+          <button class="btn-sm btn btn-secondary" (click)="go('phases')">Noter</button>
+        </div>
+        <div class="card-body">
+          <div class="card-empty" *ngIf="!documentsAttente.length">Aucun document en attente</div>
+          <div class="doc-list" *ngIf="documentsAttente.length">
+            <div class="doc-item" *ngFor="let d of documentsAttente.slice(0, 5)" (click)="go('phases')">
+              <span class="doc-emoji">📄</span>
+              <div class="doc-info">
+                <p class="doc-name">{{ d.fileName }}</p>
+                <p class="doc-meta">{{ d.phaseTitre }} · {{ d.porteurNom }}</p>
+              </div>
+              <span class="statut-pill" [style.background]="statutColor(d.statut)">
+                {{ statutLabel(d.statut) }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </ng-container>
+
+</div>

@@ -643,6 +643,8 @@ table.tbl tbody tr:hover .row-acts{opacity:1}
 .profil-photo-overlay { position: absolute; inset: 0; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; background: rgba(0,0,0,.4); opacity: 0; transition: opacity .2s; color: #fff; font-size: 11px; font-weight: 600; }
 .profil-photo-wrap:hover .profil-photo-overlay { opacity: 1; }
 .profil-main-card { border-top: 3px solid var(--pink) !important; }
+.profil-center { display: flex; justify-content: center; padding-top: 8px; }
+.profil-center .profil-main-card { max-width: 400px; width: 100%; }
 .profil-name { font-size: 20px; font-weight: 800; color: var(--text); }
 .profil-email { font-size: 13px; color: var(--text2); margin: 4px 0 12px; }
 .profil-role-badge { display: inline-flex; padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; background: linear-gradient(135deg, rgba(236,72,153,.1), rgba(168,85,247,.1)); color: var(--pink); border: 1px solid rgba(236,72,153,.2); }
