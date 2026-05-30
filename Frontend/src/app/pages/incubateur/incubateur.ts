@@ -29,6 +29,7 @@ interface DocumentDTO   { id:number; nom:string; type:string; taille:string; che
 interface EvaluationDTO { id:number; scoreIA:number; scoreMarket:number; scoreTeam:number; scoreTech:number; scoreFinance:number; commentaire:string; statut:string; startupNom:string; startupId:number; evaluateur:string; createdAt:string; }
 interface MessageDTO    { id:number; sender:string; receiver:string; groupId?:number; content:string; type:string; lu:boolean; sentAt:string; }
 interface Phase         { id?:number; numero:number; mois:string; titre:string; icone:string; description:string; couleur:string; }
+interface PhaseDocumentDTO { id?:number; fileName?:string; fileType?:string; uploadedAt?:string; score?:number|null; porteur?:{id:number;nom?:string;prenom?:string;email?:string}; phase?:{id:number;titre?:string;numero?:number}; }
 interface UserContact   { email:string; nom:string; prenom:string; role:string; unread:number; profilPhoto?:string; }
 interface GroupeDTO     { id:number; nom:string; membres:string[]; unread:number; createdAt:string; }
 interface SatisfactionDTO { id:number; porteurEmail:string; evenementId:number; evenementTitre:string; note:number; commentaire?:string; createdAt:string; }
@@ -275,6 +276,8 @@ changerStatutProjet(): void {
   phases: Phase[] = []; programmeStatut = 'actif';
   showPhaseModal=false; isSavingPhase=false; editPhaseMode=false;
   phaseToDelete: Phase|null=null; showPhaseDeleteModal=false;
+  showPhaseDocumentsModal=false; selectedPhaseForDocs: Phase|null=null;
+  phaseDocuments: PhaseDocumentDTO[]=[]; loadingPhaseDocuments=false;
   phaseForm: Phase = {numero:1,mois:'MOIS 1',titre:'',icone:'📌',description:'',couleur:'#ec4899'};
   iconOptions = ['💡','🎯','📊','⚡','🎨','🚀','📋','🤝','💰','📱','🔬','🌱','🏆','🔧','📈'];
   colorOptions = ['#ec4899','#a855f7','#06b6d4','#10b981','#f59e0b','#3b82f6','#f43f5e','#14b8a6','#22c55e','#8b5cf6'];
@@ -379,7 +382,7 @@ changerStatutProjet(): void {
   closeAll()   {
     this.showFormModal=this.showViewModal=this.showDeleteModal=this.showEventModal=
     this.showEvalModal=this.showPhaseModal=this.showPhaseDeleteModal=
-    this.showPowerBiModal=this.showSatisfactionModal=this.showNewGroupModal=false;
+    this.showPhaseDocumentsModal=this.showPowerBiModal=this.showSatisfactionModal=this.showNewGroupModal=false;
   }
   logout() { localStorage.clear(); this.router.navigate(['/login']); }
 
@@ -690,6 +693,58 @@ changerStatutProjet(): void {
 
    }
   openDelPhase(p:Phase){this.phaseToDelete=p;this.showPhaseDeleteModal=true;}
+  openPhaseDocuments(p: Phase) {
+    if (!p.id) return;
+    this.selectedPhaseForDocs = p;
+    this.phaseDocuments = [];
+    this.loadingPhaseDocuments = true;
+    this.showPhaseDocumentsModal = true;
+    this.http.get<PhaseDocumentDTO[]>(`${this.api}/documents/phase/${p.id}`, { headers: this.h })
+      .subscribe({
+        next: docs => {
+          this.phaseDocuments = [...docs];
+          this.loadingPhaseDocuments = false;
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.loadingPhaseDocuments = false;
+          this.toast('Erreur chargement des documents', 'error');
+          this.cdr.detectChanges();
+        }
+      });
+  }
+  downloadPhaseDocument(doc: PhaseDocumentDTO) {
+    const porteurId = doc.porteur?.id;
+    const phaseId = doc.phase?.id ?? this.selectedPhaseForDocs?.id;
+    if (!porteurId || !phaseId) return;
+    const token = localStorage.getItem('token') || '';
+    fetch(`${this.api}/documents/${porteurId}/${phaseId}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then(r => { if (!r.ok) throw new Error(); return r.json(); })
+      .then(data => {
+        const content = data.document;
+        if (!content) throw new Error();
+        const binary = atob(content);
+        const bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+        const blob = new Blob([bytes], { type: data.fileType || 'application/octet-stream' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = data.fileName || doc.fileName || 'document';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(a.href);
+      })
+      .catch(() => this.toast('Erreur téléchargement', 'error'));
+  }
+  phaseDocPorteurLabel(doc: PhaseDocumentDTO): string {
+    const p = doc.porteur;
+    if (!p) return '—';
+    const name = `${p.prenom || ''} ${p.nom || ''}`.trim();
+    return name || p.email || '—';
+  }
   delPhase(){
     if(!this.phaseToDelete)return;
     const id=this.phaseToDelete.id;
@@ -719,6 +774,15 @@ changerStatutProjet(): void {
         error:()=>{this.toast('Erreur déplacement','error');this.loadPhases();}
       });
   }
+
+   // ── DOCUMENTS ─────────────────────────────────────────────
+   loadDocuments(){
+    this.isLoading=true;
+    let url=`${this.api}/incubateur/${this.incId}/documents`;
+    if(this.docFilter!=='tous')url+=`?statut=${this.docFilter}`;
+    this.http.get<DocumentDTO[]>(url,{headers:this.h}).subscribe({next:d=>{this.documents=[...d];this.filterDocuments();this.isLoading=false;this.cdr.detectChanges();},error:()=>{this.isLoading=false;this.cdr.detectChanges();}});
+  }
+
   toggleProg(){
     this.programmeStatut=this.programmeStatut==='actif'?'inactif':'actif';
     this.toast(`Programme ${this.programmeStatut==='actif'?'activé':'désactivé'}`,'info');
@@ -726,8 +790,9 @@ changerStatutProjet(): void {
 
   // ── ÉVÉNEMENTS ────────────────────────────────────────────
   loadEvents(){
-    this.http.get<EvenementDTO[]>(`${this.api}/incubateur/${this.incId}/evenements`,{headers:this.h})
-      .subscribe({next:e=>{this.allEvents=e;this.cdr.detectChanges();},error:()=>{}});
+    this.http.get<EvenementDTO[]>(`${this.api}/evenements/incubateur/${this.incId}`,{headers:this.h})
+      .subscribe(
+        {next:e=>{this.allEvents=e;this.cdr.detectChanges();},error:()=>{}});
   }
   openEvModal(){
     const today=new Date();
@@ -750,7 +815,7 @@ changerStatutProjet(): void {
       description:this.eventForm.description?.trim()||null,
       satisfactionActive:this.eventForm.satisfactionActive
     };
-    this.http.post<EvenementDTO>(`${this.api}/incubateur/${this.incId}/evenements`,payload,{headers:this.h})
+    this.http.post<EvenementDTO>(`${this.api}/evenements/incubateur/${this.incId}`,payload,{headers:this.h})
       .subscribe({
         next:(ev)=>{
           this.allEvents=[...this.allEvents,ev];
@@ -768,7 +833,7 @@ changerStatutProjet(): void {
     this.allEvents=this.allEvents.filter(e=>e.id!==id);
     this.upcomingEvents=this.upcomingEvents.filter(e=>e.id!==id);
     this.cdr.detectChanges();
-    this.http.delete(`${this.api}/incubateur/${this.incId}/evenements/${id}`,{headers:this.h})
+    this.http.delete(`${this.api}/evenements/${id}`,{headers:this.h})
       .subscribe({error:()=>{this.toast('Erreur','error');this.loadEvents();}});
   }
 
@@ -800,13 +865,10 @@ changerStatutProjet(): void {
     return Math.round(this.selectedEventSatisfactions.reduce((a,s)=>a+s.note,0)/this.selectedEventSatisfactions.length);
   }
 
-  // ── DOCUMENTS ─────────────────────────────────────────────
-  loadDocuments(){
-    this.isLoading=true;
-    let url=`${this.api}/incubateur/${this.incId}/documents`;
-    if(this.docFilter!=='tous')url+=`?statut=${this.docFilter}`;
-    this.http.get<DocumentDTO[]>(url,{headers:this.h}).subscribe({next:d=>{this.documents=[...d];this.filterDocuments();this.isLoading=false;this.cdr.detectChanges();},error:()=>{this.isLoading=false;this.cdr.detectChanges();}});
-  }
+ 
+
+
+
   filterDocuments(){const q=this.docSearch.toLowerCase().trim();this.filteredDocuments=q?this.documents.filter(d=>d.nom.toLowerCase().includes(q)||(d.startupNom&&d.startupNom.toLowerCase().includes(q))||d.type.toLowerCase().includes(q)):[...this.documents];}
   setDocF(f:string){this.docFilter=f;this.loadDocuments();}
   countDocByStatut(s:string){return this.documents.filter(d=>d.statut===s).length;}

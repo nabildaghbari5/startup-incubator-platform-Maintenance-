@@ -1,1 +1,84 @@
-<p>event-porteur works!</p>
+<div class="card">
+  <div class="card-body">
+    <div class="card-empty" *ngIf="loadingEvents">Chargement des événements…</div>
+    <div class="card-empty" *ngIf="!loadingEvents && displayEvents.length === 0">Aucun événement planifié.</div>
+    <div class="ev-list" *ngIf="!loadingEvents && displayEvents.length > 0">
+      <div class="ev-item ev-item-extended" *ngFor="let e of displayEvents">
+        <div class="ev-date">
+          <span class="ev-day">{{ e.day }}</span>
+          <span class="ev-mo">{{ e.month }}</span>
+        </div>
+        <div class="ev-body">
+          <div class="ev-ttl">{{ e.titre }}</div>
+          <div class="ev-time">
+            {{ e.heureDebut }} – {{ e.heureFin }}
+            <span *ngIf="e.lieu"> · {{ e.lieu }}</span>
+          </div>
+        </div>
+        <span class="ev-type" [ngClass]="e.type">{{ e.typeLabel }}</span>
+
+        <!-- Colonne satisfaction -->
+        <span class="ev-sat-badge" [class.active]="e.satisfactionActive" [class.inactive]="!e.satisfactionActive">
+          {{ e.satisfactionActive ? '😊 Activée' : '— Non' }}
+        </span>
+
+        <div class="ev-sat-actions" *ngIf="e.satisfactionActive">
+          <span class="ev-sat-done" *ngIf="hasSubmitted(e.id)">
+            ★ {{ getMySatisfaction(e.id)?.note }}/5
+          </span>
+          <button
+            class="ia-btn sat-btn"
+            (click)="openSatModal(e)"
+            [title]="hasSubmitted(e.id) ? 'Modifier ma satisfaction' : 'Donner ma satisfaction'">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal satisfaction -->
+<div class="overlay" *ngIf="showSatModal" (click)="closeSatModal()">
+  <div class="modal md" (click)="$event.stopPropagation()">
+    <div class="mod-head">
+      <div>
+        <div class="mod-title">😊 Votre satisfaction</div>
+        <div class="mod-subtitle">{{ selectedEvent?.titre }}</div>
+      </div>
+      <button class="mod-close" (click)="closeSatModal()">✕</button>
+    </div>
+    <div class="mod-body">
+      <p class="sat-form-label">Notez cet événement</p>
+      <div class="sat-stars-input">
+        <button
+          type="button"
+          *ngFor="let i of [1, 2, 3, 4, 5]"
+          class="star lg clickable"
+          [class.filled]="i <= (satHover || satNote)"
+          (mouseenter)="setSatHover(i)"
+          (mouseleave)="clearSatHover()"
+          (click)="setSatNote(i)">
+          ★
+        </button>
+      </div>
+      <p class="sat-form-hint" *ngIf="satNote > 0">{{ satNote }}/5 étoile(s)</p>
+      <div class="fg" style="margin-top: 16px">
+        <label>Commentaire (optionnel)</label>
+        <textarea
+          [(ngModel)]="satComment"
+          rows="3"
+          placeholder="Partagez votre ressenti sur cet événement..."></textarea>
+      </div>
+      <p class="sat-form-error" *ngIf="satError">{{ satError }}</p>
+    </div>
+    <div class="mod-foot">
+      <button class="btn btn-secondary" (click)="closeSatModal()">Annuler</button>
+      <button class="btn btn-primary" (click)="submitSat()" [disabled]="isSubmittingSat || satNote < 1">
+        {{ isSubmittingSat ? 'Envoi...' : (selectedEvent && hasSubmitted(selectedEvent.id) ? 'Mettre à jour' : 'Envoyer') }}
+      </button>
+    </div>
+  </div>
+</div>

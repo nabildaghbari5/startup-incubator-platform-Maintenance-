@@ -46,14 +46,6 @@
           </svg></span>
         <span class="ni-label">Programme</span>
       </button>
-      <button class="nav-item" [class.active]="page==='documents'" (click)="go('documents')">
-        <span class="ni-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-            stroke-width="2">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-            <polyline points="14 2 14 8 20 8" />
-          </svg></span>
-        <span class="ni-label">Documents</span>
-      </button>
       <button class="nav-item" [class.active]="page==='evaluations'" (click)="go('evaluations')">
         <span class="ni-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
             stroke-width="2">
@@ -61,24 +53,7 @@
           </svg></span>
         <span class="ni-label">Satisfactions</span>
       </button>
-      <button class="nav-item" [class.active]="page==='analytics'" (click)="go('analytics')">
-        <span class="ni-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-            stroke-width="2">
-            <rect x="2" y="2" width="20" height="20" rx="2" />
-            <line x1="8" y1="16" x2="8" y2="12" />
-            <line x1="12" y1="16" x2="12" y2="8" />
-            <line x1="16" y1="16" x2="16" y2="10" />
-          </svg></span>
-        <span class="ni-label">Analytics</span>
-      </button>
-      <button class="nav-item" [class.active]="page==='messages'" (click)="go('messages')">
-        <span class="ni-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-            stroke-width="2">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-          </svg></span>
-        <span class="ni-label">Messagerie</span>
-        <span class="ni-badge" *ngIf="unreadCount>0">{{ unreadCount }}</span>
-      </button>
+     
       <button class="nav-item" [class.active]="page==='profil'" (click)="go('profil')">
         <span class="ni-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
             stroke-width="2">
@@ -127,15 +102,16 @@
           <span class="bc-cur">{{ pageLabel }}</span>
         </div>
       </div>
-      <div class="tb-right">
-        <!-- Notif messages -->
+      <div class="tb-right"> 
+        <!-- Notif messages 
         <button class="tb-icon-btn notif-btn" (click)="go('messages')" title="Messagerie">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
           </svg>
           <span class="notif-count" *ngIf="unreadCount>0">{{ unreadCount }}</span>
         </button>
-        <!-- Notif satisfaction -->
+        -->
+        <!-- Notif satisfaction 
         <button class="tb-icon-btn notif-btn" title="Satisfactions en attente" *ngIf="pendingSatisfactions>0">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="10" />
@@ -145,6 +121,7 @@
           </svg>
           <span class="notif-count">{{ pendingSatisfactions }}</span>
         </button>
+        -->
         <div class="tb-user-wrap">
           <div class="tb-avatar" (click)="showUserMenu=!showUserMenu"
             [style.background-image]="profilPhoto?'url('+profilPhoto+')':''"
@@ -539,24 +516,16 @@
                 <div class="phase-ttl">{{ p.titre }}</div>
                 <div class="phase-desc">{{ p.description }}</div>
                 <div class="phase-foot">
-                  <!--
-                 <div class="phase-nav">
-                    <button class="phase-nav-btn" [disabled]="i===0" (click)="movePhase(i,-1)">‹</button>
-                    <button class="phase-nav-btn" [disabled]="i===phases.length-1" (click)="movePhase(i,1)">›</button>
-                  </div>
-                  -->
+      
             
                   <div class="phase-acts">
-                    <!--
-                     <button class="ia-btn" (click)="setActivePhase(i)" title="Définir comme active"
-                      [class.active-phase-btn]="i===currentPhaseIndex">
-                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="2">
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                    </button>
-                    -->
-                   
+                    <button class="ia-btn" (click)="openPhaseDocuments(p)" title="Documents de la phase"><svg width="11" height="11" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                        <polyline points="14 2 14 8 20 8" />
+                        <line x1="16" y1="13" x2="8" y2="13" />
+                        <line x1="16" y1="17" x2="8" y2="17" />
+                      </svg></button>
                     <button class="ia-btn" (click)="openEditPhase(p)"><svg width="11" height="11" viewBox="0 0 24 24"
                         fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
@@ -1232,6 +1201,44 @@
       </div>
       <div class="mod-foot"><button class="btn btn-secondary" (click)="showPhaseModal=false">Annuler</button><button
           class="btn btn-primary" (click)="savePhase()">{{ editPhaseMode?'Mettre à jour':'Ajouter' }}</button></div>
+    </div>
+  </div>
+
+  <!-- ══ MODAL DOCUMENTS PHASE ══ -->
+  <div class="overlay" *ngIf="showPhaseDocumentsModal" (click)="showPhaseDocumentsModal=false">
+    <div class="modal md" (click)="$event.stopPropagation()">
+      <div class="mod-head">
+        <div class="mod-title">📄 Documents — {{ selectedPhaseForDocs?.titre }}</div><button class="mod-close"
+          (click)="showPhaseDocumentsModal=false">✕</button>
+      </div>
+      <div class="mod-body">
+        <div class="card-empty" *ngIf="loadingPhaseDocuments">Chargement...</div>
+        <div class="card-empty" *ngIf="!loadingPhaseDocuments && phaseDocuments.length===0">Aucun document déposé pour cette phase.</div>
+        <div class="ev-list" *ngIf="!loadingPhaseDocuments && phaseDocuments.length>0">
+          <div class="ev-item" *ngFor="let doc of phaseDocuments">
+            <div class="ev-body" style="flex:1">
+              <div class="ev-ttl">{{ doc.fileName || 'Document' }}</div>
+              <div class="ev-time">
+                {{ phaseDocPorteurLabel(doc) }}
+                <span *ngIf="doc.uploadedAt"> · {{ doc.uploadedAt | date:'dd/MM/yyyy HH:mm' }}</span>
+              </div>
+              <div class="ev-time" style="margin-top:4px">
+                <span *ngIf="doc.score != null">Note expert :
+                  <strong class="score-num" [ngClass]="sc(doc.score)">{{ doc.score }}/100</strong>
+                </span>
+                <span *ngIf="doc.score == null" style="color:var(--text3)">Note expert : non attribuée</span>
+              </div>
+            </div>
+            <button class="ia-btn" (click)="downloadPhaseDocument(doc)" title="Télécharger"><svg width="11" height="11" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+              </svg></button>
+          </div>
+        </div>
+      </div>
+      <div class="mod-foot"><button class="btn btn-secondary" (click)="showPhaseDocumentsModal=false">Fermer</button></div>
     </div>
   </div>
 

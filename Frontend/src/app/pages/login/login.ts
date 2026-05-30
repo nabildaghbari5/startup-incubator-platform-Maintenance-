@@ -61,8 +61,8 @@ export class LoginComponent {
       }
     },
 
-    error: () => {
-
+    error: (error) => {
+       console.log(error)
       alert("Email ou mot de passe incorrect");
 
     }

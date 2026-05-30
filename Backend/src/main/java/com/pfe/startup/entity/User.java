@@ -1,5 +1,6 @@
 package com.pfe.startup.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import jakarta.persistence.EnumType;

@@ -43,6 +43,7 @@ export const routes: Routes = [
 
   // EXPERT
   { path: 'expert/projets', component: ExpertComponent },
+  { path: 'expert/phases', component: ExpertComponent },
   { path: 'expert/evaluations', component: ExpertComponent },
   { path: 'expert/messages', component: ExpertComponent },
   { path: 'expert/profil', component: ExpertComponent },

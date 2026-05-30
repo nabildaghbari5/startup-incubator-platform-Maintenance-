@@ -40,9 +40,13 @@ public class SecurityConfig {
 
                         .requestMatchers("/api/phases/**").permitAll()
 
+                        .requestMatchers("/api/documents/**").permitAll()
+
                         .requestMatchers("/api/evenements/**").permitAll()
 
                         .requestMatchers("/api/satisfactions/**").permitAll()
+
+                        .requestMatchers("/api/satisfaction/**").permitAll()
 
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 

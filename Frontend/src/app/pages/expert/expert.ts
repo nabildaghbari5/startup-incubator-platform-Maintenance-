@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { ProjetService } from '../porteur/service/projet-service';
+import { PhaseService } from '../porteur/service/phase-service';
+import { DocumentsService, DocumentsDTO } from '../porteur/service/documents-service';
 
 interface ProjetDTO {
   id: number;
@@ -91,6 +93,18 @@ export class ExpertComponent implements OnInit, OnDestroy {
 
 
   projects: any[] = [];
+
+  // Phases & documents
+  phases: any[] = [];
+  selectedPhase: any = null;
+  phaseDocuments: DocumentsDTO[] = [];
+  draftScores: Record<number, number> = {};
+  savingDocId: number | null = null;
+  downloadingDocId: number | null = null;
+  loadingPhases = false;
+  loadingDocuments = false;
+  loadingProjects = false;
+
 statutProjetColor(statut: string): string {
 
     switch (statut) {
@@ -116,32 +130,35 @@ statutProjetColor(statut: string): string {
     private http: HttpClient,
     private router: Router,
     private cdr: ChangeDetectorRef,
-    private projetService:ProjetService
+    private projetService: ProjetService,
+    private phaseService: PhaseService,
+    private documentsService: DocumentsService
   ) {}
 
   ngOnInit() {
+    this.syncPageFromUrl();
     this.loadProjets();
     this.loadMyEvaluations();
+    this.loadPageData();
     this.poll = setInterval(() => {
       if (this.page === 'messages' && this.activeContact) this.loadMessages();
     }, 5000);
-
-    this.findAllProjet();
   }
 
-   findAllProjet(){
-      this.projetService.findAll()
-    .subscribe({
+  /** Déduit la page depuis l’URL sans relancer tout le cycle go(). */
+  private syncPageFromUrl() {
+    const url = this.router.url;
+    if (url.includes('/expert/phases')) this.page = 'phases';
+    else if (url.includes('/expert/projets')) this.page = 'projets';
+    else if (url.includes('/expert/evaluations') || url.includes('/expert/evaluer')) this.page = 'evaluer';
+    else if (url.includes('/expert/messages')) this.page = 'messages';
+    else if (url.includes('/expert/profil')) this.page = 'profil';
+    else this.page = 'dashboard';
+  }
 
-      next: (res) => {
-        this.projects = res;
-      },
-
-      error: (err) => {
-        console.error(err);
-      }
-
-    });
+  private loadPageData() {
+    if (this.page === 'phases') this.loadPhases();
+    if (this.page === 'messages') this.loadContacts();
   }
 
 
@@ -195,9 +212,11 @@ statutProjetColor(statut: string): string {
   }
 
   goTo(route: string) {
+    this.router.navigateByUrl(route);
     const map: Record<string, string> = {
       '/expert':            'dashboard',
       '/expert/projets':    'projets',
+      '/expert/phases':     'phases',
       '/expert/evaluer':    'evaluer',
       '/expert/messages':   'messages',
       '/expert/profil':     'profil',
@@ -211,6 +230,7 @@ statutProjetColor(statut: string): string {
     this.selectedProjet = null;
     if (p === 'messages')  this.loadContacts();
     if (p === 'projets')   this.loadProjets();
+    if (p === 'phases')    this.loadPhases();
     if (p === 'evaluer')   { this.loadProjets(); this.loadMyEvaluations(); }
     if (p === 'dashboard') { this.loadProjets(); this.loadMyEvaluations(); }
   }
@@ -220,22 +240,62 @@ statutProjetColor(statut: string): string {
 
   // ── PROJETS ──────────────────────────────────────────────
   loadProjets() {
-    this.http.get<ProjetDTO[]>(`${this.api}/startups`, { headers: this.h })
-      .subscribe({
-        next: p => {
-          this.projets = p;
-          this.pendingCount = p.filter(pr => pr.statut === 'EN_ATTENTE').length;
-          this.filterProjets();
-          this.cdr.detectChanges();
-        },
-        error: () => {}
-      });
+    this.loadingProjects = true;
+    this.projetService.findAll().subscribe({
+      next: res => {
+        this.projects = res ?? [];
+        this.projets = this.projects.map(p => this.mapProjetForDashboard(p));
+        this.pendingCount = this.projets.filter(
+          pr => pr.statut === 'EN_ATTENTE' || pr.statut === 'EN_COURS_ANALYSE'
+        ).length;
+        this.filterProjets();
+        this.loadingProjects = false;
+        this.cdr.detectChanges();
+      },
+      error: err => {
+        console.error(err);
+        this.projects = [];
+        this.projets = [];
+        this.filteredProjets = [];
+        this.loadingProjects = false;
+        this.toast('Impossible de charger les projets', 'error');
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  private mapProjetForDashboard(p: any): ProjetDTO {
+    const porteur = p?.porteur;
+    const porteurNom = porteur
+      ? [porteur.prenom, porteur.nom].filter(Boolean).join(' ').trim() || porteur.email || '—'
+      : '—';
+    return {
+      id: p.id,
+      nom: p.titre ?? p.nom ?? '',
+      description: p.description ?? '',
+      secteur: p.secteur ?? '',
+      statut: p.statut ?? '',
+      porteurNom,
+      porteurEmail: porteur?.email ?? '',
+      createdAt: p.dateSoumission ?? p.createdAt ?? ''
+    };
+  }
+
+  porteurProjetLabel(projet: any): string {
+    const p = projet?.porteur;
+    if (!p) return '—';
+    const name = [p.prenom, p.nom].filter(Boolean).join(' ').trim();
+    return name || p.email || '—';
   }
 
   filterProjets() {
     const q = this.projetSearch.toLowerCase().trim();
     this.filteredProjets = q
-      ? this.projets.filter(p => p.nom.toLowerCase().includes(q) || p.secteur.toLowerCase().includes(q))
+      ? this.projets.filter(
+          p =>
+            (p.nom || '').toLowerCase().includes(q) ||
+            (p.secteur || '').toLowerCase().includes(q)
+        )
       : [...this.projets];
   }
 
@@ -247,7 +307,13 @@ statutProjetColor(statut: string): string {
 
   statutColor(s: string): string {
     const m: Record<string, string> = {
-      EN_ATTENTE: '#f59e0b', EVALUE: '#10b981', REJETE: '#ef4444', EN_COURS: '#6366f1'
+      EN_ATTENTE: '#f59e0b',
+      EN_COURS_ANALYSE: '#6366f1',
+      ACCEPTE: '#10b981',
+      REFUSE: '#ef4444',
+      EVALUE: '#10b981',
+      REJETE: '#ef4444',
+      EN_COURS: '#6366f1'
     };
     return m[s] || '#6b7280';
   }
@@ -387,6 +453,150 @@ statutProjetColor(statut: string): string {
   }
 
   isMine(m: MessageDTO): boolean { return m.sender === this.currentUser.email; }
+
+  // ── PHASES & DOCUMENTS ───────────────────────────────────
+  loadPhases() {
+    this.loadingPhases = true;
+    this.phaseService.findAllPhase().subscribe({
+      next: list => {
+        this.phases = (list || []).sort(
+          (a: { numero: number }, b: { numero: number }) => (a.numero ?? 0) - (b.numero ?? 0)
+        );
+        this.loadingPhases = false;
+        if (this.selectedPhase) {
+          const still = this.phases.find(p => p.id === this.selectedPhase.id);
+          if (still) this.selectPhase(still);
+          else {
+            this.selectedPhase = null;
+            this.phaseDocuments = [];
+          }
+        }
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.loadingPhases = false;
+        this.toast('Impossible de charger les phases', 'error');
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  selectPhase(phase: any) {
+    this.selectedPhase = phase;
+    this.loadPhaseDocuments(phase.id);
+  }
+
+  loadPhaseDocuments(phaseId: number) {
+    this.loadingDocuments = true;
+    this.documentsService.getDocumentsByPhase(phaseId).subscribe({
+      next: docs => {
+        this.phaseDocuments = docs || [];
+        this.draftScores = {};
+        for (const d of this.phaseDocuments) {
+          if (d.id != null) {
+            this.draftScores[d.id] = d.score != null ? d.score : 50;
+          }
+        }
+        this.loadingDocuments = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.loadingDocuments = false;
+        this.phaseDocuments = [];
+        this.toast('Erreur lors du chargement des documents', 'error');
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  porteurLabel(doc: DocumentsDTO): string {
+    const p = doc.porteur;
+    if (!p) return '—';
+    const name = [p.prenom, p.nom].filter(Boolean).join(' ').trim();
+    return name || p.email || 'Porteur';
+  }
+
+  fileTypeLabel(type?: string): string {
+    if (!type) return '—';
+    if (type.includes('pdf')) return 'PDF';
+    if (type.includes('png')) return 'PNG';
+    if (type.includes('jpeg') || type.includes('jpg')) return 'JPEG';
+    if (type.includes('word') || type.includes('document')) return 'Word';
+    return type.split('/').pop()?.toUpperCase() || type;
+  }
+
+  docStatutLabel(statut?: string): string {
+    if (statut === 'EVALUE') return 'Évalué';
+    if (statut === 'EN_ATTENTE') return 'En attente';
+    return statut || 'En attente';
+  }
+
+  docStatutColor(statut?: string): string {
+    if (statut === 'EVALUE') return '#10b981';
+    return '#f59e0b';
+  }
+
+  downloadDocument(doc: DocumentsDTO) {
+    const porteurId = doc.porteur?.id;
+    const phaseId = doc.phase?.id ?? this.selectedPhase?.id;
+    if (!porteurId || !phaseId) {
+      this.toast('Document introuvable', 'error');
+      return;
+    }
+
+    this.downloadingDocId = doc.id ?? null;
+    const token = localStorage.getItem('token') || '';
+    fetch(`${this.api}/documents/${porteurId}/${phaseId}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then(r => { if (!r.ok) throw new Error(); return r.json(); })
+      .then(data => {
+        const content = data.document;
+        if (!content) throw new Error();
+        const binary = atob(content);
+        const bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+        const blob = new Blob([bytes], { type: data.fileType || 'application/octet-stream' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = data.fileName || doc.fileName || 'document';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(a.href);
+        this.downloadingDocId = null;
+        this.cdr.detectChanges();
+      })
+      .catch(() => {
+        this.downloadingDocId = null;
+        this.toast('Erreur lors du téléchargement', 'error');
+        this.cdr.detectChanges();
+      });
+  }
+
+  saveDocumentScore(doc: DocumentsDTO) {
+    if (!doc.id) return;
+    const score = this.draftScores[doc.id];
+    if (score == null || score < 0 || score > 100) {
+      this.toast('Le score doit être entre 0 et 100', 'error');
+      return;
+    }
+    this.savingDocId = doc.id;
+    this.documentsService.updateDocumentScore(doc.id, score).subscribe({
+      next: updated => {
+        const idx = this.phaseDocuments.findIndex(d => d.id === doc.id);
+        if (idx >= 0) this.phaseDocuments[idx] = updated;
+        this.savingDocId = null;
+        this.toast('Note enregistrée', 'success');
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.savingDocId = null;
+        this.toast('Erreur lors de l\'enregistrement de la note', 'error');
+        this.cdr.detectChanges();
+      }
+    });
+  }
 
   // ── TOASTS ───────────────────────────────────────────────
   toast(msg: string, type: string = 'info') {

@@ -1,0 +1,81 @@
+.ev-sat-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 20px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.ev-sat-badge.active {
+  color: var(--green);
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+}
+
+.ev-sat-badge.inactive {
+  color: var(--text3);
+  background: var(--bg);
+  border: 1px solid var(--border);
+}
+
+.ev-sat-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.ev-sat-done {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--amber);
+}
+
+.ia-btn.sat-btn:hover {
+  border-color: var(--amber);
+  color: var(--amber);
+  background: #fffbeb;
+}
+
+.sat-stars-input {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 0;
+}
+
+.star.clickable {
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  line-height: 1;
+}
+
+.star.clickable:hover {
+  transform: scale(1.1);
+}
+
+.sat-form-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  text-align: center;
+  margin: 0;
+}
+
+.sat-form-hint {
+  text-align: center;
+  font-size: 12px;
+  color: var(--pink);
+  font-weight: 600;
+  margin: 4px 0 0;
+}
+
+.sat-form-error {
+  margin-top: 12px;
+  font-size: 12px;
+  color: var(--rose);
+  text-align: center;
+}

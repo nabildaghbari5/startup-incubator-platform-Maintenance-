@@ -1,10 +1,10 @@
 <!-- ╔══════════════════════════════════════════════════════════╗ -->
 <!-- ║  PORTEUR DASHBOARD — Angular Template                    ║ -->
 <!-- ╚══════════════════════════════════════════════════════════╝ -->
-<div class="shell" >
+<div class="shell" [class.sidebar-collapsed]="!sidebarOpen">
 
   <!-- ══ SIDEBAR ══════════════════════════════════════════════ -->
-  <aside class="sidebar">
+  <aside class="sidebar" [class.collapsed]="!sidebarOpen">
     <div class="sidebar-logo">
       <span class="logo-icon">⚡</span>
       <span class="logo-text">StartupHub</span>
@@ -18,23 +18,14 @@
         <span class="nav-icon">📊</span><span class="nav-label">Mes projets</span>
       </a>
       <a class="nav-item" [class.active]="page==='programme'" (click)="goTo('/porteur/programme')">
-        <span class="nav-icon">🗺️</span><span class="nav-label">Programme</span>
+        <span class="nav-icon">🗺️</span><span class="nav-label">Phase et événements</span>
       </a>
-      <a class="nav-item" [class.active]="page==='documents'" (click)="goTo('/porteur/documents')">
-        <span class="nav-icon">📁</span><span class="nav-label">Documents</span>
-      </a>
-      <a class="nav-item" [class.active]="page==='evaluations'" (click)="goTo('/porteur/evaluations')">
-        <span class="nav-icon">📊</span><span class="nav-label">Évaluations</span>
-      </a>
-      <a class="nav-item" [class.active]="page==='messages'" (click)="goTo('/porteur/messages')">
-        <span class="nav-icon">💬</span><span class="nav-label">Messages</span>
-      </a>
+
+   
       <a class="nav-item" [class.active]="page==='profil'" (click)="goTo('/porteur/profil')">
         <span class="nav-icon">👤</span><span class="nav-label">Profil</span>
       </a>
-      <a class="nav-item" [class.active]="page==='parametres'" (click)="goTo('/porteur/parametres')">
-        <span class="nav-icon">⚙️</span><span class="nav-label">Paramètres</span>
-      </a>
+     
     </nav>
 
     <div class="sidebar-footer">
@@ -54,29 +45,47 @@
   </aside>
 
 
-  <!-- ══ TOPBAR ════════════════════════════════════════════════ -->
-  <header class="topbar">
-    <button class="burger" (click)="toggleSb()">
-      <span></span><span></span><span></span>
-    </button>
-    <div class="topbar-title">
-      <ng-container [ngSwitch]="page">
-        <span *ngSwitchCase="'dashboard'">Tableau de bord</span>
-        <span *ngSwitchCase="'projet'">Mes projets</span>
-        <span *ngSwitchCase="'programme'">Programme d'incubation</span>
-        <span *ngSwitchCase="'documents'">Mes documents</span>
-        <span *ngSwitchCase="'evaluations'">Mes évaluations</span>
-        <span *ngSwitchCase="'messages'">Messages</span>
-        <span *ngSwitchCase="'profil'">Mon profil</span> 
-        <span *ngSwitchCase="'parametres'">Paramètres</span>
-      </ng-container>
-    </div>
-    <div class="topbar-actions">
-      <div class="topbar-avatar" (click)="showUserMenu = !showUserMenu">{{ currentUser.initials }}</div>
-    </div>
-  </header>
-  <!-- ══ MAIN ══════════════════════════════════════════════════ -->
-  <main class="main-content">
+  <!-- ══ MAIN WRAPPER (topbar + contenu) ═══════════════════════ -->
+  <div class="main-wrapper">
+    <header class="topbar">
+      <div class="tb-left">
+        <button class="tb-toggle" (click)="toggleSb()" type="button" aria-label="Menu">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <line x1="3" y1="12" x2="21" y2="12" />
+            <line x1="3" y1="18" x2="21" y2="18" />
+          </svg>
+        </button>
+        <div class="breadcrumb">
+          <a (click)="go('dashboard')">StartupHub</a>
+          <span class="bc-sep">›</span>
+          <span class="bc-cur">{{ pageLabel }}</span>
+        </div>
+      </div>
+      <div class="tb-right">
+        <div class="tb-user-wrap">
+          <div class="tb-avatar" (click)="showUserMenu = !showUserMenu">
+            <span>{{ currentUser.initials }}</span>
+          </div>
+          <div class="user-dropdown" *ngIf="showUserMenu" (click)="$event.stopPropagation()">
+            <div class="udrop-info">
+              <div class="udrop-name">{{ currentUser.name }}</div>
+              <div class="udrop-email">{{ currentUser.email }}</div>
+            </div>
+            <div class="udrop-divider"></div>
+            <button class="udrop-item" type="button" (click)="go('profil'); showUserMenu = false">
+              Mon profil
+            </button>
+            <button class="udrop-item danger" type="button" (click)="logout()">
+              Déconnexion
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- ══ MAIN ══════════════════════════════════════════════════ -->
+    <main class="main-content">
 
 
 
@@ -523,7 +532,10 @@
               </div>
               <span class="event-type-pill" [style.background]="typeColor(ev.type)">{{ ev.typeLabel }}</span>
             </div>
-            <div class="empty-state" *ngIf="!upcomingEvents.length">
+            <div class="empty-state" *ngIf="loadingEvents">
+              <p>Chargement…</p>
+            </div>
+            <div class="empty-state" *ngIf="!loadingEvents && !upcomingEvents.length">
               <span class="empty-icon">🗓️</span>
               <p>Aucun événement à venir</p>
             </div>
@@ -557,8 +569,9 @@
 
     <!-- ─── PROGRAMME ──────────────────────────────────────── -->
     <section *ngIf="page==='programme'" class="page-programme">
-      <app-programme-porteur 
-      [phases]="phases"></app-programme-porteur>
+      <app-programme-porteur [phases]="phases"></app-programme-porteur>
+      <br><br>
+      <app-event-porteur [allEvents]="allEvents" [loadingEvents]="loadingEvents"></app-event-porteur> 
     </section>
 
 
@@ -715,47 +728,7 @@
       </div>
     </section>
 
-    <!-- ─── MESSAGES ──────────────────────────────────────── -->
-    <section *ngIf="page==='messages'" class="page-messages">
-      <!-- Contacts -->
-      <div class="contacts-panel">
-        <div class="contacts-search">
-          <span>💬</span> Conversations
-        </div>
-        <div class="contact-list">
-          <div class="contact-item" *ngFor="let c of contacts" [class.active]="c === activeContact"
-            (click)="selectContact(c)">
-            <div class="contact-avatar">{{ c.substring(0,2).toUpperCase() }}</div>
-            <span class="contact-email">{{ c }}</span>
-          </div>
-          <div class="empty-state sm" *ngIf="!contacts.length">
-            <p>Aucun contact</p>
-          </div>
-        </div>
-      </div>
 
-      <!-- Chat -->
-      <div class="chat-panel">
-        <div class="chat-header" *ngIf="activeContact">
-          <div class="contact-avatar">{{ activeContact.substring(0,2).toUpperCase() }}</div>
-          <span>{{ activeContact }}</span>
-        </div>
-        <div class="chat-placeholder" *ngIf="!activeContact">
-          <span class="empty-icon">💬</span>
-          <p>Sélectionnez une conversation</p>
-        </div>
-        <div class="messages-list" *ngIf="activeContact">
-          <div class="msg-bubble" *ngFor="let m of messages" [class.mine]="isMine(m)" [class.theirs]="!isMine(m)">
-            <p class="msg-text">{{ m.content }}</p>
-            <span class="msg-time">{{ m.sentAt | date:'HH:mm' }}</span>
-          </div>
-        </div>
-        <div class="chat-input" *ngIf="activeContact">
-          <input class="msg-input" placeholder="Votre message…" [(ngModel)]="newMessage" (keyup.enter)="sendMsg()">
-          <button class="btn-send" (click)="sendMsg()">➤</button>
-        </div>
-      </div>
-    </section>
 
     <!-- ─── PROFIL ─────────────────────────────────────────── -->
     <section *ngIf="page==='profil'" class="page-profil">
@@ -784,7 +757,8 @@
       </div>
     </section>
 
-  </main><!-- /main-content -->
+    </main><!-- /main-content -->
+  </div><!-- /main-wrapper -->
 
 </div><!-- /shell -->
 

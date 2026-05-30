@@ -1,10 +1,5 @@
-      <div class="page-wrap">
-       <div class="ph">
-          <div>
-            <div class="ph-title">Les phases de votre projet</div>
-          </div>
-         
-        </div>
+      <div>
+      
 
         <div class="rdv-banner" *ngIf="upcomingRdv">  
           <span class="rdv-ic">📅</span>
@@ -34,7 +29,24 @@
                 <div class="phase-foot">
                 
                   <div class="phase-acts">
-                    
+                    <label class="phase-upload-btn"
+                      [class.uploading]="uploadingPhaseId === p.id"
+                      [class.has-file]="p.fichierNom"
+                      [title]="p.fichierNom ? 'Remplacer : ' + p.fichierNom : 'Téléverser un PDF'">
+                      <input type="file" hidden accept=".pdf,application/pdf"
+                        (change)="onPhasePdfSelected($event, p)" [disabled]="uploadingPhaseId === p.id">
+                      <span *ngIf="uploadingPhaseId !== p.id">📄 {{ p.fichierNom ? 'Remplacer' : 'Déposez votre document' }}</span>
+                      <span *ngIf="uploadingPhaseId === p.id">{{ uploadProgress }}%</span>
+                    </label>
+                    <div class="phase-score-row" *ngIf="p.fichierNom">
+                      <span class="phase-score-label">Note expert</span>
+                      <span *ngIf="hasExpertScore(p)" class="phase-score-badge" [ngClass]="scoreCssClass(p)">
+                        ⭐ {{ scoreLabel(p) }}
+                      </span>
+                      <span *ngIf="!hasExpertScore(p)" class="phase-score-pending">
+                        ⏳ {{ scoreLabel(p) }}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>

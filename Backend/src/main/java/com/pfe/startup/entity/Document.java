@@ -6,7 +6,6 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "documents")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -18,21 +17,20 @@ public class Document {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String nom;
-
-    private String type;
-
-    private String taille;
-
-    private String chemin;
-
-    private String statut;
-
-    private Boolean visiblePorteur;
-
+    private String fileName;
+    private String documentUrl;
+    private String fileType;
     private LocalDateTime uploadedAt;
 
+    /** Note attribuée par l'expert (0–100), null si non évalué */
+    private Integer score;
+
     @ManyToOne
-    @JoinColumn(name = "startup_id")
-    private Startup startup;
+    @JoinColumn(name = "porteur_id")
+    private User porteur;
+
+    @ManyToOne
+    @JoinColumn(name = "phase_id")
+    private Phase phase;
+
 }

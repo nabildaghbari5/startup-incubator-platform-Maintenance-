@@ -14,22 +14,17 @@
       <a class="nav-item" [class.active]="page==='dashboard'" (click)="goTo('/expert')">
         <span class="nav-icon">🏠</span><span class="nav-label">Tableau de bord</span>
       </a>
-      <!--
-      <a class="nav-item" [class.active]="page==='dashboard'" (click)="goTo('/expert')">
-        <span class="nav-icon">🏠</span><span class="nav-label">Programme</span>
-      </a>
-      -->
+   
 
       <a class="nav-item" [class.active]="page==='projets'" (click)="goTo('/expert/projets')">
         <span class="nav-icon">🔍</span><span class="nav-label">Consulter projets</span>
       </a>
-      <a class="nav-item" [class.active]="page==='evaluer'" (click)="goTo('/expert/evaluer')">
-        <span class="nav-icon">⭐</span><span class="nav-label">Évaluer projets</span>
-        <span class="nav-badge" *ngIf="pendingCount > 0">{{ pendingCount }}</span>
+
+      <a class="nav-item" [class.active]="page==='phases'" (click)="goTo('/expert/phases')">
+        <span class="nav-icon">📑</span><span class="nav-label">Consulter les phases</span>
       </a>
-      <a class="nav-item" [class.active]="page==='messages'" (click)="goTo('/expert/messages')">
-        <span class="nav-icon">💬</span><span class="nav-label">Messagerie</span>
-      </a>
+   
+   
       <a class="nav-item" [class.active]="page==='profil'" (click)="goTo('/expert/profil')">
         <span class="nav-icon">👤</span><span class="nav-label">Mon profil</span>
       </a>
@@ -63,6 +58,7 @@
         <ng-container [ngSwitch]="page">
           <span *ngSwitchCase="'dashboard'">Tableau de bord</span>
           <span *ngSwitchCase="'projets'">Consulter projets</span>
+          <span *ngSwitchCase="'phases'">Phases &amp; documents</span>
           <span *ngSwitchCase="'evaluer'">Évaluer projets</span>
           <span *ngSwitchCase="'messages'">Messagerie</span>
           <span *ngSwitchCase="'profil'">Mon profil</span>
@@ -139,7 +135,10 @@
           </div>
         </div>
       </div>
-      <div class="empty-state" *ngIf="!projets.length">
+      <div class="empty-state" *ngIf="loadingProjects">
+        <p>Chargement des projets…</p>
+      </div>
+      <div class="empty-state" *ngIf="!loadingProjects && !projets.length">
         <span class="empty-icon">📂</span>
         <p>Aucun projet disponible</p>
       </div>
@@ -169,7 +168,7 @@
           <tbody>
             <tr *ngFor="let projet of projects">
               <td class="porteur-cell">
-                {{ projet.porteur.nom }}
+                {{ porteurProjetLabel(projet) }}
               </td>
               <td class="titre-cell">
                 {{ projet.titre }}
@@ -207,21 +206,136 @@
           
           </tbody>
         </table>
-        <div class="empty-state" *ngIf="!projects.length">
+        <div class="empty-state" *ngIf="loadingProjects">
+          <p>Chargement des projets…</p>
+        </div>
+        <div class="empty-state" *ngIf="!loadingProjects && !projects.length">
           <span class="empty-icon">📋</span>
           <p>Aucun projet trouvé</p>
         </div>
       </div>
     </section>
 
+    <!-- ─── PHASES & DOCUMENTS ────────────────────────────── -->
+    <section *ngIf="page==='phases'" class="page-anim phases-layout">
 
+      <div class="phases-list-panel">
+        <div class="elp-head">
+          <span class="elp-title">Phases du programme</span>
+          <span class="elp-count">{{ phases.length }}</span>
+        </div>
+        <div class="elp-items" *ngIf="!loadingPhases">
+          <div class="phase-nav-item" *ngFor="let ph of phases"
+            [class.selected]="selectedPhase?.id === ph.id"
+            (click)="selectPhase(ph)">
+            <div class="phase-nav-num" [style.background]="ph.couleur || '#ec4899'">{{ ph.numero }}</div>
+            <div class="phase-nav-info">
+              <span class="phase-nav-title">{{ ph.titre }}</span>
+              <span class="phase-nav-mois">{{ ph.mois }}</span>
+            </div>
+            <span class="phase-nav-ic">{{ ph.icone || '📌' }}</span>
+          </div>
+        </div>
+        <div class="empty-state sm" *ngIf="loadingPhases">
+          <p>Chargement des phases…</p>
+        </div>
+        <div class="empty-state sm" *ngIf="!loadingPhases && !phases.length">
+          <span class="empty-icon">📂</span>
+          <p>Aucune phase définie</p>
+        </div>
+      </div>
 
+      <div class="phases-docs-panel" *ngIf="selectedPhase">
+        <div class="phases-docs-header">
+          <div>
+            <h2 class="page-title">{{ selectedPhase.titre }}</h2>
+            <p class="phases-docs-sub">{{ selectedPhase.mois }} · {{ selectedPhase.description }}</p>
+          </div>
+          <span class="phase-header-badge" [style.background]="selectedPhase.couleur || '#ec4899'">
+            Phase {{ selectedPhase.numero }}
+          </span>
+        </div>
 
+        <div class="loading-hint" *ngIf="loadingDocuments">Chargement des documents…</div>
 
+        <div class="docs-grid" *ngIf="!loadingDocuments && phaseDocuments.length">
+          <article class="doc-card" *ngFor="let doc of phaseDocuments">
+            <div class="doc-card-top">
+              <div class="doc-icon">📄</div>
+              <div class="doc-meta">
+                <h3 class="doc-name" [title]="doc.fileName">{{ doc.fileName || 'Sans nom' }}</h3>
+                <p class="doc-porteur">👤 {{ porteurLabel(doc) }}</p>
+              </div>
+              <div class="doc-card-actions">
+                <span class="doc-statut-pill" [style.background]="docStatutColor(doc.statut)">
+                  {{ docStatutLabel(doc.statut) }}
+                </span>
+                <button type="button" class="doc-download-btn"
+                  (click)="downloadDocument(doc)"
+                  [disabled]="downloadingDocId === doc.id"
+                  title="Télécharger le document">
+                  <svg *ngIf="downloadingDocId !== doc.id" width="16" height="16" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="7 10 12 15 17 10" />
+                    <line x1="12" y1="15" x2="12" y2="3" />
+                  </svg>
+                  <span *ngIf="downloadingDocId === doc.id" class="doc-download-spinner">…</span>
+                </button>
+              </div>
+            </div>
 
+            <dl class="doc-details">
+              <div class="doc-detail-row">
+                <dt>Type</dt>
+                <dd>{{ fileTypeLabel(doc.fileType) }}</dd>
+              </div>
+              <div class="doc-detail-row">
+                <dt>Date de dépôt</dt>
+                <dd>{{ doc.uploadedAt ? (doc.uploadedAt | date:'dd/MM/yyyy HH:mm') : '—' }}</dd>
+              </div>
+              <div class="doc-detail-row">
+                <dt>Score attribué</dt>
+                <dd>
+                  <span *ngIf="doc.score != null" class="score-mini" [class]="scoreClass(doc.score)">
+                    {{ doc.score }}/100
+                  </span>
+                  <span *ngIf="doc.score == null" class="score-none">Non noté</span>
+                </dd>
+              </div>
+            </dl>
 
+            <div class="doc-score-block" *ngIf="doc.id != null">
+              <label class="doc-score-label">Attribuer une note (0–100)</label>
+              <div class="doc-score-row">
+                <input type="range" min="0" max="100"
+                  [(ngModel)]="draftScores[doc.id]"
+                  [name]="'score-' + doc.id">
+                <span class="slider-val" [class]="scoreClass(draftScores[doc.id])">
+                  {{ draftScores[doc.id] }}
+                </span>
+              </div>
+              <button class="btn-submit doc-save-btn"
+                [disabled]="savingDocId === doc.id"
+                (click)="saveDocumentScore(doc)">
+                {{ savingDocId === doc.id ? 'Enregistrement…' : (doc.score != null ? 'Mettre à jour la note' : 'Enregistrer la note') }}
+              </button>
+            </div>
+          </article>
+        </div>
 
+        <div class="empty-state" *ngIf="!loadingDocuments && !phaseDocuments.length">
+          <span class="empty-icon">📭</span>
+          <p>Aucun document déposé pour cette phase</p>
+        </div>
+      </div>
 
+      <div class="phases-placeholder" *ngIf="!selectedPhase && !loadingPhases">
+        <span class="empty-icon">📑</span>
+        <p>Sélectionnez une phase pour consulter les documents associés</p>
+      </div>
+
+    </section>
 
 
 

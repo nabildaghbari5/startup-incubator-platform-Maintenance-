@@ -33,6 +33,7 @@ export interface EvenementDTO {
   heureFin: string;
   lieu: string;
   description: string;
+  satisfactionActive?: boolean;
 }
 
 export interface EvenementRequest {
@@ -49,6 +50,7 @@ export interface EvenementRequest {
 export class ProgrammeService {
 
   private api = '/api/incubateur';
+  private eventsApi = '/api/evenements';
 
   constructor(private http: HttpClient) {}
 
@@ -80,19 +82,19 @@ export class ProgrammeService {
 
   // ── ÉVÉNEMENTS ──────────────────────────────────────────
 
-  getEvenements(incId: number): Observable<EvenementDTO[]> {
-    return this.http.get<EvenementDTO[]>(`${this.api}/${incId}/evenements`);
+  getEvenements(incId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.eventsApi}/incubateur/${incId}`);
   }
 
-  getUpcoming(incId: number): Observable<EvenementDTO[]> {
-    return this.http.get<EvenementDTO[]>(`${this.api}/${incId}/evenements/upcoming`);
+  getUpcoming(incId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.eventsApi}/incubateur/${incId}/upcoming`);
   }
 
-  createEvenement(incId: number, req: EvenementRequest): Observable<EvenementDTO> {
-    return this.http.post<EvenementDTO>(`${this.api}/${incId}/evenements`, req);
+  createEvenement(incId: number, req: EvenementRequest): Observable<any> {
+    return this.http.post<any>(`${this.eventsApi}/incubateur/${incId}`, req);
   }
 
-  deleteEvenement(incId: number, evId: number): Observable<void> {
-    return this.http.delete<void>(`${this.api}/${incId}/evenements/${evId}`);
+  deleteEvenement(_incId: number, evId: number): Observable<void> {
+    return this.http.delete<void>(`${this.eventsApi}/${evId}`);
   }
-}
+}  

@@ -1,3 +1,4 @@
+import { EventPorteur } from './components/event-porteur/event-porteur';
 import { ProgrammePorteur } from './components/programme-porteur/programme-porteur';
 import { ProjetService } from './service/projet-service';
 import { Component, OnInit, OnDestroy, HostListener, ViewEncapsulation, ChangeDetectorRef } from '@angular/core';
@@ -6,9 +7,10 @@ import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } 
 import { RouterModule, Router } from '@angular/router';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { PhaseService } from './service/phase-service';
+import { EventService } from './service/event-service';
 
 interface Phase { id?: number; numero: number; mois: string; titre: string; icone: string; description: string; couleur: string; }
-interface EvenementDTO { id: number; titre: string; type: string; typeLabel: string; date: string; day: string; month: string; heureDebut: string; heureFin: string; lieu?: string; }
+interface EvenementDTO { id: number; titre: string; type: string; typeLabel: string; date: string; day: string; month: string; heureDebut: string; heureFin: string; lieu?: string; satisfactionActive?: boolean; }
 interface DocumentDTO { id: number; nom: string; type: string; taille: string; statut: string; startupNom: string; uploadedAt: string; chemin?: string; }
 interface EvaluationDTO { id: number; scoreIA: number; scoreMarket: number; scoreTeam: number; scoreTech: number; scoreFinance: number; commentaire: string; statut: string; createdAt: string; }
 interface MessageDTO { id: number; sender: string; receiver: string; content: string; sentAt: string; lu: boolean; type: string; }
@@ -16,7 +18,7 @@ interface MessageDTO { id: number; sender: string; receiver: string; content: st
 @Component({
   selector: 'app-porteur',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterModule , ProgrammePorteur],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterModule , ProgrammePorteur, EventPorteur],
   templateUrl: './porteur.html',
   styleUrls: ['./porteur.css'],
   encapsulation: ViewEncapsulation.None
@@ -35,7 +37,8 @@ export class PorteurComponent implements OnInit, OnDestroy {
     private router: Router,
     private cdr: ChangeDetectorRef,
     private fb: FormBuilder,
-    private phaseservice: PhaseService
+    private phaseservice: PhaseService,
+    private eventService :EventService
   ) { }
   projects: any[] = [];
   showProjetModal = false;
@@ -76,13 +79,28 @@ export class PorteurComponent implements OnInit, OnDestroy {
     };
   }
 
+  get pageLabel(): string {
+    const labels: Record<string, string> = {
+      dashboard: 'Tableau de bord',
+      projet: 'Mes projets',
+      programme: "Phase & événements",
+      documents: 'Mes documents',
+      evaluations: 'Mes évaluations',
+      messages: 'Messages',
+      profil: 'Mon profil',
+      parametres: 'Paramètres',
+    };
+    return labels[this.page] || this.page;
+  }
+
   toasts: { id: number; msg: string; type: string }[] = [];
   private tid = 0;
 
   currentPhaseIndex = 0;
 
-  allEvents: EvenementDTO[] = [];
+  allEvents: any[] = [];
   upcomingEvents: EvenementDTO[] = [];
+  loadingEvents = false;
 
   documents: DocumentDTO[] = [];
   filteredDocuments: DocumentDTO[] = [];
@@ -106,30 +124,48 @@ export class PorteurComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.initForm();
-    this.loadProjects();
-    this.loadPhases();
     const token = localStorage.getItem('token') || '';
-    if (!token) { this.router.navigate(['/login']); return; }
-    // Extraire email et role du token JWT
+    if (!token) {
+      this.router.navigate(['/login']);
+      return;
+    }
+
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
       const email = payload.sub || payload.email || '';
       const role = payload.role || payload.roles?.[0] || '';
       if (email) localStorage.setItem('email', email);
       if (role) localStorage.setItem('role', role);
+      if (role.toUpperCase() === 'INCUBATEUR') {
+        this.router.navigate(['/incubateur']);
+        return;
+      }
+    } catch (e) {
+      console.error('JWT decode error', e);
+    }
 
-      // Rediriger si mauvais rôle
-      if (role.toUpperCase() === 'INCUBATEUR') { this.router.navigate(['/incubateur']); return; }
-    } catch (e) { console.error('JWT decode error', e); }
-
-    this.page = 'dashboard';
+    this.initForm();
+    this.syncPageFromUrl();
+    this.loadProjects();
+    this.loadPhases();
     this.loadEvents();
     this.loadDocuments();
     this.loadEvaluations();
     this.poll = setInterval(() => {
       if (this.page === 'messages' && this.activeContact) this.loadMessages();
     }, 5000);
+  }
+
+  private syncPageFromUrl() {
+    const url = this.router.url;
+    if (url.includes('/porteur/programme')) this.page = 'programme';
+    else if (url.includes('/porteur/projet')) this.page = 'projet';
+    else if (url.includes('/porteur/documents')) this.page = 'documents';
+    else if (url.includes('/porteur/evaluations')) this.page = 'evaluations';
+    else if (url.includes('/porteur/messages')) this.page = 'messages';
+    else if (url.includes('/porteur/profil')) this.page = 'profil';
+    else if (url.includes('/porteur/parametres')) this.page = 'parametres';
+    else this.page = 'dashboard';
   }
 
  initForm(): void {
@@ -333,6 +369,7 @@ loadPhases(): void {
 
 
 
+
   ngOnDestroy() { clearInterval(this.poll); }
 
   @HostListener('document:keydown.escape') onEsc() { this.showUserMenu = false; }
@@ -357,6 +394,9 @@ loadPhases(): void {
     if (p === 'messages') this.loadContacts();
     if (p === 'documents') this.loadDocuments();
     if (p === 'evaluations') this.loadEvaluations();
+    if (p === 'programme' && !this.allEvents.length && !this.loadingEvents) {
+      this.loadEvents();
+    }
   }
 
   toggleSb() { this.sidebarOpen = !this.sidebarOpen; }
@@ -393,16 +433,35 @@ loadPhases(): void {
 
   // ── ÉVÉNEMENTS ───────────────────────────────────────────
   loadEvents() {
-    this.http.get<EvenementDTO[]>(`${this.api}/incubateur/${this.incId}/evenements`, { headers: this.h })
-      .subscribe({
-        next: e => {
-          this.allEvents = e;
-          const today = new Date(); today.setHours(0, 0, 0, 0);
-          this.upcomingEvents = e.filter(ev => new Date(ev.date) >= today).slice(0, 5);
-          this.cdr.detectChanges();
-        },
-        error: () => { }
-      });
+    this.loadingEvents = true;
+    this.eventService.findAll().subscribe({
+      next: e => {
+        this.applyEventsData(e ?? []);
+        this.loadingEvents = false;
+        this.cdr.detectChanges();
+      },
+      error: err => {
+        console.error('Erreur chargement événements', err);
+        this.allEvents = [];
+        this.upcomingEvents = [];
+        this.loadingEvents = false;
+        this.toast('Impossible de charger les événements', 'error');
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  private applyEventsData(events: EvenementDTO[]) {
+    this.allEvents = [...events].sort((a, b) => {
+      const da = a.date ? new Date(a.date).getTime() : 0;
+      const db = b.date ? new Date(b.date).getTime() : 0;
+      return da - db;
+    });
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    this.upcomingEvents = this.allEvents
+      .filter(ev => ev.date && new Date(ev.date) >= today)
+      .slice(0, 5);
   }
 
   typeColor(type: string): string {
