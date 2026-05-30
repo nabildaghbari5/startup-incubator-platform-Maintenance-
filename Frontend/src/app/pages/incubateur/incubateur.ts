@@ -14,6 +14,8 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ProjetService } from '../porteur/service/projet-service';
+import { DashboardIncubateur } from './components/dashboard-incubateur/dashboard-incubateur';
+import { DashboardIncubateurSnapshot } from './service/dashboard-incubateur-service';
 
 // Pipe pour SafeURL (Power BI iframe)
 @Pipe({ name: 'safe', standalone: true })
@@ -23,7 +25,14 @@ export class SafePipe implements PipeTransform {
 }
 
 interface StartupDTO    { id:number; nom:string; fondateur:string; secteur:string; phase:string; progress:number; aiScore:number; statut:string; statusLabel:string; couleur:string; initiales:string; description?:string; }
-interface DashboardStats{ totalStartups:number; startupsActives:number; startupsEnAttente:number; startupsTerminees:number; scoreIAMoyen:number; secteurs:{name:string;count:number;pct:number}[]; }
+interface DashboardStats {
+  totalProjets: number;
+  projetsEnAttente: number;
+  projetsAcceptes: number;
+  projetsRefuses: number;
+  tauxAcceptation: number;
+  secteurs: { name: string; count: number; pct: number }[];
+}
 interface EvenementDTO  { id:number; titre:string; type:string; typeLabel:string; date:string; day:string; month:string; heureDebut:string; heureFin:string; lieu?:string; satisfactionActive?:boolean; }
 interface DocumentDTO   { id:number; nom:string; type:string; taille:string; chemin?:string; statut:string; startupNom:string; startupId?:number; uploadedAt:string; visiblePorteur?:boolean; }
 interface EvaluationDTO { id:number; scoreIA:number; scoreMarket:number; scoreTeam:number; scoreTech:number; scoreFinance:number; commentaire:string; statut:string; startupNom:string; startupId:number; evaluateur:string; createdAt:string; }
@@ -38,7 +47,7 @@ interface ProjetDTO     { id:number; startupId:number; phasetitre:string; fichie
 @Component({
   selector: 'app-incubateur',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, SafePipe],
+  imports: [CommonModule, RouterModule, FormsModule, SafePipe, DashboardIncubateur],
   templateUrl: './incubateur.html',
   styleUrls: ['./incubateur.css'],
   encapsulation: ViewEncapsulation.None
@@ -169,6 +178,8 @@ changerStatutProjet(): void {
 
         this.closeStatusModal();
 
+        this.loadDashboard();
+
       },
 
       error: (err) => {
@@ -242,7 +253,10 @@ changerStatutProjet(): void {
   profilForm = { nom: localStorage.getItem('nom') || '', newPassword: '', confirmPassword: '' };
 
   // ── Dashboard ─────────────────────────────────────────────
-  stats: DashboardStats = {totalStartups:0,startupsActives:0,startupsEnAttente:0,startupsTerminees:0,scoreIAMoyen:0,secteurs:[]};
+  stats: DashboardStats = {
+    totalProjets: 0, projetsEnAttente: 0, projetsAcceptes: 0,
+    projetsRefuses: 0, tauxAcceptation: 0, secteurs: []
+  };
   activites: any[] = []; upcomingEvents: EvenementDTO[] = []; unreadCount = 0;
   upcomingRdv: EvenementDTO|null = null; rdvDaysLeft = 0;
   pendingSatisfactions = 0; pendingSatisfactionsList: SatisfactionDTO[] = [];
@@ -377,6 +391,15 @@ changerStatutProjet(): void {
     }
   }
 
+  onDashboardNavigate(p: string) {
+    if (p === 'startups:add') {
+      this.go('startups');
+      this.openAdd();
+      return;
+    }
+    this.go(p);
+  }
+
   toggleSb()   { this.sidebarOpen = !this.sidebarOpen; }
   closeDrops() { this.showUserMenu = false; }
   closeAll()   {
@@ -388,14 +411,48 @@ changerStatutProjet(): void {
 
   // ── DASHBOARD ─────────────────────────────────────────────
   loadDashboard() {
-    this.http.get<DashboardStats>(`${this.api}/incubateur/${this.incId}/startups/stats`,{headers:this.h})
-      .subscribe({next:s=>{this.stats={...s};this.cdr.detectChanges();},error:()=>{}});
-    this.http.get<EvenementDTO[]>(`${this.api}/incubateur/${this.incId}/evenements/upcoming`,{headers:this.h})
-      .subscribe({next:e=>{this.upcomingEvents=[...e];this.checkRdv(e);this.cdr.detectChanges();},error:()=>{}});
-    this.http.get<any[]>(`${this.api}/incubateur/${this.incId}/activites`,{headers:this.h})
-      .subscribe({next:a=>{this.activites=[...a];this.cdr.detectChanges();},error:()=>{}});
+    this.http.get<DashboardIncubateurSnapshot>(`${this.api}/dashboard/incubateur/${this.incId}`, { headers: this.h })
+      .subscribe({
+        next: snap => this.applyDashboardSnapshot(snap),
+        error: () => {
+          this.http.get<DashboardStats>(`${this.api}/incubateur/${this.incId}/projets/stats`, { headers: this.h })
+            .subscribe({ next: s => { this.stats = { ...s }; this.cdr.detectChanges(); }, error: () => {} });
+        },
+      });
     this.loadUnreadCount();
-    this.loadPendingSatisfactions();
+  }
+
+  private applyDashboardSnapshot(snap: DashboardIncubateurSnapshot) {
+    const k = snap.kpis;
+    this.stats = {
+      totalProjets: k.totalProjets,
+      projetsEnAttente: k.projetsEnAttente,
+      projetsAcceptes: k.projetsAcceptes,
+      projetsRefuses: k.projetsRefuses,
+      tauxAcceptation: k.tauxAcceptation,
+      secteurs: (snap.secteurs ?? []).map(s => ({ name: s.name, count: s.count, pct: s.pct })),
+    };
+    this.upcomingEvents = [...(snap.evenementsProchains ?? [])];
+    this.activites = [...(snap.activitesRecentes ?? [])];
+    this.pendingSatisfactions = k.satisfactionsRecues;
+    this.pendingSatisfactionsList = (snap.satisfactionsRecentes ?? []).slice(0, 5).map(s => ({
+      id: s.id,
+      porteurEmail: s.porteurEmail,
+      evenementId: 0,
+      evenementTitre: s.evenementTitre,
+      note: s.note,
+      commentaire: s.commentaire,
+      createdAt: s.createdAt,
+    }));
+    this.checkRdv(this.upcomingEvents);
+    if (k.prochainRdvTitre && k.prochainRdvJours >= 0) {
+      this.rdvDaysLeft = k.prochainRdvJours;
+      this.upcomingRdv = this.upcomingEvents.find(e => e.titre === k.prochainRdvTitre)
+        ?? this.upcomingEvents[0] ?? null;
+    } else {
+      this.upcomingRdv = null;
+    }
+    this.cdr.detectChanges();
   }
 
   loadUnreadCount() {
@@ -463,14 +520,12 @@ changerStatutProjet(): void {
     this.showFormModal=false;
     this.toast(isEdit?'Startup mise à jour':'Startup ajoutée 🚀','success');
     const req=isEdit?this.http.put<StartupDTO>(url,this.formData,{headers:this.h}):this.http.post<StartupDTO>(url,this.formData,{headers:this.h});
-    req.subscribe({next:(s)=>{if(isEdit){const idx=this.startups.findIndex(x=>x.id===s.id);if(idx>-1)this.startups[idx]={...s};}else{this.startups=[...this.startups,s];this.stats.totalStartups++;if(s.statut==='actif')this.stats.startupsActives++;}this.startups=[...this.startups];this.applyFilters();this.cdr.detectChanges();this.loadDashboard();},error:(e)=>{this.toast(e.error?.error||'Erreur','error');this.loadStartups();}});
+    req.subscribe({next:(s)=>{if(isEdit){const idx=this.startups.findIndex(x=>x.id===s.id);if(idx>-1)this.startups[idx]={...s};}else{this.startups=[...this.startups,s];}this.startups=[...this.startups];this.applyFilters();this.cdr.detectChanges();this.loadDashboard();},error:(e)=>{this.toast(e.error?.error||'Erreur','error');this.loadStartups();}});
   }
   del(){
     if(!this.startupToDelete)return;
     const id=this.startupToDelete.id,statut=this.startupToDelete.statut;
     this.startups=this.startups.filter(s=>s.id!==id);this.applyFilters();
-    this.stats.totalStartups=Math.max(0,this.stats.totalStartups-1);
-    if(statut==='actif')this.stats.startupsActives=Math.max(0,this.stats.startupsActives-1);
     this.showDeleteModal=false;this.toast('Startup supprimée','warning');this.startupToDelete=null;
     this.http.delete(`${this.api}/incubateur/${this.incId}/startups/${id}`,{headers:this.h}).subscribe({next:()=>this.cdr.detectChanges(),error:()=>{this.toast('Erreur','error');this.loadStartups();}});
   }

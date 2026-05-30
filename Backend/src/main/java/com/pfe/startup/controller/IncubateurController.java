@@ -3,6 +3,8 @@ package com.pfe.startup.controller;
 import com.pfe.startup.dto.*;
 import com.pfe.startup.entity.Evenement;
 import com.pfe.startup.entity.Phase;
+import com.pfe.startup.entity.Projet;
+import com.pfe.startup.entity.StatutProjet;
 import com.pfe.startup.entity.User;
 import com.pfe.startup.repository.EvenementRepository;
 import com.pfe.startup.repository.PhaseRepository;
@@ -40,33 +42,40 @@ public class IncubateurController {
     private final IncubateurDocumentService incubateurDocumentService;
     private final IncubateurProjetService   incubateurProjetService;
 
-    // ── STARTUPS STATS ───────────────────────────────────────
-    @GetMapping("/startups/stats")
-    public Map<String, Object> stats(@PathVariable Long incId) {
-        List<com.pfe.startup.entity.Startup> all = startupRepo.findByIncubateurIdOrderByNomAsc(incId);
-        long total   = all.size();
-        long actif   = all.stream().filter(s -> "actif".equals(s.getStatut())).count();
-        long attente = all.stream().filter(s -> "en_attente".equals(s.getStatut())).count();
-        long termine = all.stream().filter(s -> "termine".equals(s.getStatut())).count();
-        double avg   = all.stream().mapToInt(s -> s.getAiScore() != null ? s.getAiScore() : 0).average().orElse(0);
+    // ── PROJETS STATS (dashboard) ────────────────────────────
+    @GetMapping({"/projets/stats", "/startups/stats"})
+    public Map<String, Object> projetStats(@PathVariable Long incId) {
+        userRepo.findById(incId)
+                .orElseThrow(() -> new NoSuchElementException("Incubateur introuvable id=" + incId));
+
+        List<Projet> all = projetRepo.findAll();
+        long total = all.size();
+        long enAttente = all.stream()
+                .filter(p -> p.getStatut() == StatutProjet.EN_ATTENTE
+                        || p.getStatut() == StatutProjet.EN_COURS_ANALYSE)
+                .count();
+        long acceptes = all.stream().filter(p -> p.getStatut() == StatutProjet.ACCEPTE).count();
+        long refuses = all.stream().filter(p -> p.getStatut() == StatutProjet.REFUSE).count();
+        long decides = acceptes + refuses;
+        long tauxAcceptation = decides > 0 ? Math.round(acceptes * 100.0 / decides) : 0;
 
         Map<String, Long> sectorMap = all.stream()
                 .collect(Collectors.groupingBy(
-                        s -> s.getSecteur() != null ? s.getSecteur() : "Autre",
+                        p -> p.getSecteur() != null && !p.getSecteur().isBlank() ? p.getSecteur() : "Autre",
                         Collectors.counting()));
 
         List<Map<String, Object>> secteurs = sectorMap.entrySet().stream().map(e ->
-                        Map.<String,Object>of("name", e.getKey(), "count", e.getValue(),
+                        Map.<String, Object>of("name", e.getKey(), "count", e.getValue(),
                                 "pct", total > 0 ? Math.round(e.getValue() * 100.0 / total) : 0))
                 .collect(Collectors.toList());
 
         return Map.of(
-                "totalStartups",     total,
-                "startupsActives",   actif,
-                "startupsEnAttente", attente,
-                "startupsTerminees", termine,
-                "scoreIAMoyen",      Math.round(avg),
-                "secteurs",          secteurs
+                "totalProjets", total,
+                "projetsEnAttente", enAttente,
+                "projetsAcceptes", acceptes,
+                "projetsRefuses", refuses,
+                "tauxAcceptation", tauxAcceptation,
+                "secteurs", secteurs
         );
     }
 

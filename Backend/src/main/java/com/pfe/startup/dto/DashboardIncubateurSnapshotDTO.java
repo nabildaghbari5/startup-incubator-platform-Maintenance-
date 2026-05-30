@@ -13,6 +13,7 @@ import java.util.Map;
 public class DashboardIncubateurSnapshotDTO {
     private DashboardIncubateurKpisDTO kpis;
     private List<Map<String, Object>> secteurs;
+    private List<DashboardProjetDTO> projetsRecents;
     private List<DashboardEvenementDTO> evenementsProchains;
     private List<Map<String, Object>> activitesRecentes;
     private List<Map<String, Object>> satisfactionsRecentes;

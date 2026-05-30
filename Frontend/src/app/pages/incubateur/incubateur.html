@@ -412,8 +412,7 @@
 
       <!-- ══════ DASHBOARD ══════ -->
       <div *ngIf="page==='Tableau de board'" class="page-wrap">
-       
-
+        <app-dashboard-incubateur (navigate)="onDashboardNavigate($event)"></app-dashboard-incubateur>
       </div>
 
       <!-- ══════ PROGRAMME ══════ -->
@@ -982,33 +981,15 @@
               <div class="profil-email">{{ currentUser.email }}</div>
               <span class="profil-role-badge">{{ currentUser.role }}</span>
               <div class="profil-stats" style="margin-top:20px">
-                <div class="p-stat"><span class="p-stat-val">{{ stats.totalStartups }}</span><span
-                    class="p-stat-label">Startups</span></div>
-                <div class="p-stat"><span class="p-stat-val">{{ phases.length }}</span><span
-                    class="p-stat-label">Phases</span></div>
-                <div class="p-stat"><span class="p-stat-val">{{ evaluations.length }}</span><span
-                    class="p-stat-label">Évaluations</span></div>
+                <div class="p-stat"><span class="p-stat-val">{{ stats.totalProjets }}</span><span
+                    class="p-stat-label">Projets</span></div>
+                <div class="p-stat"><span class="p-stat-val">{{ stats.projetsAcceptes }}</span><span
+                    class="p-stat-label">Acceptés</span></div>
               </div>
             </div>
           </div>
           <!-- Compte -->
-          <div class="card">
-            <div class="card-header"><span class="card-title">Compte</span></div>
-            <div class="card-body">
-              <div class="form">
-                <div class="fg"><label>Email</label><input type="email" [value]="currentUser.email" disabled
-                    style="opacity:.6" /></div>
-                <div class="fg"><label>Rôle</label><input type="text" [value]="currentUser.role" disabled
-                    style="opacity:.6" /></div>
-                <div class="fg"><label>Nouveau mot de passe</label><input type="password"
-                    [(ngModel)]="profilForm.newPassword" placeholder="••••••••" /></div>
-                <div class="fg"><label>Confirmer le mot de passe</label><input type="password"
-                    [(ngModel)]="profilForm.confirmPassword" placeholder="••••••••" /></div>
-                <button class="btn btn-primary" style="width:100%" (click)="saveProfil()">Changer le mot de
-                  passe</button>
-              </div>
-            </div>
-          </div>
+          
         </div>
       </div>
 

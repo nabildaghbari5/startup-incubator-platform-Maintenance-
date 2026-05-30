@@ -88,7 +88,11 @@ public class DashboardService {
         userRepository.findById(incId)
                 .orElseThrow(() -> new NoSuchElementException("Incubateur introuvable id=" + incId));
 
-        List<Startup> startups = startupRepository.findByIncubateurIdOrderByNomAsc(incId);
+        List<Projet> projets = projetRepository.findAll().stream()
+                .sorted(Comparator.comparing(
+                        Projet::getDateSoumission,
+                        Comparator.nullsLast(Comparator.reverseOrder())))
+                .toList();
         List<Evenement> evenements = evenementRepository.findByIncubateurIdOrderByDateAsc(incId);
         List<Satisfaction> satisfactions = satisfactionRepository.findByEvenement_Incubateur_IdOrderByCreatedAtDesc(incId);
         List<Document> pendingDocs = documentRepository.findByPhase_IncubateurIdOrderByUploadedAtDesc(incId).stream()
@@ -96,11 +100,11 @@ public class DashboardService {
                 .toList();
 
         Map<String, Long> sectorMap = new LinkedHashMap<>();
-        for (Startup s : startups) {
-            String secteur = s.getSecteur() != null ? s.getSecteur() : "Autre";
+        for (Projet p : projets) {
+            String secteur = p.getSecteur() != null && !p.getSecteur().isBlank() ? p.getSecteur() : "Autre";
             sectorMap.merge(secteur, 1L, Long::sum);
         }
-        long total = startups.size();
+        long total = projets.size();
         List<Map<String, Object>> secteurs = sectorMap.entrySet().stream()
                 .map(e -> {
                     Map<String, Object> m = new LinkedHashMap<>();
@@ -122,7 +126,7 @@ public class DashboardService {
         int prochainRdvJours = 0;
         String prochainRdvTitre = "";
         if (nextEvent != null) {
-            prochainRdvJours = (int) java.time.temporal.ChronoUnit.DAYS.between(
+            prochainRdvJours = (int) ChronoUnit.DAYS.between(
                     LocalDate.now(), LocalDate.parse(nextEvent.getDate()));
             prochainRdvTitre = nextEvent.getTitre() != null ? nextEvent.getTitre() : "";
         }
@@ -131,29 +135,42 @@ public class DashboardService {
                 .mapToInt(s -> s.getNote() != null ? s.getNote() : 0)
                 .average().orElse(0);
 
+        int enAttente = (int) projets.stream()
+                .filter(p -> p.getStatut() == StatutProjet.EN_ATTENTE
+                        || p.getStatut() == StatutProjet.EN_COURS_ANALYSE)
+                .count();
+        int acceptes = (int) projets.stream()
+                .filter(p -> p.getStatut() == StatutProjet.ACCEPTE)
+                .count();
+        int refuses = (int) projets.stream()
+                .filter(p -> p.getStatut() == StatutProjet.REFUSE)
+                .count();
+        int decides = acceptes + refuses;
+        int tauxAcceptation = decides > 0 ? (int) Math.round(acceptes * 100.0 / decides) : 0;
+
         DashboardIncubateurKpisDTO kpis = DashboardIncubateurKpisDTO.builder()
-                .totalStartups(startups.size())
-                .startupsActives((int) startups.stream().filter(s -> "actif".equals(s.getStatut())).count())
-                .startupsEnAttente((int) startups.stream().filter(s -> "en_attente".equals(s.getStatut())).count())
-                .startupsTerminees((int) startups.stream().filter(s -> "termine".equals(s.getStatut())).count())
-                .scoreIAMoyen((int) Math.round(startups.stream()
-                        .mapToInt(s -> s.getAiScore() != null ? s.getAiScore() : 0).average().orElse(0)))
+                .totalProjets(projets.size())
+                .projetsEnAttente(enAttente)
+                .projetsAcceptes(acceptes)
+                .projetsRefuses(refuses)
+                .tauxAcceptation(tauxAcceptation)
                 .evenementsMois((int) evenements.stream()
                         .filter(e -> isInMonth(e.getDate(), YearMonth.now())).count())
                 .satisfactionsRecues(satisfactions.size())
                 .noteSatisfactionMoyenne((int) Math.round(avgSat))
                 .documentsEnAttente(pendingDocs.size())
-                .projetsEnAttente(pendingDocs.size())
                 .prochainRdvJours(Math.max(prochainRdvJours, 0))
                 .prochainRdvTitre(prochainRdvTitre)
                 .build();
 
-        List<Map<String, Object>> activites = startups.stream().limit(5)
-                .map(s -> {
+        List<Map<String, Object>> activites = projets.stream().limit(5)
+                .map(p -> {
                     Map<String, Object> m = new LinkedHashMap<>();
-                    m.put("type", "startup");
-                    m.put("texte", "Startup : " + s.getNom());
-                    m.put("time", "");
+                    m.put("type", "projet");
+                    m.put("texte", "Projet : " + (p.getTitre() != null ? p.getTitre() : "Sans titre"));
+                    m.put("time", p.getDateSoumission() != null
+                            ? p.getDateSoumission().toLocalDate().format(ISO_DATE)
+                            : "");
                     return m;
                 })
                 .toList();
@@ -171,11 +188,17 @@ public class DashboardService {
                 })
                 .toList();
 
-        DashboardActiviteMensuelleDTO activite = buildIncubateurActivite(startups, evenements, satisfactions);
+        List<DashboardProjetDTO> projetsRecents = projets.stream()
+                .limit(5)
+                .map(this::toProjetDto)
+                .toList();
+
+        DashboardActiviteMensuelleDTO activite = buildIncubateurActivite(projets, evenements, satisfactions);
 
         return DashboardIncubateurSnapshotDTO.builder()
                 .kpis(kpis)
                 .secteurs(secteurs)
+                .projetsRecents(projetsRecents)
                 .evenementsProchains(upcoming)
                 .activitesRecentes(activites)
                 .satisfactionsRecentes(satRecent)
@@ -265,12 +288,12 @@ public class DashboardService {
     }
 
     private DashboardActiviteMensuelleDTO buildIncubateurActivite(
-            List<Startup> startups,
+            List<Projet> projets,
             List<Evenement> evenements,
             List<Satisfaction> satisfactions
     ) {
         List<String> labels = new ArrayList<>();
-        List<Integer> startupCounts = new ArrayList<>();
+        List<Integer> projetCounts = new ArrayList<>();
         List<Integer> eventCounts = new ArrayList<>();
         List<Integer> satCounts = new ArrayList<>();
 
@@ -278,7 +301,10 @@ public class DashboardService {
         for (int i = 5; i >= 0; i--) {
             YearMonth ym = now.minusMonths(i);
             labels.add(MONTHS[ym.getMonthValue() - 1]);
-            startupCounts.add(0);
+            projetCounts.add((int) projets.stream()
+                    .filter(p -> p.getDateSoumission() != null
+                            && YearMonth.from(p.getDateSoumission()).equals(ym))
+                    .count());
             eventCounts.add((int) evenements.stream().filter(e -> isInMonth(e.getDate(), ym)).count());
             satCounts.add((int) satisfactions.stream()
                     .filter(s -> s.getCreatedAt() != null && YearMonth.from(s.getCreatedAt()).equals(ym))
@@ -288,7 +314,7 @@ public class DashboardService {
         return DashboardActiviteMensuelleDTO.builder()
                 .labels(labels)
                 .evenements(eventCounts)
-                .documents(satCounts)
+                .documents(projetCounts)
                 .build();
     }
 

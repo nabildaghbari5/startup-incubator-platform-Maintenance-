@@ -1,0 +1,270 @@
+<div class="dash-analytics">
+
+  <div class="dash-loading" *ngIf="loading">
+    <span class="dash-loading-spinner"></span>
+    <p>Chargement du tableau de bord…</p>
+  </div>
+
+  <div class="dash-error" *ngIf="!loading && loadError">
+    <span class="dash-error-icon">⚠️</span>
+    <p>Impossible de charger les données du dashboard.</p>
+    <button class="btn btn-secondary btn-sm" (click)="load()">Réessayer</button>
+  </div>
+
+  <ng-container *ngIf="!loading && !loadError && snapshot">
+
+    <!-- Bandeau -->
+    <div class="dash-hero">
+      <div class="dash-hero-text">
+        <h1 class="dash-hero-title">Tableau de board</h1>
+        <p class="dash-hero-sub">
+          Évaluation des projets soumis · {{ kpis.totalProjets }} projet(s) · {{ kpis.evenementsMois }} événement(s) ce mois
+        </p>
+      </div>
+      <div class="dash-hero-actions">
+        <span class="dash-live-badge">Données live</span>
+        <button class="btn btn-secondary btn-sm" (click)="go('programme')">Programme →</button>
+        <button class="btn btn-primary btn-sm" (click)="go('startups')">Voir les projets</button>
+      </div>
+    </div>
+
+    <!-- Prochain RDV -->
+    <div class="rdv-banner" *ngIf="kpis.prochainRdvTitre">
+      <span class="rdv-ic">📅</span>
+      <div class="rdv-body">
+        <div class="rdv-ttl">{{ kpis.prochainRdvTitre }}</div>
+        <div class="rdv-sub">Prochain rendez-vous programmé</div>
+      </div>
+      <div class="rdv-cnt">{{ rdvLabel() }}</div>
+    </div>
+
+    <!-- KPI Cards — Projets -->
+    <div class="kpi-grid kpi-grid--8">
+      <div class="kpi-card accent-indigo" (click)="go('startups')">
+        <div class="kpi-icon">📂</div>
+        <div class="kpi-body">
+          <span class="kpi-value">{{ kpis.totalProjets }}</span>
+          <span class="kpi-label">Total projets</span>
+        </div>
+      </div>
+      <div class="kpi-card accent-amber" (click)="go('startups')">
+        <div class="kpi-icon">⏳</div>
+        <div class="kpi-body">
+          <span class="kpi-value">{{ kpis.projetsEnAttente }}</span>
+          <span class="kpi-label">En attente</span>
+        </div>
+      </div>
+      <div class="kpi-card accent-emerald kpi-card--has-bar" (click)="go('startups')">
+        <div class="kpi-icon">✅</div>
+        <div class="kpi-body">
+          <span class="kpi-value">{{ kpis.projetsAcceptes }}</span>
+          <span class="kpi-label">Acceptés</span>
+          <div class="kpi-bar">
+            <div class="kpi-bar-fill" [style.width.%]="acceptesPct" style="background:linear-gradient(90deg,#10b981,#06b6d4)"></div>
+          </div>
+        </div>
+      </div>
+      <div class="kpi-card accent-rose" (click)="go('startups')">
+        <div class="kpi-icon">❌</div>
+        <div class="kpi-body">
+          <span class="kpi-value">{{ kpis.projetsRefuses }}</span>
+          <span class="kpi-label">Refusés</span>
+        </div>
+      </div>
+      <div class="kpi-card accent-violet kpi-card--static kpi-card--has-sub">
+        <div class="kpi-icon">📊</div>
+        <div class="kpi-body">
+          <span class="kpi-value">{{ kpis.tauxAcceptation }}<small>%</small></span>
+          <span class="kpi-label">Taux d'acceptation</span>
+          <span class="kpi-sub">Projets décidés</span>
+        </div>
+      </div>
+      <div class="kpi-card accent-cyan" (click)="go('programme')">
+        <div class="kpi-icon">📅</div>
+        <div class="kpi-body">
+          <span class="kpi-value">{{ kpis.evenementsMois }}</span>
+          <span class="kpi-label">Événements ce mois</span>
+        </div>
+      </div>
+      <div class="kpi-card accent-blue" >
+        <div class="kpi-icon">📄</div>
+        <div class="kpi-body">
+          <span class="kpi-value">{{ kpis.documentsEnAttente }}</span>
+          <span class="kpi-label">Docs en attente</span>
+        </div>
+      </div>
+      <div class="kpi-card accent-pink kpi-card--has-sub" (click)="go('evaluations')">
+        <div class="kpi-icon">😊</div>
+        <div class="kpi-body">
+          <span class="kpi-value">{{ kpis.noteSatisfactionMoyenne }}<small>/5</small></span>
+          <span class="kpi-label">Satisfaction moy.</span>
+          <span class="kpi-sub">{{ kpis.satisfactionsRecues }} réponse(s)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Graphiques principaux -->
+    <div class="charts-row charts-row--2">
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <div>
+            <h3 class="chart-title">Taux d'acceptation</h3>
+            <p class="chart-subtitle">Projets acceptés parmi les projets décidés</p>
+          </div>
+        </div>
+        <div echarts [options]="acceptationGauge" class="chart-box chart-box--gauge"></div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <div>
+            <h3 class="chart-title">Répartition par statut</h3>
+            <p class="chart-subtitle">{{ kpis.totalProjets }} projet(s) soumis au total</p>
+          </div>
+          <button class="btn-sm btn btn-secondary" (click)="go('startups')">Évaluer</button>
+        </div>
+        <div echarts [options]="projetStatusPie" class="chart-box"></div>
+      </div>
+    </div>
+
+    <!-- Secteurs + événements -->
+    <div class="charts-row charts-row--2">
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <div>
+            <h3 class="chart-title">Projets par secteur</h3>
+            <p class="chart-subtitle">Répartition sectorielle des candidatures</p>
+          </div>
+        </div>
+        <div echarts [options]="secteursBar" class="chart-box chart-box--tall" *ngIf="secteurs.length"></div>
+        <div class="card-empty" *ngIf="!secteurs.length">Aucun projet soumis</div>
+        <div class="sector-list" *ngIf="secteurs.length" style="padding:0 20px 16px">
+          <div class="sector-row" *ngFor="let s of secteurs">
+            <span class="sector-name">{{ s.name }}</span>
+            <div class="sector-track">
+              <div class="sector-fill" [style.width.%]="s.pct"></div>
+            </div>
+            <span class="sector-pct">{{ s.pct }}%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-card-header">
+          <div>
+            <h3 class="chart-title">Événements à venir par type</h3>
+            <p class="chart-subtitle">Prochains rendez-vous planifiés</p>
+          </div>
+          <button class="btn-sm btn btn-secondary" (click)="go('programme')">Programme</button>
+        </div>
+        <div echarts [options]="eventsByType" class="chart-box"></div>
+      </div>
+    </div>
+
+    <!-- Activité mensuelle -->
+    <div class="chart-card chart-card--full">
+      <div class="chart-card-header">
+        <div>
+          <h3 class="chart-title">Activité mensuelle</h3>
+          <p class="chart-subtitle">Projets soumis et événements (6 derniers mois)</p>
+        </div>
+      </div>
+      <div echarts [options]="activityTimeline" class="chart-box"></div>
+    </div>
+
+    <!-- Listes rapides -->
+    <div class="dash-row">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">📋 Projets récents</h2>
+          <button class="btn-sm btn btn-secondary" (click)="go('startups')">Voir tout</button>
+        </div>
+        <div class="card-body">
+          <div class="card-empty" *ngIf="!projetsRecents.length">Aucun projet soumis</div>
+          <div class="proj-list" *ngIf="projetsRecents.length">
+            <div class="proj-item" *ngFor="let p of projetsRecents" (click)="go('startups')">
+              <div class="proj-item-body">
+                <div class="proj-item-name">{{ p.titre }}</div>
+                <div class="proj-item-meta">
+                  {{ p.secteur || '—' }}
+                  <span *ngIf="p.dateSoumission"> · {{ p.dateSoumission }}</span>
+                </div>
+              </div>
+              <span class="statut-pill" [style.background]="statutColor(p.statut)">
+                {{ statutLabel(p.statut) }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">📅 Prochains événements</h2>
+          <button class="btn-sm btn btn-secondary" (click)="go('programme')">Voir tout</button>
+        </div>
+        <div class="card-body">
+          <div class="card-empty" *ngIf="!upcomingEvents.length">Aucun événement à venir</div>
+          <div class="event-list" *ngIf="upcomingEvents.length">
+            <div class="event-item" *ngFor="let ev of upcomingEvents">
+              <div class="event-date-badge" [style.background]="typeColor(ev.type)">
+                <span class="ev-day">{{ ev.day }}</span>
+                <span class="ev-month">{{ ev.month }}</span>
+              </div>
+              <div class="event-info">
+                <p class="event-title">{{ ev.titre }}</p>
+                <p class="event-meta">
+                  {{ ev.heureDebut }} – {{ ev.heureFin }}
+                  <span *ngIf="ev.lieu"> · {{ ev.lieu }}</span>
+                </p>
+              </div>
+              <span class="event-type-pill" [style.background]="typeColor(ev.type)">{{ ev.typeLabel }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Activité récente -->
+    <div class="card" *ngIf="snapshot.activitesRecentes?.length">
+      <div class="card-header">
+        <h2 class="card-title">🔔 Activité récente</h2>
+      </div>
+      <div class="card-body">
+        <div class="act-list">
+          <div class="act-item" *ngFor="let a of snapshot.activitesRecentes">
+            <span class="act-dot" [style.background]="actDotColor(a.type)"></span>
+            <div>
+              <div class="act-txt">{{ a.texte }}</div>
+              <div class="act-time" *ngIf="a.time">{{ a.time }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Satisfactions récentes -->
+    <div class="card" *ngIf="snapshot.satisfactionsRecentes?.length">
+      <div class="card-header">
+        <h2 class="card-title">😊 Satisfactions récentes</h2>
+        <button class="btn-sm btn btn-secondary" (click)="go('evaluations')">Voir tout</button>
+      </div>
+      <div class="card-body">
+        <div class="sat-list">
+          <div class="sat-item" *ngFor="let s of snapshot.satisfactionsRecentes">
+            <div class="sat-info">
+              <span class="sat-porteur">{{ s.porteurEmail }}</span>
+              <span class="sat-event">{{ s.evenementTitre }}</span>
+            </div>
+            <div class="sat-stars">
+              <span class="star filled" *ngFor="let _ of stars(s.note)">★</span>
+              <span class="star" *ngFor="let _ of emptyStars(s.note)">★</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </ng-container>
+
+</div>

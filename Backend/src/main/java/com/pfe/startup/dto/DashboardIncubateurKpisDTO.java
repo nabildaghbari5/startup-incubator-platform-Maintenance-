@@ -8,16 +8,15 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class DashboardIncubateurKpisDTO {
-    private int totalStartups;
-    private int startupsActives;
-    private int startupsEnAttente;
-    private int startupsTerminees;
-    private int scoreIAMoyen;
+    private int totalProjets;
+    private int projetsEnAttente;
+    private int projetsAcceptes;
+    private int projetsRefuses;
+    private int tauxAcceptation;
     private int evenementsMois;
     private int satisfactionsRecues;
     private int noteSatisfactionMoyenne;
     private int documentsEnAttente;
-    private int projetsEnAttente;
     private int prochainRdvJours;
     private String prochainRdvTitre;
 }
