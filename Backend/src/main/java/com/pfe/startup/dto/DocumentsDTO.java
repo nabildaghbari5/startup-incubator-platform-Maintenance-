@@ -18,6 +18,7 @@ public class DocumentsDTO {
     private String fileType;
     private LocalDateTime uploadedAt;
     private Integer score;
+    private String commentaireIA;
     private String statut;
     private Phase phase;
     private User porteur;

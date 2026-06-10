@@ -31,15 +31,36 @@
                   <div class="phase-acts">
                     <label class="phase-upload-btn"
                       [class.uploading]="uploadingPhaseId === p.id"
-                      [class.has-file]="p.fichierNom"
-                      [title]="p.fichierNom ? 'Remplacer : ' + p.fichierNom : 'Téléverser un PDF'">
+                      [class.analyzing]="uploadingPhaseId === p.id && uploadProgress >= 100"
+                      [class.has-file]="p.fichierNom && uploadingPhaseId !== p.id"
+                      [title]="uploadingPhaseId === p.id ? '' : (p.fichierNom ? 'Remplacer : ' + p.fichierNom : 'Téléverser un PDF')">
                       <input type="file" hidden accept=".pdf,application/pdf"
                         (change)="onPhasePdfSelected($event, p)" [disabled]="uploadingPhaseId === p.id">
-                      <span *ngIf="uploadingPhaseId !== p.id">📄 {{ p.fichierNom ? 'Remplacer' : 'Déposez votre document' }}</span>
-                      <span *ngIf="uploadingPhaseId === p.id">{{ uploadProgress }}%</span>
+                      <ng-container *ngIf="uploadingPhaseId !== p.id">
+                        <span>📄 {{ p.fichierNom ? 'Remplacer' : 'Déposez votre document' }}</span>
+                      </ng-container>
+                      <ng-container *ngIf="uploadingPhaseId === p.id && uploadProgress < 100">
+                        <span class="phase-upload-spinner" aria-hidden="true"></span>
+                        <span>Téléversement {{ uploadProgress }}%</span>
+                      </ng-container>
+                      <ng-container *ngIf="uploadingPhaseId === p.id && uploadProgress >= 100">
+                        <span class="phase-upload-spinner" aria-hidden="true"></span>
+                        <span>Analyse IA en cours…</span>
+                      </ng-container>
                     </label>
-                    <div class="phase-score-row" *ngIf="p.fichierNom">
-                      <span class="phase-score-label">Note expert</span>
+                    <div class="phase-upload-loading" *ngIf="uploadingPhaseId === p.id">
+                      <div class="phase-upload-loading-bar">
+                        <div class="phase-upload-loading-fill"
+                          [style.width.%]="uploadProgress < 100 ? uploadProgress : 100"
+                          [class.indeterminate]="uploadProgress >= 100"></div>
+                      </div>
+                      <p class="phase-upload-loading-msg">
+                        <ng-container *ngIf="uploadProgress < 100">Envoi du fichier…</ng-container>
+                        <ng-container *ngIf="uploadProgress >= 100">L'IA analyse votre document et attribue un score. Cela peut prendre quelques instants.</ng-container>
+                      </p>
+                    </div>
+                    <div class="phase-score-row" *ngIf="p.fichierNom && uploadingPhaseId !== p.id">
+                      <span class="phase-score-label">Score IA</span>
                       <span *ngIf="hasExpertScore(p)" class="phase-score-badge" [ngClass]="scoreCssClass(p)">
                         ⭐ {{ scoreLabel(p) }}
                       </span>

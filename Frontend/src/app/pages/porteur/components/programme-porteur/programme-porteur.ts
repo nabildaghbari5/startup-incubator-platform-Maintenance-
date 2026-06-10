@@ -101,6 +101,7 @@ export class ProgrammePorteur implements OnChanges {
 
     this.uploadingPhaseId = phase.id;
     this.uploadProgress = 0;
+    phase.fichierNom = file.name;
     this.cdr.detectChanges();
 
     this.documentsService.uploadDocument(phase.id, file).subscribe({
@@ -108,6 +109,7 @@ export class ProgrammePorteur implements OnChanges {
         this.uploadProgress = progress;
         if (response) {
           this.uploadingPhaseId = null;
+          this.uploadProgress = 0;
           this.applyDocumentInfo(phase, response);
           this.documentsService.getDocumentInfo(phase.id).subscribe({
             next: dto => {
@@ -123,10 +125,23 @@ export class ProgrammePorteur implements OnChanges {
       },
       error: err => {
         this.uploadingPhaseId = null;
+        this.uploadProgress = 0;
+        this.documentsService.getDocumentInfo(phase.id).subscribe({
+          next: dto => {
+            this.applyDocumentInfo(phase, dto);
+            this.cdr.detectChanges();
+          },
+          error: () => {
+            phase.fichierNom = undefined;
+            phase.score = null;
+            phase.documentStatut = undefined;
+            this.cdr.detectChanges();
+          },
+        });
         const msg =
           err?.error?.error ||
           'Erreur lors du téléversement.';
-        alert(msg);
+        console.log(msg);
         this.cdr.detectChanges();
       },
     });

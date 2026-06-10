@@ -246,7 +246,7 @@
                 <dd>{{ doc.uploadedAt ? (doc.uploadedAt | date:'dd/MM/yyyy HH:mm') : '—' }}</dd>
               </div>
               <div class="doc-detail-row">
-                <dt>Score attribué</dt>
+                <dt>Score IA</dt>
                 <dd>
                   <span *ngIf="doc.score != null" class="score-mini" [class]="scoreClass(doc.score)">
                     {{ doc.score }}/100
@@ -256,7 +256,15 @@
               </div>
             </dl>
 
-            <div class="doc-score-block" *ngIf="doc.id != null">
+            <div class="doc-ia-comment" *ngIf="doc.commentaireIA">
+              <div class="doc-ia-comment-head">
+                <span class="doc-ia-icon">🤖</span>
+                <span class="doc-ia-label">Analyse IA</span>
+              </div>
+              <p class="doc-ia-text">{{ doc.commentaireIA }}</p>
+            </div>
+            <!--
+             <div class="doc-score-block" *ngIf="doc.id != null">
               <label class="doc-score-label">Attribuer une note (0–100)</label>
               <div class="doc-score-row">
                 <input type="range" min="0" max="100"
@@ -272,6 +280,8 @@
                 {{ savingDocId === doc.id ? 'Enregistrement…' : (doc.score != null ? 'Mettre à jour la note' : 'Enregistrer la note') }}
               </button>
             </div>
+            -->
+           
           </article>
         </div>
 

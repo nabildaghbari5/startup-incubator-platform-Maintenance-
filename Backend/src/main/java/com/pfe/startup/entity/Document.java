@@ -24,6 +24,9 @@ public class Document {
 
     /** Note attribuée par l'expert (0–100), null si non évalué */
     private Integer score;
+    @Lob
+    @Column(columnDefinition = "TEXT")
+    private String commentaireIA;
 
     /** Date à laquelle l'expert a attribué la note */
     private LocalDateTime scoredAt;

@@ -1150,10 +1150,10 @@
                 <span *ngIf="doc.uploadedAt"> · {{ doc.uploadedAt | date:'dd/MM/yyyy HH:mm' }}</span>
               </div>
               <div class="ev-time" style="margin-top:4px">
-                <span *ngIf="doc.score != null">Note expert :
+                <span *ngIf="doc.score != null">Score IA :
                   <strong class="score-num" [ngClass]="sc(doc.score)">{{ doc.score }}/100</strong>
                 </span>
-                <span *ngIf="doc.score == null" style="color:var(--text3)">Note expert : non attribuée</span>
+                <span *ngIf="doc.score == null" style="color:var(--text3)">Score IA : non attribuée</span>
               </div>
             </div>
             <button class="ia-btn" (click)="downloadPhaseDocument(doc)" title="Télécharger"><svg width="11" height="11" viewBox="0 0 24 24"

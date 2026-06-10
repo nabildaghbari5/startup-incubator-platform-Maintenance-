@@ -6,10 +6,15 @@ import com.pfe.startup.entity.Phase;
 import com.pfe.startup.entity.User;
 import com.pfe.startup.file.FileStorageService;
 import com.pfe.startup.file.FileUtils;
+import com.pfe.startup.ia.AiParserService;
+import com.pfe.startup.ia.AiResponseDto;
+import com.pfe.startup.ia.AiService;
+import com.pfe.startup.ia.PdfService;
 import com.pfe.startup.repository.DocumentRepository;
 import com.pfe.startup.repository.PhaseRepository;
 import com.pfe.startup.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,6 +26,7 @@ import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class DocumentService {
 
     private static final String DOCUMENTS_FOLDER = "documents";
@@ -30,8 +36,14 @@ public class DocumentService {
     private final DocumentRepository documentRepository;
     private final FileStorageService fileStorageService;
 
+    // ia
+    private final PdfService pdfService ;
+    private final AiService aiService ;
+    private final AiParserService aiParserService ;
+
+
     @Transactional
-    public DocumentsDTO uploadDocument(Long porteurId, Long phaseId, MultipartFile file) {
+    public DocumentsDTO uploadDocument(Long porteurId, Long phaseId, MultipartFile file) throws Exception {
         if (file == null || file.isEmpty()) {
             throw new IllegalArgumentException("Le fichier est requis");
         }
@@ -79,7 +91,18 @@ public class DocumentService {
                     .build();
         }
 
+
+
+        String texte = pdfService.extractText(storedPath);
+        String aiRawResponse = aiService.analyserTexte(texte , phase.getTitre() , phase.getDescription());
+        AiResponseDto result = aiParserService.parse(aiRawResponse);
+
+        // 4. Mise à jour avec le score — Hibernate dirty checking persiste via @Transactional
+        document.setScore(result.getScore());
+        document.setCommentaireIA(result.getCommentaire()); // ✅ décommenté
+
         document = documentRepository.save(document);
+
 
         return DocumentsDTO.builder()
                 .id(document.getId())
@@ -157,6 +180,7 @@ public class DocumentService {
                 .fileType(d.getFileType())
                 .uploadedAt(d.getUploadedAt())
                 .score(d.getScore())
+                .commentaireIA(d.getCommentaireIA())
                 .statut(computeStatut(d))
                 .porteur(d.getPorteur())
                 .phase(d.getPhase())

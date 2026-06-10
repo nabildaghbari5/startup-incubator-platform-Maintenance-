@@ -38,7 +38,7 @@ public class DocumentsController {
             return ResponseEntity.ok(result);
         } catch (IllegalArgumentException | IllegalStateException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
-        } catch (NoSuchElementException e) {
+        } catch (Exception e) {
             return ResponseEntity.notFound().build();
         }
     }

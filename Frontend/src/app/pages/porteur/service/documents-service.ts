@@ -15,6 +15,7 @@ export interface DocumentsDTO {
   fileType?: string;
   uploadedAt?: string;
   score?: number | null;
+  commentaireIA?: string;
   statut?: string;
   phase?: { id: number; titre?: string; numero?: number };
   porteur?: { id: number; nom?: string; prenom?: string; email?: string };
