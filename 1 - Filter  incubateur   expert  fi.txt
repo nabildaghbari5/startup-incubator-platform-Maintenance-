@@ -1,0 +1,22 @@
+1 - Filter : incubateur /  expert : filter selon le status des documents 
+   00.12 => donner la maine au expert de modifier le note d'ia !!! 
+
+2 - Notifications : Notifier l'expert  / incubateur lors de traitement par ia 
+  - notification porteur : notifier le porteur  lors de modifications de note par expert 
+3- chatbot : coté expert / incubateur : solutions simple dans le projet 
+ 
+
+
+1. **Filtre (Incubateur / Expert)**
+
+   * Mettre en place un filtre permettant aux profils **Incubateur** et **Expert** de filtrer les dossiers selon le **statut des documents**.
+   * Permettre à l’**Expert** de modifier la **note attribuée par l’IA**.
+
+2. **Notifications**
+
+   * Notifier l’**Expert** et l’**Incubateur** lorsqu’un traitement par l’IA est terminé.
+   * Notifier le **Porteur de projet** lorsqu’un **Expert** modifie la note attribuée à son dossier.
+
+3. **Chatbot**
+
+   * Mettre en place une solution simple côté **Expert** et **Incubateur** permettant de poser des questions et d’obtenir des réponses pertinentes en lien avec les dossiers traités.

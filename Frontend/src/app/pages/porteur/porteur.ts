@@ -9,6 +9,10 @@ import { RouterModule, Router } from '@angular/router';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { PhaseService } from './service/phase-service';
 import { EventService } from './service/event-service';
+import { WebsocketService } from '../../services/websocket-service';
+import { Subscription } from 'rxjs';
+
+interface NotificationItem { id: number; message: string; read: boolean; time: Date; }
 
 interface Phase { id?: number; numero: number; mois: string; titre: string; icone: string; description: string; couleur: string; }
 interface EvenementDTO { id: number; titre: string; type: string; typeLabel: string; date: string; day: string; month: string; heureDebut: string; heureFin: string; lieu?: string; satisfactionActive?: boolean; }
@@ -39,7 +43,8 @@ export class PorteurComponent implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef,
     private fb: FormBuilder,
     private phaseservice: PhaseService,
-    private eventService :EventService
+    private eventService :EventService,
+    private websocketService: WebsocketService
   ) { }
   projects: any[] = [];
   showProjetModal = false;
@@ -69,7 +74,11 @@ export class PorteurComponent implements OnInit, OnDestroy {
   page = 'dashboard';
   sidebarOpen = true;
   showUserMenu = false;
+  showNotifMenu = false;
+  notifications: NotificationItem[] = [];
   private poll: any;
+  private wsSub?: Subscription;
+  private nid = 0;
 
   get currentUser() {
     const email = localStorage.getItem('email') || '';
@@ -83,6 +92,10 @@ export class PorteurComponent implements OnInit, OnDestroy {
 
   profilPhoto = localStorage.getItem('profilPhoto') || '';
   profilForm = { nom: localStorage.getItem('nom') || '', newPassword: '', confirmPassword: '' };
+
+  get unreadCount(): number {
+    return this.notifications.filter(n => !n.read).length;
+  }
 
   get pageLabel(): string {
     const labels: Record<string, string> = {
@@ -159,6 +172,17 @@ export class PorteurComponent implements OnInit, OnDestroy {
     this.poll = setInterval(() => {
       if (this.page === 'messages' && this.activeContact) this.loadMessages();
     }, 5000);
+
+    
+    this.websocketService.connect();
+    this.wsSub = this.websocketService.messages$.subscribe(msg => {
+      this.notifications.unshift({ id: ++this.nid, message: msg, read: false, time: new Date() });
+      this.cdr.detectChanges();
+    });
+    
+   
+
+
   }
 
   private syncPageFromUrl() {
@@ -375,9 +399,18 @@ loadPhases(): void {
 
 
 
-  ngOnDestroy() { clearInterval(this.poll); }
+  ngOnDestroy() {
+    clearInterval(this.poll);
+    this.wsSub?.unsubscribe();
+  }
 
-  @HostListener('document:keydown.escape') onEsc() { this.showUserMenu = false; }
+  @HostListener('document:keydown.escape') onEsc() {
+    this.showUserMenu = false;
+    this.showNotifMenu = false;
+  }
+
+  markRead(n: NotificationItem) { n.read = true; }
+  markAllRead() { this.notifications.forEach(n => n.read = true); }
 
   goTo(route: string) {
     this.router.navigateByUrl(route);

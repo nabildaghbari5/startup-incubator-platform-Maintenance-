@@ -1,1 +1,12 @@
-<router-outlet></router-outlet>
+<button class="send-btn" (click)="envoyer()">
+    Envoyer
+  </button>
+  
+  <div class="messages">
+    <h5>Messages reçus</h5>
+    <p *ngFor="let msg of messagesRecus">{{ msg }}</p>
+  </div>
+
+
+<router-outlet></router-outlet> 
+
