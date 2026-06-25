@@ -1,6 +1,7 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { Client, IMessage, StompSubscription } from '@stomp/stompjs';
 import { BehaviorSubject, Subject } from 'rxjs';
+import { filter, take } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -16,8 +17,12 @@ export class WebsocketService implements OnDestroy {
   public messages$ = new Subject<string>();
 
   connect(): void {
+    if (this.stompClient?.active) {
+      return;
+    }
+
     console.log('Activation STOMP...');
-  
+
     this.stompClient = new Client({
       brokerURL: 'ws://localhost:8083/ws', // URL  du websocket : lors d'utilisation du brokerURL on leve le withSockJS() coté abckend 
       reconnectDelay: 5000,
@@ -54,21 +59,24 @@ export class WebsocketService implements OnDestroy {
 
 
  sendMessage(message: string): void {
-    if (!this.stompClient) {
-      console.warn('Client non initialisé');
-      return;
-    }
-
-    if (this.stompClient.connected) {
+    const publish = () => {
       this.stompClient.publish({
         destination: '/app/send',
         body: message
       });
-
       console.log('Message envoyé');
-    } else {
-      console.warn('WebSocket pas encore connecté');
+    };
+
+    if (!this.stompClient) {
+      this.connect();
     }
+
+    if (this.stompClient.connected) {
+      publish();
+      return;
+    }
+
+    this.connected$.pipe(filter(Boolean), take(1)).subscribe(() => publish());
   }
 
   disconnect(): void {

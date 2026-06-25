@@ -8,6 +8,7 @@ import { PhaseService } from '../porteur/service/phase-service';
 import { DocumentsService, DocumentsDTO } from '../porteur/service/documents-service';
 import { DashboardExpert } from './components/dashboard-expert/dashboard-expert';
 import { DashboardExpertSnapshot } from './service/dashboard-expert-service';
+import { WebsocketService } from '../../services/websocket-service';
 
 interface ProjetDTO {
   id: number;
@@ -135,7 +136,9 @@ statutProjetColor(statut: string): string {
     private cdr: ChangeDetectorRef,
     private projetService: ProjetService,
     private phaseService: PhaseService,
-    private documentsService: DocumentsService
+    private documentsService: DocumentsService,
+    private websocketService: WebsocketService, 
+
   ) {}
 
   ngOnInit() {
@@ -144,6 +147,7 @@ statutProjetColor(statut: string): string {
     this.loadProjets();
     this.loadMyEvaluations();
     this.loadPageData();
+    this.websocketService.connect();
     this.poll = setInterval(() => {
       if (this.page === 'messages' && this.activeContact) this.loadMessages();
     }, 5000);
@@ -609,6 +613,7 @@ statutProjetColor(statut: string): string {
   }
 
   saveDocumentScore(doc: DocumentsDTO) {
+
     if (!doc.id) return;
     const score = this.draftScores[doc.id];
     if (score == null || score < 0 || score > 100) {
@@ -621,6 +626,9 @@ statutProjetColor(statut: string): string {
         const idx = this.phaseDocuments.findIndex(d => d.id === doc.id);
         if (idx >= 0) this.phaseDocuments[idx] = updated;
         this.savingDocId = null;
+        this.websocketService.sendMessage(
+          "La note d'un document a été mise à jour par l'expert. Veuillez consulter les nouvelles informations."
+        );
         this.toast('Note enregistrée', 'success');
         this.cdr.detectChanges();
       },

@@ -177,6 +177,7 @@ export class PorteurComponent implements OnInit, OnDestroy {
     this.websocketService.connect();
     this.wsSub = this.websocketService.messages$.subscribe(msg => {
       this.notifications.unshift({ id: ++this.nid, message: msg, read: false, time: new Date() });
+      this.showNotifMenu = true;
       this.cdr.detectChanges();
     });
     
