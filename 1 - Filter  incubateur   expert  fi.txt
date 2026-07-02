@@ -20,3 +20,56 @@
 3. **Chatbot**
 
    * Mettre en place une solution simple côté **Expert** et **Incubateur** permettant de poser des questions et d’obtenir des réponses pertinentes en lien avec les dossiers traités.
+
+
+*************************************************************************************************************
+Étape 1 : Connecter le PC et le téléphone au même Wi-Fi
+
+Par exemple :
+
+💻 PC : connecté au réseau Maison_Wifi
+📱 Téléphone : connecté au réseau Maison_Wifi
+
+Les deux doivent être sur le même réseau.
+
+
+Étape 2 : Trouver l'adresse IP de ton PC
+
+
+
+Sous Windows, ouvre Invite de commandes (CMD) et exécute :
+
+
+
+ipconfig
+
+
+
+Tu obtiendras quelque chose comme :
+
+
+
+Carte réseau sans fil Wi-Fi
+
+
+
+Adresse IPv4 : 192.168.1.15
+
+
+Masque de sous-réseau : 255.255.255.0
+
+
+👉 Note l'adresse IPv4, par exemple :
+
+
+****************************
+Méthode 1 (la plus simple)
+Appuie sur Windows.
+Recherche Pare-feu Windows Defender.
+Ouvre Pare-feu Windows Defender.
+Dans le menu de gauche, clique sur Activer ou désactiver le Pare-feu Windows Defender.
+Sous Paramètres du réseau privé, coche Désactiver le Pare-feu Windows Defender.
+Clique sur OK.
+Depuis ton téléphone, essaie de nouveau d'ouvrir :
+
+

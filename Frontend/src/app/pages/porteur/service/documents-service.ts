@@ -30,8 +30,8 @@ export interface UploadProgress {
   providedIn: 'root',
 })
 export class DocumentsService {
-  private api = 'http://localhost:8083/api/documents';
-
+ // private api = 'http://localhost:8083/api/documents';
+  private api = 'http://192.168.1.2:8083/api/documents';
   constructor(private http: HttpClient) {}
 
   private get headers(): HttpHeaders {

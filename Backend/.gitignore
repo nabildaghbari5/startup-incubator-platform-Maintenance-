@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# local Spring Boot configs
+**/application-dev.properties
+**/application-local.properties
