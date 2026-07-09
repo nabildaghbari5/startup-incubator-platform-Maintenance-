@@ -237,6 +237,9 @@
                 projetForm.get('titre')?.invalid &&
                 projetForm.get('titre')?.touched
               " />
+                <div class="ferr" *ngIf="projetForm.get('titre')?.invalid && projetForm.get('titre')?.touched">
+                  <span *ngIf="projetForm.get('titre')?.errors?.['required']">Le titre est obligatoire.</span>
+                </div>
 
               </div>
 
@@ -251,6 +254,9 @@
                 projetForm.get('secteur')?.invalid &&
                 projetForm.get('secteur')?.touched
               " />
+                <div class="ferr" *ngIf="projetForm.get('secteur')?.invalid && projetForm.get('secteur')?.touched">
+                  <span *ngIf="projetForm.get('secteur')?.errors?.['required']">Le secteur est obligatoire.</span>
+                </div>
 
               </div>
 
@@ -269,6 +275,9 @@
               projetForm.get('description')?.touched
             ">
           </textarea>
+              <div class="ferr" *ngIf="projetForm.get('description')?.invalid && projetForm.get('description')?.touched">
+                <span *ngIf="projetForm.get('description')?.errors?.['required']">La description est obligatoire.</span>
+              </div>
 
             </div>
 
@@ -330,6 +339,9 @@
                 projetForm.get('titre')?.invalid &&
                 projetForm.get('titre')?.touched
               " />
+                <div class="ferr" *ngIf="projetForm.get('titre')?.invalid && projetForm.get('titre')?.touched">
+                  <span *ngIf="projetForm.get('titre')?.errors?.['required']">Le titre est obligatoire.</span>
+                </div>
 
               </div>
 
@@ -344,6 +356,9 @@
                 projetForm.get('secteur')?.invalid &&
                 projetForm.get('secteur')?.touched
               " />
+                <div class="ferr" *ngIf="projetForm.get('secteur')?.invalid && projetForm.get('secteur')?.touched">
+                  <span *ngIf="projetForm.get('secteur')?.errors?.['required']">Le secteur est obligatoire.</span>
+                </div>
 
               </div>
 
@@ -362,6 +377,9 @@
               projetForm.get('description')?.touched
             ">
           </textarea>
+              <div class="ferr" *ngIf="projetForm.get('description')?.invalid && projetForm.get('description')?.touched">
+                <span *ngIf="projetForm.get('description')?.errors?.['required']">La description est obligatoire.</span>
+              </div>
 
             </div>
 

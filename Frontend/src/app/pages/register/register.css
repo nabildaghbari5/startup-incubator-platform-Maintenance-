@@ -255,6 +255,27 @@ body {
 }
 .input-wrap input::placeholder { color: #cbd5e1; }
 
+.input-wrap input.input-invalid {
+  border-color: #dc2626;
+  background: rgba(220, 38, 38, 0.04);
+}
+
+.input-wrap input.input-invalid:focus {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+}
+
+.field-error {
+  font-size: 11px;
+  color: #dc2626;
+  line-height: 1.4;
+  padding-left: 2px;
+}
+
+.field-error span + span::before {
+  content: ' ';
+}
+
 .eye-btn {
   position: absolute; right: 10px;
   background: none; border: none; cursor: pointer;

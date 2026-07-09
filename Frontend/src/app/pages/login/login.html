@@ -8,25 +8,49 @@
       <span class="status online"></span>
     </div>
 
-    <!-- 🔥 FORM CORRIGÉ -->
-    <form (ngSubmit)="onLogin()">
+    <form #loginForm="ngForm" (ngSubmit)="onLogin(loginForm)" novalidate>
 
-      <!-- ✅ INPUTS AVEC ngModel -->
-      <input 
-        type="email" 
-        [(ngModel)]="email" 
-        name="email" 
-        placeholder="Email"
-        required
-      >
+      <div class="field-group">
+        <input
+          type="email"
+          [(ngModel)]="email"
+          #emailCtrl="ngModel"
+          name="email"
+          placeholder="Email"
+          email
+          required
+          [class.input-invalid]="emailCtrl.invalid && (emailCtrl.dirty || emailCtrl.touched)"
+        >
+        @if (emailCtrl.invalid && (emailCtrl.dirty || emailCtrl.touched)) {
+          <div class="field-error">
+            @if (emailCtrl.errors?.['required']) {
+              <span>L'email est obligatoire.</span>
+            }
+            @if (emailCtrl.errors?.['email']) {
+              <span>Format d'e-mail invalide.</span>
+            }
+          </div>
+        }
+      </div>
 
-      <input 
-        type="password" 
-        [(ngModel)]="password" 
-        name="password" 
-        placeholder="Password"
-        required
-      >
+      <div class="field-group">
+        <input
+          type="password"
+          [(ngModel)]="password"
+          #passwordCtrl="ngModel"
+          name="password"
+          placeholder="Password"
+          required
+          [class.input-invalid]="passwordCtrl.invalid && (passwordCtrl.dirty || passwordCtrl.touched)"
+        >
+        @if (passwordCtrl.invalid && (passwordCtrl.dirty || passwordCtrl.touched)) {
+          <div class="field-error">
+            @if (passwordCtrl.errors?.['required']) {
+              <span>Le mot de passe est obligatoire.</span>
+            }
+          </div>
+        }
+      </div>
 
       <!-- ✅ BOUTON LOGIN -->
       <button type="submit">LOGIN</button>

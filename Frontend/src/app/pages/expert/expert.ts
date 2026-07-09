@@ -9,6 +9,9 @@ import { DocumentsService, DocumentsDTO } from '../porteur/service/documents-ser
 import { DashboardExpert } from './components/dashboard-expert/dashboard-expert';
 import { DashboardExpertSnapshot } from './service/dashboard-expert-service';
 import { WebsocketService } from '../../services/websocket-service';
+import { Subscription } from 'rxjs';
+
+interface NotificationItem { id: number; message: string; read: boolean; time: Date; }
 
 interface ProjetDTO {
   id: number;
@@ -61,7 +64,15 @@ export class ExpertComponent implements OnInit, OnDestroy {
   page = 'dashboard';
   sidebarOpen = true;
   showUserMenu = false;
+  showNotifMenu = false;
+  notifications: NotificationItem[] = [];
   private poll: any;
+  private wsSub?: Subscription;
+  private nid = 0;
+
+  get unreadCount(): number {
+    return this.notifications.filter(n => !n.read).length;
+  }
 
   currentUser = {
     name:     localStorage.getItem('email') || 'Expert',
@@ -142,12 +153,22 @@ statutProjetColor(statut: string): string {
   ) {}
 
   ngOnInit() {
+    this.websocketService.connect(
+      '/topic/notifications/expert'
+   );
+
+    this.wsSub = this.websocketService.messages$.subscribe(msg => {
+      this.notifications.unshift({ id: ++this.nid, message: msg, read: false, time: new Date() });
+      this.showNotifMenu = true;
+      this.cdr.detectChanges();
+    });
+
     this.syncPageFromUrl();
     this.loadDashboard();
     this.loadProjets();
     this.loadMyEvaluations();
     this.loadPageData();
-    this.websocketService.connect();
+  
     this.poll = setInterval(() => {
       if (this.page === 'messages' && this.activeContact) this.loadMessages();
     }, 5000);
@@ -212,16 +233,21 @@ statutProjetColor(statut: string): string {
 
 
 
-  ngOnDestroy() { clearInterval(this.poll); }
+  ngOnDestroy() { clearInterval(this.poll); this.wsSub?.unsubscribe(); }
 
   @HostListener('document:keydown.escape') onEsc() {
     this.showUserMenu = false;
+    this.showNotifMenu = false;
     this.selectedProjet = null;
   }
 
   closeDrops() {
     this.showUserMenu = false;
+    this.showNotifMenu = false;
   }
+
+  markRead(n: NotificationItem) { n.read = true; }
+  markAllRead() { this.notifications.forEach(n => n.read = true); }
 
   goTo(route: string) {
     this.router.navigateByUrl(route);
@@ -626,9 +652,7 @@ statutProjetColor(statut: string): string {
         const idx = this.phaseDocuments.findIndex(d => d.id === doc.id);
         if (idx >= 0) this.phaseDocuments[idx] = updated;
         this.savingDocId = null;
-        this.websocketService.sendMessage(
-          "La note d'un document a été mise à jour par l'expert. Veuillez consulter les nouvelles informations."
-        );
+       
         this.toast('Note enregistrée', 'success');
         this.cdr.detectChanges();
       },

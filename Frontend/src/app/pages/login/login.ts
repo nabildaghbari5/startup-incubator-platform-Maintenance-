@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 
 @Component({
   selector: 'app-login',
@@ -21,7 +21,11 @@ export class LoginComponent {
     this.router.navigate(['/register']);
   }
 
-  onLogin() {
+  onLogin(form: NgForm) {
+    if (form.invalid) {
+      form.control.markAllAsTouched();
+      return;
+    }
 
   this.authService.login(this.email, this.password).subscribe({
 

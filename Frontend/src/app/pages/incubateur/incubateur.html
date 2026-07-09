@@ -98,30 +98,39 @@
         </button>
         <div class="breadcrumb">
           <a (click)="go('Tableau de board')">S2T</a>
-          <span class="bc-sep">›</span>
+          <span class="bc-sep">›</span>  
           <span class="bc-cur">{{ pageLabel }}</span>
         </div>
       </div>
       <div class="tb-right"> 
-        <!-- Notif messages 
-        <button class="tb-icon-btn notif-btn" (click)="go('messages')" title="Messagerie">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-          </svg>
-          <span class="notif-count" *ngIf="unreadCount>0">{{ unreadCount }}</span>
-        </button>
-        -->
-        <!-- Notif satisfaction 
-        <button class="tb-icon-btn notif-btn" title="Satisfactions en attente" *ngIf="pendingSatisfactions>0">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10" />
-            <path d="M8 14s1.5 2 4 2 4-2 4-2" />
-            <line x1="9" y1="9" x2="9.01" y2="9" />
-            <line x1="15" y1="9" x2="15.01" y2="9" />
-          </svg>
-          <span class="notif-count">{{ pendingSatisfactions }}</span>
-        </button>
-        -->
+        <div class="tb-right">
+        <div class="tb-notif-wrap">
+          <button class="tb-icon-btn notif-btn" type="button" title="Notifications"
+            (click)="showNotifMenu = !showNotifMenu; showUserMenu = false">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+              <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+            </svg>
+            <span class="notif-count" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+          </button>
+          <div class="notif-dropdown" *ngIf="showNotifMenu" (click)="$event.stopPropagation()">
+            <div class="notif-header">
+              <span>Notifications</span>  
+              <button class="notif-mark-all" type="button" *ngIf="unreadCount > 0" (click)="markAllRead()">
+                Tout marquer lu
+              </button>
+            </div>
+            <div class="notif-list" *ngIf="notifications.length; else noNotif">
+              <div class="notif-item" *ngFor="let n of notifications" [class.unread]="!n.read" (click)="markRead(n)">
+                <div class="notif-msg">{{ n.message }}</div>
+                <div class="notif-time">{{ n.time | date:'dd/MM HH:mm' }}</div>
+              </div>
+            </div>
+            <ng-template #noNotif>
+              <div class="notif-empty">Aucune notification</div>
+            </ng-template>
+          </div>
+        </div>
         <div class="tb-user-wrap">
           <div class="tb-avatar" (click)="showUserMenu=!showUserMenu"
             [style.background-image]="profilPhoto?'url('+profilPhoto+')':''"
@@ -151,6 +160,9 @@
             </button>
           </div>
         </div>
+      </div>
+    
+       
       </div>
     </header>
 
@@ -1106,25 +1118,40 @@
           (click)="showPhaseModal=false">✕</button>
       </div>
       <div class="mod-body">
-        <div class="form">
+        <form #phaseModalForm="ngForm" novalidate class="form">
           <div class="frow">
-            <div class="fg"><label>Titre <span class="req">*</span></label><input [(ngModel)]="phaseForm.titre"
-                placeholder="ex: Business Model" /></div>
-            <div class="fg"><label>Label</label><input [(ngModel)]="phaseForm.mois" placeholder="ex: Label" /></div>
+            <div class="fg">
+              <label>Titre <span class="req">*</span></label>
+              <input [(ngModel)]="phaseForm.titre"
+                #phaseTitreCtrl="ngModel"
+                name="phaseTitre"
+                required
+                placeholder="ex: Business Model"
+                [class.err]="phaseTitreCtrl.invalid && (phaseTitreCtrl.dirty || phaseTitreCtrl.touched)" />
+              <div class="ferr" *ngIf="phaseTitreCtrl.invalid && (phaseTitreCtrl.dirty || phaseTitreCtrl.touched)">
+                <span *ngIf="phaseTitreCtrl.errors?.['required']">Le titre est obligatoire.</span>
+              </div>
+            </div>
+            <div class="fg">
+              <label>Label</label>
+              <input [(ngModel)]="phaseForm.mois" name="phaseMois" placeholder="ex: Label" />
+            </div>
           </div>
-          <div class="fg"><label>Description</label><textarea [(ngModel)]="phaseForm.description" rows="3"></textarea>
+          <div class="fg">
+            <label>Description</label>
+            <textarea [(ngModel)]="phaseForm.description" name="phaseDescription" rows="3"></textarea>
           </div>
           <div class="frow">
             <div class="fg"><label>Icône</label>
-              <div class="icon-grid"><button *ngFor="let ic of iconOptions" class="icon-opt"
+              <div class="icon-grid"><button *ngFor="let ic of iconOptions" type="button" class="icon-opt"
                   [class.on]="phaseForm.icone===ic" (click)="phaseForm.icone=ic">{{ ic }}</button></div>
             </div>
             <div class="fg"><label>Couleur</label>
-              <div class="color-grid"><button *ngFor="let c of colorOptions" class="color-opt" [style.background]="c"
+              <div class="color-grid"><button *ngFor="let c of colorOptions" type="button" class="color-opt" [style.background]="c"
                   [class.on]="phaseForm.couleur===c" (click)="phaseForm.couleur=c"></button></div>
             </div>
           </div>
-        </div>
+        </form>
       </div>
       <div class="mod-foot"><button class="btn btn-secondary" (click)="showPhaseModal=false">Annuler</button><button
           class="btn btn-primary" (click)="savePhase()">{{ editPhaseMode?'Mettre à jour':'Ajouter' }}</button></div>
@@ -1199,39 +1226,70 @@
         <div class="mod-title">Nouvel événement</div><button class="mod-close" (click)="showEventModal=false">✕</button>
       </div>
       <div class="mod-body">
-        <div class="form">
+        <form #eventModalForm="ngForm" novalidate class="form">
           <div class="frow">
-            <div class="fg"><label>Titre <span class="req">*</span></label><input [(ngModel)]="eventForm.titre"
-                placeholder="Workshop Business Model" /></div>
-            <div class="fg"><label>Type</label><select [(ngModel)]="eventForm.type">
+            <div class="fg">
+              <label>Titre <span class="req">*</span></label>
+              <input [(ngModel)]="eventForm.titre"
+                #eventTitreCtrl="ngModel"
+                name="eventTitre"
+                required
+                placeholder="Workshop Business Model"
+                [class.err]="eventTitreCtrl.invalid && (eventTitreCtrl.dirty || eventTitreCtrl.touched)" />
+              <div class="ferr" *ngIf="eventTitreCtrl.invalid && (eventTitreCtrl.dirty || eventTitreCtrl.touched)">
+                <span *ngIf="eventTitreCtrl.errors?.['required']">Le titre est obligatoire.</span>
+              </div>
+            </div>
+            <div class="fg">
+              <label>Type</label>
+              <select [(ngModel)]="eventForm.type" name="eventType">
                 <option value="workshop">Workshop</option>
                 <option value="pitch">Pitch</option>
                 <option value="reunion">Réunion</option>
                 <option value="formation">Formation</option>
-              </select></div>
-          </div>
-          <div class="frow">
-            <div class="fg"><label>Date <span class="req">*</span></label><input type="date"
-                [(ngModel)]="eventForm.date" /></div>
-            <div class="fg"><label>Lieu</label><input [(ngModel)]="eventForm.lieu" placeholder="Salle A / En ligne" />
+              </select>
             </div>
           </div>
           <div class="frow">
-            <div class="fg"><label>Heure début</label><input type="time" [(ngModel)]="eventForm.heureDebut" /></div>
-            <div class="fg"><label>Heure fin</label><input type="time" [(ngModel)]="eventForm.heureFin" /></div>
+            <div class="fg">
+              <label>Date <span class="req">*</span></label>
+              <input type="date"
+                [(ngModel)]="eventForm.date"
+                #eventDateCtrl="ngModel"
+                name="eventDate"
+                required
+                [class.err]="eventDateCtrl.invalid && (eventDateCtrl.dirty || eventDateCtrl.touched)" />
+              <div class="ferr" *ngIf="eventDateCtrl.invalid && (eventDateCtrl.dirty || eventDateCtrl.touched)">
+                <span *ngIf="eventDateCtrl.errors?.['required']">La date est obligatoire.</span>
+              </div>
+            </div>
+            <div class="fg">
+              <label>Lieu</label>
+              <input [(ngModel)]="eventForm.lieu" name="eventLieu" placeholder="Salle A / En ligne" />
+            </div>
+          </div>
+          <div class="frow">
+            <div class="fg">
+              <label>Heure début</label>
+              <input type="time" [(ngModel)]="eventForm.heureDebut" name="eventHeureDebut" />
+            </div>
+            <div class="fg">
+              <label>Heure fin</label>
+              <input type="time" [(ngModel)]="eventForm.heureFin" name="eventHeureFin" />
+            </div>
           </div>
           <!-- Satisfaction porteur -->
           <div class="fg"
             style="background:#fff5f8;border-radius:10px;padding:12px;border:1px solid rgba(236,72,153,.2)">
             <label style="color:var(--pink);font-weight:700">😊 Mesure de satisfaction</label>
             <div style="display:flex;align-items:center;gap:10px;margin-top:8px">
-              <label class="toggle-switch"><input type="checkbox" [(ngModel)]="eventForm.satisfactionActive" /><span
+              <label class="toggle-switch"><input type="checkbox" [(ngModel)]="eventForm.satisfactionActive" name="eventSatisfactionActive" /><span
                   class="toggle-slider"></span></label>
               <span style="font-size:13px;color:var(--text2)">Demander la satisfaction aux porteurs après cet
                 événement</span>
             </div>
           </div>
-        </div>
+        </form>
       </div>
       <div class="mod-foot"><button class="btn btn-secondary" (click)="showEventModal=false">Annuler</button><button
           class="btn btn-primary" (click)="saveEv()">Créer</button></div>

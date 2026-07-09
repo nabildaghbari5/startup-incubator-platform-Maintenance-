@@ -16,6 +16,8 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ProjetService } from '../porteur/service/projet-service';
 import { DashboardIncubateur } from './components/dashboard-incubateur/dashboard-incubateur';
 import { DashboardIncubateurSnapshot } from './service/dashboard-incubateur-service';
+import { WebsocketService } from '../../services/websocket-service';
+import { Subscription } from 'rxjs';
 
 // Pipe pour SafeURL (Power BI iframe)
 @Pipe({ name: 'safe', standalone: true })
@@ -43,6 +45,7 @@ interface UserContact   { email:string; nom:string; prenom:string; role:string; 
 interface GroupeDTO     { id:number; nom:string; membres:string[]; unread:number; createdAt:string; }
 interface SatisfactionDTO { id:number; porteurEmail:string; evenementId:number; evenementTitre:string; note:number; commentaire?:string; createdAt:string; }
 interface ProjetDTO     { id:number; startupId:number; phasetitre:string; fichierNom:string; fichierPath:string; statut:string; commentaire?:string; soumisLe:string; }
+interface NotificationItem { id: number; message: string; read: boolean; time: Date; }
 
 @Component({
   selector: 'app-incubateur',
@@ -57,7 +60,14 @@ export class IncubateurComponent implements OnInit, OnDestroy {
   private api = 'http://localhost:8083/api';
   private get incId() { return localStorage.getItem('userId') || '1'; }
   private get h() { return new HttpHeaders({ Authorization: 'Bearer ' + (localStorage.getItem('token') || '') }); }
+  notifications: NotificationItem[] = [];
+  showNotifMenu = false;
+  private wsSub?: Subscription;
+  private nid = 0;
 
+  get unreadCount(): number {
+    return this.notifications.filter(n => !n.read).length;
+  }
 
   projects: any[] = [];
   modalStatus = false;
@@ -104,10 +114,31 @@ closeStatusModal(): void {
     private http: HttpClient,
     private router: Router,
     private cdr: ChangeDetectorRef,
-    private projetService:ProjetService
+    private projetService:ProjetService,
+    private websocketService: WebsocketService, 
   ) {}
 
+  markRead(n: NotificationItem) { n.read = true; }
+  markAllRead() { this.notifications.forEach(n => n.read = true); }
+  @HostListener('document:keydown.escape') onEsc() {
+    this.showUserMenu = false;
+    this.showNotifMenu = false;
+  }
+
+
+
   ngOnInit() {
+
+    this.websocketService.connect(
+      '/topic/notifications/incubateur'
+   );
+
+    this.wsSub = this.websocketService.messages$.subscribe(msg => {
+      this.notifications.unshift({ id: ++this.nid, message: msg, read: false, time: new Date() });
+      this.showNotifMenu = true;
+      this.cdr.detectChanges();
+    });
+
     this.findAllProjet();
 
     const token = localStorage.getItem('token') || '';
@@ -257,7 +288,7 @@ changerStatutProjet(): void {
     totalProjets: 0, projetsEnAttente: 0, projetsAcceptes: 0,
     projetsRefuses: 0, tauxAcceptation: 0, secteurs: []
   };
-  activites: any[] = []; upcomingEvents: EvenementDTO[] = []; unreadCount = 0;
+  activites: any[] = []; upcomingEvents: EvenementDTO[] = []; messagesUnread = 0;
   upcomingRdv: EvenementDTO|null = null; rdvDaysLeft = 0;
   pendingSatisfactions = 0; pendingSatisfactionsList: SatisfactionDTO[] = [];
   currentPhaseIndex = 0;
@@ -292,7 +323,7 @@ changerStatutProjet(): void {
   phaseToDelete: Phase|null=null; showPhaseDeleteModal=false;
   showPhaseDocumentsModal=false; selectedPhaseForDocs: Phase|null=null;
   phaseDocuments: PhaseDocumentDTO[]=[]; loadingPhaseDocuments=false;
-  phaseForm: Phase = {numero:1,mois:'MOIS 1',titre:'',icone:'📌',description:'',couleur:'#ec4899'};
+  phaseForm: Phase = {numero:1,mois:' ',titre:'',icone:'📌',description:'',couleur:'#ec4899'};
   iconOptions = ['💡','🎯','📊','⚡','🎨','🚀','📋','🤝','💰','📱','🔬','🌱','🏆','🔧','📈'];
   colorOptions = ['#ec4899','#a855f7','#06b6d4','#10b981','#f59e0b','#3b82f6','#f43f5e','#14b8a6','#22c55e','#8b5cf6'];
 
@@ -372,9 +403,9 @@ changerStatutProjet(): void {
 
 
 
-  ngOnDestroy() { clearInterval(this.poll); }
+  ngOnDestroy() { clearInterval(this.poll); this.wsSub?.unsubscribe(); }
 
-  @HostListener('document:keydown.escape') onEsc() { this.closeAll(); }
+
 
   go(p: string) {
     this.page = p;
@@ -457,7 +488,7 @@ changerStatutProjet(): void {
 
   loadUnreadCount() {
     this.http.get<{count:number}>(`${this.api}/messages/unread`,{headers:this.h})
-      .subscribe({next:r=>{this.unreadCount=r.count;this.cdr.detectChanges();},error:()=>{}});
+      .subscribe({next:r=>{this.messagesUnread=r.count;this.cdr.detectChanges();},error:()=>{}});
   }
 
   checkRdv(evs: EvenementDTO[]) {
@@ -599,7 +630,7 @@ changerStatutProjet(): void {
   openAddPhase(){
     this.editPhaseMode=false;
     const n=this.phases.length+1;
-    this.phaseForm={numero:n,mois:`MOIS ${n}`,titre:'',icone:'📌',description:'',couleur:'#ec4899'};
+    this.phaseForm={numero:n,mois:'',titre:'',icone:'📌',description:'',couleur:'#ec4899'};
     this.showPhaseModal=true;
   }
   openEditPhase(p:Phase){

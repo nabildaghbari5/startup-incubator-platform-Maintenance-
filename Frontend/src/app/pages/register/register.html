@@ -100,7 +100,11 @@
               <label class="field-label">Nom complet <span class="req">*</span></label>
               <div class="input-wrap">
                 <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                <input [(ngModel)]="form.nom" placeholder="Ahmed Ben Ali" name="nom" />
+                <input [(ngModel)]="form.nom" #nomPorteurCtrl="ngModel" placeholder="Ahmed Ben Ali" name="nom" required
+                  [class.input-invalid]="nomPorteurCtrl.invalid && (nomPorteurCtrl.dirty || nomPorteurCtrl.touched)" />
+              </div>
+              <div class="field-error" *ngIf="nomPorteurCtrl.invalid && (nomPorteurCtrl.dirty || nomPorteurCtrl.touched)">
+                <span *ngIf="nomPorteurCtrl.errors?.['required']">Le nom complet est obligatoire.</span>
               </div>
             </div>
             <div class="field-row">
@@ -127,7 +131,11 @@
               <label class="field-label">Nom de l'organisation <span class="req">*</span></label>
               <div class="input-wrap">
                 <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-                <input [(ngModel)]="form.nomOrganisation" placeholder="Centre d'innovation Tunis" name="org" />
+                <input [(ngModel)]="form.nomOrganisation" #nomOrgCtrl="ngModel" placeholder="Centre d'innovation Tunis" name="org" required
+                  [class.input-invalid]="nomOrgCtrl.invalid && (nomOrgCtrl.dirty || nomOrgCtrl.touched)" />
+              </div>
+              <div class="field-error" *ngIf="nomOrgCtrl.invalid && (nomOrgCtrl.dirty || nomOrgCtrl.touched)">
+                <span *ngIf="nomOrgCtrl.errors?.['required']">Le nom de l'organisation est obligatoire.</span>
               </div>
             </div>
             <div class="field-group">
@@ -146,7 +154,11 @@
                 <label class="field-label">Nom Complet<span class="req">*</span></label>
                 <div class="input-wrap">
                   <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                  <input [(ngModel)]="form.nom" placeholder="Ben Salah" name="nom" />
+                  <input [(ngModel)]="form.nom" #nomExpertCtrl="ngModel" placeholder="Ben Salah" name="nom" required
+                    [class.input-invalid]="nomExpertCtrl.invalid && (nomExpertCtrl.dirty || nomExpertCtrl.touched)" />
+                </div>
+                <div class="field-error" *ngIf="nomExpertCtrl.invalid && (nomExpertCtrl.dirty || nomExpertCtrl.touched)">
+                  <span *ngIf="nomExpertCtrl.errors?.['required']">Le nom complet est obligatoire.</span>
                 </div>
               </div>
               
@@ -155,7 +167,11 @@
               <label class="field-label">Domaine d'expertise <span class="req">*</span></label>
               <div class="input-wrap">
                 <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
-                <input [(ngModel)]="form.secteur" placeholder="FinTech, AgriTech, Marketing..." name="secteur" />
+                <input [(ngModel)]="form.secteur" #secteurExpertCtrl="ngModel" placeholder="FinTech, AgriTech, Marketing..." name="secteur" required
+                  [class.input-invalid]="secteurExpertCtrl.invalid && (secteurExpertCtrl.dirty || secteurExpertCtrl.touched)" />
+              </div>
+              <div class="field-error" *ngIf="secteurExpertCtrl.invalid && (secteurExpertCtrl.dirty || secteurExpertCtrl.touched)">
+                <span *ngIf="secteurExpertCtrl.errors?.['required']">Le domaine d'expertise est obligatoire.</span>
               </div>
             </div>
             <div class="field-group">
@@ -174,14 +190,22 @@
                 <label class="field-label">Nom <span class="req">*</span></label>
                 <div class="input-wrap">
                   <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                  <input [(ngModel)]="form.nom" placeholder="Ben Ali" name="nom" />
+                  <input [(ngModel)]="form.nom" #nomAdminCtrl="ngModel" placeholder="Ben Ali" name="nom" required
+                    [class.input-invalid]="nomAdminCtrl.invalid && (nomAdminCtrl.dirty || nomAdminCtrl.touched)" />
+                </div>
+                <div class="field-error" *ngIf="nomAdminCtrl.invalid && (nomAdminCtrl.dirty || nomAdminCtrl.touched)">
+                  <span *ngIf="nomAdminCtrl.errors?.['required']">Le nom est obligatoire.</span>
                 </div>
               </div>
               <div class="field-group">
                 <label class="field-label">Prénom <span class="req">*</span></label>
                 <div class="input-wrap">
                   <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                  <input [(ngModel)]="form.prenom" placeholder="Ahmed" name="prenom" />
+                  <input [(ngModel)]="form.prenom" #prenomAdminCtrl="ngModel" placeholder="Ahmed" name="prenom" required
+                    [class.input-invalid]="prenomAdminCtrl.invalid && (prenomAdminCtrl.dirty || prenomAdminCtrl.touched)" />
+                </div>
+                <div class="field-error" *ngIf="prenomAdminCtrl.invalid && (prenomAdminCtrl.dirty || prenomAdminCtrl.touched)">
+                  <span *ngIf="prenomAdminCtrl.errors?.['required']">Le prénom est obligatoire.</span>
                 </div>
               </div>
             </div>
@@ -271,7 +295,12 @@
               <label class="field-label">Adresse e-mail <span class="req">*</span></label>
               <div class="input-wrap">
                 <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-                <input [(ngModel)]="form.email" type="email" placeholder="vous@exemple.com" name="email" />
+                <input [(ngModel)]="form.email" #emailCtrl="ngModel" type="email" email placeholder="vous@exemple.com" name="email" required
+                  [class.input-invalid]="emailCtrl.invalid && (emailCtrl.dirty || emailCtrl.touched)" />
+              </div>
+              <div class="field-error" *ngIf="emailCtrl.invalid && (emailCtrl.dirty || emailCtrl.touched)">
+                <span *ngIf="emailCtrl.errors?.['required']">L'adresse e-mail est obligatoire.</span>
+                <span *ngIf="emailCtrl.errors?.['email']">Format d'e-mail invalide.</span>
               </div>
             </div>
 
@@ -280,13 +309,21 @@
               <div class="input-wrap">
                 <svg class="input-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                 <input [(ngModel)]="form.password"
+                       #passwordCtrl="ngModel"
                        [type]="showPassword ? 'text' : 'password'"
                        placeholder="Minimum 8 caractères"
-                       name="password" />
+                       name="password"
+                       required
+                       minlength="8"
+                       [class.input-invalid]="passwordCtrl.invalid && (passwordCtrl.dirty || passwordCtrl.touched)" />
                 <button class="eye-btn" type="button" (click)="togglePassword()">
                   <svg *ngIf="!showPassword" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                   <svg *ngIf="showPassword"  width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
                 </button>
+              </div>
+              <div class="field-error" *ngIf="passwordCtrl.invalid && (passwordCtrl.dirty || passwordCtrl.touched)">
+                <span *ngIf="passwordCtrl.errors?.['required']">Le mot de passe est obligatoire.</span>
+                <span *ngIf="passwordCtrl.errors?.['minlength']">Le mot de passe doit contenir au moins 8 caractères.</span>
               </div>
             </div>
 

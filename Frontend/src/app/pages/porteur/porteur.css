@@ -1077,7 +1077,7 @@ table.tbl tbody tr:hover .row-acts{opacity:1}
 .fg label{font-size:12px;font-weight:600;color:var(--text)}.req{color:var(--pink)}
 .fg input,.fg select,.fg textarea{border:1.5px solid var(--border);border-radius:9px;padding:9px 12px;font-size:13px;font-family:var(--font);color:var(--text);background:var(--bg);outline:none;transition:all .15s}
 .fg input:focus,.fg select:focus,.fg textarea:focus{background:var(--surface);border-color:var(--pink);box-shadow:0 0 0 3px rgba(236,72,153,.1)}
-.fg input.err{border-color:var(--rose)}.ferr{font-size:11px;color:var(--rose)}
+.fg input.err,.fg textarea.err{border-color:var(--rose)}.ferr{font-size:11px;color:var(--rose)}
 .fg textarea{resize:vertical;min-height:78px}
 .range-in{width:100%;accent-color:var(--pink);cursor:pointer}
 .icon-grid{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}

@@ -355,6 +355,19 @@ dialog.pg-dialog::backdrop {
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 .pg-input:focus { border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,0.08); }
+.pg-input.pg-input-invalid {
+  border-color: #dc2626;
+  background: rgba(220, 38, 38, 0.04);
+}
+.pg-input.pg-input-invalid:focus {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+}
+.pg-field-error {
+  font-size: 11px;
+  color: #dc2626;
+  line-height: 1.4;
+}
 .pg-input::placeholder { color: #bbbbc8; }
 
 .pg-input-emoji { text-align: center; font-size: 20px; }

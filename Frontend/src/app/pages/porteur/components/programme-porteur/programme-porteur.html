@@ -34,8 +34,8 @@
                         [class.uploading]="uploadingPhaseId === p.id"
                         [class.analyzing]="uploadingPhaseId === p.id && uploadProgress >= 100"
                         [class.has-file]="p.fichierNom && uploadingPhaseId !== p.id"
-                        [title]="uploadingPhaseId === p.id ? '' : (p.fichierNom ? 'Remplacer : ' + p.fichierNom : 'Téléverser un PDF')">
-                        <input type="file" hidden accept=".pdf,application/pdf"
+                        [title]="uploadingPhaseId === p.id ? '' : (p.fichierNom ? 'Remplacer : ' + p.fichierNom : 'Téléverser un PDF ou une image')">
+                        <input type="file" hidden accept=".pdf,application/pdf,image/*"
                           (change)="onPhasePdfSelected($event, p)" [disabled]="uploadingPhaseId === p.id">
                         <ng-container *ngIf="uploadingPhaseId !== p.id">
                           <span>📄 {{ p.fichierNom ? 'Remplacer' : 'Déposez votre document' }}</span>
@@ -60,6 +60,7 @@
                       <input #phaseCameraInput type="file" hidden
                         accept="image/*"
                         capture="environment"
+                        (change)="onPhasePdfSelected($event, p)"
                         [disabled]="uploadingPhaseId === p.id">
                     </div>
                     <div class="phase-upload-loading" *ngIf="uploadingPhaseId === p.id">

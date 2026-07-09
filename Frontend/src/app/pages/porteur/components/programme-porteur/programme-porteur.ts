@@ -87,11 +87,8 @@ export class ProgrammePorteur implements OnChanges {
     input.value = '';
     if (!file || !phase?.id) return;
 
-    const isPdf =
-      file.name.toLowerCase().endsWith('.pdf') ||
-      file.type === 'application/pdf';
-    if (!isPdf) {
-      alert('Seuls les fichiers PDF sont acceptés.');
+    if (!this.isAcceptedPhaseFile(file)) {
+      alert('Seuls les fichiers PDF et les images sont acceptés.');
       return;
     }
     if (file.size > 10 * 1024 * 1024) {
@@ -99,11 +96,33 @@ export class ProgrammePorteur implements OnChanges {
       return;
     }
 
+    this.uploadPhaseDocument(phase, file);
+  }
+
+  private isAcceptedPhaseFile(file: File): boolean {
+    return this.isPdfFile(file) || this.isImageFile(file);
+  }
+
+  private isPdfFile(file: File): boolean {
+    return (
+      file.name.toLowerCase().endsWith('.pdf') ||
+      file.type === 'application/pdf'
+    );
+  }
+
+  private isImageFile(file: File): boolean {
+    return (
+      file.type.startsWith('image/') ||
+      /\.(jpe?g|png|webp|heic|heif|gif)$/i.test(file.name)
+    );
+  }
+
+  private uploadPhaseDocument(phase: PhaseWithDocument, file: File): void {
     this.uploadingPhaseId = phase.id;
     this.uploadProgress = 0;
     phase.fichierNom = file.name;
     this.cdr.detectChanges();
-
+  
     this.documentsService.uploadDocument(phase.id, file).subscribe({
       next: ({ progress, response }) => {
         this.uploadProgress = progress;

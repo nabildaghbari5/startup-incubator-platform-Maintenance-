@@ -16,46 +16,51 @@ export class WebsocketService implements OnDestroy {
   // Les composants s'abonnent ici pour recevoir les messages
   public messages$ = new Subject<string>();
 
-  connect(): void {
+  connect(topic: string): void {
+
     if (this.stompClient?.active) {
       return;
     }
-
-    console.log('Activation STOMP...');
-
+  
     this.stompClient = new Client({
-      brokerURL: 'ws://localhost:8083/ws', // URL  du websocket : lors d'utilisation du brokerURL on leve le withSockJS() coté abckend 
+  
+      brokerURL: 'ws://localhost:8083/ws',
+  
       reconnectDelay: 5000,
   
-      debug: (str) => {
-        console.log('[STOMP DEBUG]', str);
-      },
+      debug: str => console.log(str),
   
-      onConnect: (frame) => {
-        console.log('✅ CONNECTÉ STOMP', frame);
+      onConnect: () => {
   
         this.connected$.next(true);
   
         this.subscription = this.stompClient.subscribe(
-          '/topic/notifications',
+          topic,
           (message: IMessage) => {
-            console.log('MESSAGE REÇU', message.body);
+  
+            console.log(message.body);
+  
             this.messages$.next(message.body);
+  
           }
         );
-      },
   
-      onWebSocketError: (err) => {
-        console.error('❌ WebSocket error', err);
-      },
-  
-      onStompError: (frame) => {
-        console.error('❌ STOMP error', frame);
       }
+  
     });
   
     this.stompClient.activate();
+  
   }
+
+
+
+
+
+
+
+
+
 
 
  sendMessage(message: string): void {
@@ -68,7 +73,7 @@ export class WebsocketService implements OnDestroy {
     };
 
     if (!this.stompClient) {
-      this.connect();
+     // this.connect();
     }
 
     if (this.stompClient.connected) {

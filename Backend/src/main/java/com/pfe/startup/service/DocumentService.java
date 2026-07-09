@@ -6,10 +6,7 @@ import com.pfe.startup.entity.Phase;
 import com.pfe.startup.entity.User;
 import com.pfe.startup.file.FileStorageService;
 import com.pfe.startup.file.FileUtils;
-import com.pfe.startup.ia.AiParserService;
-import com.pfe.startup.ia.AiResponseDto;
-import com.pfe.startup.ia.AiService;
-import com.pfe.startup.ia.PdfService;
+import com.pfe.startup.ia.*;
 import com.pfe.startup.repository.DocumentRepository;
 import com.pfe.startup.repository.PhaseRepository;
 import com.pfe.startup.repository.UserRepository;
@@ -38,9 +35,37 @@ public class DocumentService {
 
     // ia
     private final PdfService pdfService ;
+    private final ImageService imageService;
     private final AiService aiService ;
     private final AiParserService aiParserService ;
+    private final NotificationService notificationService ;
 
+
+    private boolean isPdf(String contentType) {
+
+        return "application/pdf".equalsIgnoreCase(contentType);
+
+    }
+
+    private boolean isImage(String contentType, String fileName) {
+        if (contentType != null && !contentType.isBlank()) {
+            String lowerType = contentType.toLowerCase();
+            if (lowerType.equals("image/jpeg")
+                    || lowerType.equals("image/jpg")
+                    || lowerType.equals("image/png")) {
+                return true;
+            }
+        }
+
+        if (fileName == null || fileName.isBlank()) {
+            return false;
+        }
+
+        String lowerFileName = fileName.toLowerCase();
+        return lowerFileName.endsWith(".jpg")
+                || lowerFileName.endsWith(".jpeg")
+                || lowerFileName.endsWith(".png");
+    }
 
     @Transactional
     public DocumentsDTO uploadDocument(Long porteurId, Long phaseId, MultipartFile file) throws Exception {
@@ -65,6 +90,8 @@ public class DocumentService {
 
         String originalName = file.getOriginalFilename();
         String fileType = file.getContentType();
+        log.info("le typeee de file " + fileType);
+
         if (fileType == null || fileType.isBlank()) {
             fileType = guessContentType(originalName);
         }
@@ -93,16 +120,25 @@ public class DocumentService {
 
 
 
-        String texte = pdfService.extractText(storedPath);
-        String aiRawResponse = aiService.analyserTexte(texte , phase.getTitre() , phase.getDescription());
-        AiResponseDto result = aiParserService.parse(aiRawResponse);
+        if (!isPdf(fileType) && !isImage(fileType, originalName)) {
+            throw new IllegalArgumentException(
+                    "Type de fichier non supporté : " + fileType);
+        }
 
-        // 4. Mise à jour avec le score — Hibernate dirty checking persiste via @Transactional
-        document.setScore(result.getScore());
-        document.setCommentaireIA(result.getCommentaire()); // ✅ décommenté
+        String texte = extractText(storedPath, fileType, originalName);
+        if (texte != null && !texte.isBlank()) {
+            applyAiAnalysis(document, texte, phase);
+        } else {
+            log.warn("Aucun texte extrait pour {} — document enregistré sans score IA", originalName);
+        }
 
         document = documentRepository.save(document);
 
+        notificationService.notifyExpert(
+                "Un nouveau document est disponible. Veuillez le consulter pour poursuivre l'évaluation.");
+
+        notificationService.notifyIncubateur(
+                "Un nouveau document est disponible. Veuillez le consulter pour poursuivre l'évaluation.");
 
         return DocumentsDTO.builder()
                 .id(document.getId())
@@ -112,6 +148,7 @@ public class DocumentService {
                 .fileType(document.getFileType())
                 .uploadedAt(document.getUploadedAt())
                 .score(document.getScore())
+                .commentaireIA(document.getCommentaireIA())
                 .statut(computeStatut(document))
                 .document(null)
                 .build();
@@ -129,6 +166,8 @@ public class DocumentService {
         document.setScore(score);
         document.setScoredAt(java.time.LocalDateTime.now());
         document = documentRepository.save(document);
+        notificationService.notifyPorteur(
+                "La note d'un document a été mise à jour par l'expert. Veuillez consulter les nouvelles informations.");
         return toListItemDto(document);
     }
 
@@ -201,6 +240,33 @@ public class DocumentService {
         File file = new File(path);
         if (file.exists() && !file.delete()) {
             // ancien fichier conservé si suppression impossible
+        }
+    }
+
+    private String extractText(String storedPath, String fileType, String originalName) {
+        try {
+            if (isPdf(fileType)) {
+                return pdfService.extractText(storedPath);
+            }
+            if (isImage(fileType, originalName)) {
+
+                return imageService.extractText(storedPath);
+            }
+        } catch (Exception e) {
+            log.warn("Extraction de texte échouée pour {} : {}", originalName, e.getMessage());
+        }
+        return null;
+    }
+
+    private void applyAiAnalysis(Document document, String texte, Phase phase) {
+        try {
+            String aiRawResponse = aiService.analyserTexte(
+                    texte, phase.getTitre(), phase.getDescription());
+            AiResponseDto result = aiParserService.parse(aiRawResponse);
+            document.setScore(result.getScore());
+            document.setCommentaireIA(result.getCommentaire());
+        } catch (Exception e) {
+            log.warn("Analyse IA échouée pour {} : {}", document.getFileName(), e.getMessage());
         }
     }
 

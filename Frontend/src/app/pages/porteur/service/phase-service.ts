@@ -8,7 +8,8 @@ import { Observable } from 'rxjs';
 })
 export class PhaseService {
 
-  private api = 'http://192.168.1.2:8083/api/phases';
+ // private api = 'http://192.168.1.2:8083/api/phases';
+  private api = 'http://localhost:8083/api/phases';
 
   constructor(private http: HttpClient) { }
 

@@ -4,6 +4,7 @@ import com.pfe.startup.dto.DocumentScoreDTO;
 import com.pfe.startup.dto.DocumentsDTO;
 import com.pfe.startup.service.DocumentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -38,8 +39,12 @@ public class DocumentsController {
             return ResponseEntity.ok(result);
         } catch (IllegalArgumentException | IllegalStateException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.internalServerError()
+                    .body(Map.of("error", "Erreur lors du traitement du document"));
         }
     }
 
